@@ -20,7 +20,7 @@ Tempered Heroes는 Unity 6 URP 기반의 2.5D 쿼터뷰 대장간 경영·용사
 - Test Framework `1.6.0`
 - 플랫폼: PC (Windows/Mac)
 - 배포: 스토브 우선 출시 → 스팀
-- 브랜치 구조: `main` ← `dev` ← 작업 브랜치 (`GIT_WORKFLOW.md` 참고)
+- 브랜치 전략: Git Flow (`main`, `dev`, 작업 브랜치, `release/`, `hotfix/`. `GIT_WORKFLOW.md` 참고)
 - 빌드 씬 순서: `SampleScene` (템플릿 기본값)
 - TODO: CI/CD 구성
 
@@ -117,7 +117,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 
 ## 남은 우선 작업
 
-1. 공통 문서와 Unity 프로젝트 초기 상태를 팀 리뷰 후 `dev`에 병합하고, GitHub 기본 브랜치를 `dev`로 바꾼다. `main`은 첫 마일스톤에서 `dev`를 병합해 채운다.
+1. 공통 문서와 Unity 프로젝트 초기 상태를 팀 리뷰 후 `dev`에 병합하고, GitHub 기본 브랜치를 `dev`로 바꾼다. `main`은 첫 출시 준비 때 `release/` 브랜치를 병합해 채운다.
 2. 프로토타입을 폴더 구조에 맞춰 저장소에 들이고 Unity `6000.3.24f1`에서 컴파일을 확인한다.
 3. 기획-구현 차이 중 단조 방식을 팀에서 결정한다.
 4. 하루 사이클(오전·낮·밤)과 파견·로그 구현에 착수한다.
