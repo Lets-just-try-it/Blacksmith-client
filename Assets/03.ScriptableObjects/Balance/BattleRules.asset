@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f2ca80d472d9344d848e46f1bf2f83e, type: 3}
+  m_Name: BattleRules
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleRulesData
+  _ticksPerSecond: 20
+  _maxTicks: 20000
+  _marchSpeed: 10
+  _formationSpacing: 100
+  _stageSpawnDistance: 1000
+  _damageVariancePercent: 10
+  _deathChancePercent: 10

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe21b09a30462b14ab7087c5e202220c, type: 3}
+  m_Name: Dungeon_Test
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.DungeonData
+  _dungeonId: 1
+  _displayName: "\uD14C\uC2A4\uD2B8 \uB358\uC804"
+  _stages:
+  - IsBoss: 0
+    Spawns:
+    - Monster: {fileID: 11400000, guid: 0ac6078b5ab01f8449655f448ce53451, type: 2}
+      SpawnOffset: 0
+    - Monster: {fileID: 11400000, guid: 0ac6078b5ab01f8449655f448ce53451, type: 2}
+      SpawnOffset: 150
+  - IsBoss: 0
+    Spawns:
+    - Monster: {fileID: 11400000, guid: 0ac6078b5ab01f8449655f448ce53451, type: 2}
+      SpawnOffset: 0
+    - Monster: {fileID: 11400000, guid: 76485a9aaa4e0a443bf045a14266cc67, type: 2}
+      SpawnOffset: 120
+    - Monster: {fileID: 11400000, guid: 76485a9aaa4e0a443bf045a14266cc67, type: 2}
+      SpawnOffset: 240
+  - IsBoss: 1
+    Spawns:
+    - Monster: {fileID: 11400000, guid: d89546beb4f797a499a76877aed23ebc, type: 2}
+      SpawnOffset: 100
+    - Monster: {fileID: 11400000, guid: 76485a9aaa4e0a443bf045a14266cc67, type: 2}
+      SpawnOffset: 0
