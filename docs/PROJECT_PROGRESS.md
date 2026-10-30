@@ -12,7 +12,7 @@ Tempered Heroes는 Unity 6 URP 기반의 2.5D 쿼터뷰 대장간 경영·모험
 
 대장간에서 관리할 수 있는 모험가는 대장간 업그레이드로 슬롯이 1 → 2 → 4 → 6 → 8칸으로 늘어 최대 8명이다. 한 번에 파견할 수 있는 모험가는 최대 5명이다. 슬롯이 5칸보다 많으면 관리 중인 모험가 중에서 파견할 모험가를 골라 장비를 입혀 보낸다. 5명을 꼭 채워 보낼 필요는 없고, 몇 명을 보낼지는 파견할 때 플레이어가 정한다.
 
-현재 저장소에는 프로젝트 공통 문서(`CLAUDE.md`, `GIT_WORKFLOW.md`, 이 문서, `docs/ai-prompts/README.md`)와 URP 템플릿으로 생성한 빈 Unity 프로젝트가 있다.
+현재 저장소에는 프로젝트 공통 문서(`CLAUDE.md`, `GIT_WORKFLOW.md`, 이 문서, `docs/GAME_CONCEPT.md`, `docs/NETWORK_DESIGN.md`, `docs/ai-prompts/README.md`)와 URP 템플릿으로 생성한 빈 Unity 프로젝트가 있다.
 
 ## 개발 및 배포 환경
 
@@ -56,19 +56,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 
 ## 목표 게임 흐름 (MVP)
 
-코어 루프 (낮 10분 동안 반복)
-
-```text
-행동 (단조·담금질) → 보상 (성공도에 따른 장비 등급) → 다음 행동 (판매하거나 모험가 몫으로 남기고 다음 장비 선택)
-```
-
-콘텐츠 루프 (하루 단위)
-
-```text
-한 판 (낮: 제작·판매·영입 → 밤: 파견·자동 전투·결과창)
-→ 강화·해금 (대장간 업그레이드, 모험가 슬롯 1 → 2 → 4 → 6 → 8, 장신구 제작대, 층 보스 격파 시 새 층·재료)
-→ 다음 판
-```
+낮에는 장비를 제작해 판매하고 모험가를 영입한다. 밤에는 모험가를 파견해 자동 전투 결과를 확인한다. 코어 루프, 콘텐츠 루프, MVP 범위는 `docs/GAME_CONCEPT.md`를 따른다.
 
 혼자 플레이할 때도 Photon Fusion 2 Host 모드에서 참가자가 없는 호스트로 시작한다. 게임 상태는 호스트가 소유하고, 클라이언트는 RPC로 행동을 요청한다. 세부 규칙은 `CLAUDE.md`의 "네트워크 구조"와 `docs/NETWORK_DESIGN.md`를 따른다.
 
@@ -105,6 +93,6 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 
 - `CLAUDE.md`: 프로젝트 개발 지침
 - `GIT_WORKFLOW.md`: 브랜치, 커밋, PR 규칙
-- `docs/GAME_CONCEPT.md`: 게임 컨셉과 세부 기획 (추가 예정)
+- `docs/GAME_CONCEPT.md`: 게임 컨셉과 세부 기획
 - `docs/NETWORK_DESIGN.md`: 멀티플레이 네트워크 설계
 - `docs/ai-prompts/README.md`: AI 협업 기록 규칙
