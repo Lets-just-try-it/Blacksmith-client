@@ -176,14 +176,18 @@ Assets/
 
 ### 네트워크 구조
 
-개발 시작부터 Photon Fusion 2 SDK를 연동한 상태로 작업한다. 게임은 Host 모드(`GameMode.Host`, `GameMode.Client`)로만 동작하며, `GameMode.Single`을 쓰지 않는다. 혼자 플레이하는 경우도 참가자가 없는 호스트로 시작한다. 따라서 모든 로직은 아래 네트워크 규칙을 따른다.
+개발 시작부터 Photon Fusion 2 SDK를 연동한 상태로 작업한다. 게임은 Host 모드(`GameMode.Host`, `GameMode.Client`)로만 동작하며, `GameMode.Single`을 쓰지 않는다. 혼자 플레이하는 경우도 참가자가 없는 호스트로 시작한다. 따라서 모든 로직은 아래 네트워크 규칙을 따른다. 작업대 사용권, 미니게임 결과 처리, 예외 상황 같은 세부 설계는 `docs/NETWORK_DESIGN.md`를 따른다.
+
+친구끼리 즐기는 소규모 협동 게임이므로 치팅 방지와 서버 측 판정 로직은 구현하지 않는다. 플레이 경험과 게임 상태의 정합성을 우선한다.
 
 1. 게임 상태는 호스트가 소유한 `NetworkBehaviour`의 `[Networked]` 프로퍼티에만 둔다.
-2. 클라이언트의 행동(대장간 업그레이드 등)은 `RpcSources.InputAuthority` → `RpcTargets.StateAuthority` RPC로 호스트에 요청한다. 이 RPC는 클라이언트가 입력 권한을 가진 자기 플레이어 오브젝트에 둔다. 호스트가 검증한 뒤 상태를 변경한다.
+2. 클라이언트의 행동(대장간 업그레이드, 작업대 사용 등)은 `RpcSources.InputAuthority` → `RpcTargets.StateAuthority` RPC로 호스트에 요청한다. 이 RPC는 클라이언트가 입력 권한을 가진 자기 플레이어 오브젝트에 둔다. 호스트는 요청자, 세션, 중복 여부 같은 상태 정합성만 확인한 뒤 상태를 변경한다.
 3. 생산 시간 같은 타이머는 `TickTimer`나 틱 기반으로 계산한다.
-4. 게임 로직은 `Update()`가 아니라 `FixedUpdateNetwork()`에 둔다.
-5. 경제 계산(가격, 수익 공식 등)은 네트워크와 분리된 순수 C# 클래스(`Core/`)로 작성한다.
+4. 공유 상태를 바꾸는 게임 로직은 `Update()`가 아니라 `FixedUpdateNetwork()`에 둔다.
+5. 경제 계산(가격, 수익 공식 등)과 정확도 → 등급 계산은 네트워크와 분리된 순수 C# 클래스(`Core/`)로 작성한다.
 6. 표시 전용 처리(UI, 이펙트)는 `Render()`나 `ChangeDetector`로 한다.
+7. 캐릭터 이동은 클라이언트 예측을 적용한다. 입력은 `NetworkInput`으로 모아 `FixedUpdateNetwork()`에서 처리한다.
+8. 미니게임은 실행하는 클라이언트에서만 진행한다. 노트 표시, 입력 처리, 정확도 계산은 네트워크 틱과 관계없는 로컬 로직으로 두고, 끝나면 정확도 결과만 호스트에 보낸다. 호스트는 결과를 신뢰한다.
 
 ### 구현 원칙
 

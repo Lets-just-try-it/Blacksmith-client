@@ -70,7 +70,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 → 다음 판
 ```
 
-혼자 플레이할 때도 Photon Fusion 2 Host 모드에서 참가자가 없는 호스트로 시작한다. 게임 상태는 호스트가 소유하고, 클라이언트는 RPC로 행동을 요청한다. 세부 규칙은 `CLAUDE.md`의 "네트워크 구조"를 따른다.
+혼자 플레이할 때도 Photon Fusion 2 Host 모드에서 참가자가 없는 호스트로 시작한다. 게임 상태는 호스트가 소유하고, 클라이언트는 RPC로 행동을 요청한다. 세부 규칙은 `CLAUDE.md`의 "네트워크 구조"와 `docs/NETWORK_DESIGN.md`를 따른다.
 
 ## 시스템별 구현 상태
 
@@ -106,4 +106,5 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 - `CLAUDE.md`: 프로젝트 개발 지침
 - `GIT_WORKFLOW.md`: 브랜치, 커밋, PR 규칙
 - `docs/GAME_CONCEPT.md`: 게임 컨셉과 세부 기획 (추가 예정)
+- `docs/NETWORK_DESIGN.md`: 멀티플레이 네트워크 설계
 - `docs/ai-prompts/README.md`: AI 협업 기록 규칙
