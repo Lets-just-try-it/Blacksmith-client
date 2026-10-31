@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c02acd1ffb6f808448137df0f2869f22, type: 3}
+  m_Name: GradeThresholds
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.GradeThresholdData
+  _gradeNames:
+  - "\uCD5C\uD558\uAE09"
+  - "\uD558\uAE09"
+  - "\uC911\uAE09"
+  - "\uC0C1\uAE09"
+  - "\uCD5C\uC0C1\uAE09"
+  _lowerBounds:
+  - 0.4
+  - 0.6
+  - 0.75
+  - 0.9
