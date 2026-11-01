@@ -82,6 +82,8 @@ Assets/
     SFX/
 
   Settings/
+
+  ThirdParty/    # 외부 에셋(Asset Store, itch.io 등). 패키지마다 폴더를 두고 출처와 라이선스를 README.md에 적는다
 ```
 
 새 파일은 용도에 맞는 폴더에 배치한다.
