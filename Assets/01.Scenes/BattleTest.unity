@@ -188,97 +188,10 @@ MonoBehaviour:
   _resultView: {fileID: 1841884511}
   _rules: {fileID: 11400000, guid: 73dc434290e55f544a6b3c50e71a7a38, type: 2}
   _dungeon: {fileID: 11400000, guid: 1443b783c230bf04b81784ec9d334cdb, type: 2}
-  _adventurers:
-  - AdventurerId: 1
-    DisplayName: "\uBAA8\uD5D8\uAC00 A"
-    Stats:
-      MaxHp: 450
-      Attack: 40
-      Defense: 6
-      AttackRange: 120
-      AttackIntervalTicks: 20
-      MoveSpeed: 18
-      MaxMana: 1000
-      ManaPerTick: 10
-      ManaPerHit: 150
-    Skill:
-      Kind: 2
-      PowerPercent: 220
-      Radius: 250
-    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
-    Portrait: {fileID: 0}
-  - AdventurerId: 2
-    DisplayName: "\uBAA8\uD5D8\uAC00 B"
-    Stats:
-      MaxHp: 400
-      Attack: 45
-      Defense: 5
-      AttackRange: 120
-      AttackIntervalTicks: 20
-      MoveSpeed: 18
-      MaxMana: 1000
-      ManaPerTick: 10
-      ManaPerHit: 150
-    Skill:
-      Kind: 1
-      PowerPercent: 400
-      Radius: 0
-    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
-    Portrait: {fileID: 0}
-  - AdventurerId: 3
-    DisplayName: "\uBAA8\uD5D8\uAC00 C"
-    Stats:
-      MaxHp: 300
-      Attack: 35
-      Defense: 3
-      AttackRange: 500
-      AttackIntervalTicks: 25
-      MoveSpeed: 18
-      MaxMana: 1000
-      ManaPerTick: 12
-      ManaPerHit: 120
-    Skill:
-      Kind: 3
-      PowerPercent: 300
-      Radius: 0
-    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
-    Portrait: {fileID: 0}
-  - AdventurerId: 4
-    DisplayName: "\uBAA8\uD5D8\uAC00 D"
-    Stats:
-      MaxHp: 280
-      Attack: 42
-      Defense: 3
-      AttackRange: 550
-      AttackIntervalTicks: 25
-      MoveSpeed: 18
-      MaxMana: 1000
-      ManaPerTick: 10
-      ManaPerHit: 150
-    Skill:
-      Kind: 2
-      PowerPercent: 180
-      Radius: 300
-    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
-    Portrait: {fileID: 0}
-  - AdventurerId: 5
-    DisplayName: "\uBAA8\uD5D8\uAC00 E"
-    Stats:
-      MaxHp: 320
-      Attack: 30
-      Defense: 4
-      AttackRange: 450
-      AttackIntervalTicks: 25
-      MoveSpeed: 18
-      MaxMana: 1000
-      ManaPerTick: 10
-      ManaPerHit: 120
-    Skill:
-      Kind: 4
-      PowerPercent: 120
-      Radius: 0
-    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
-    Portrait: {fileID: 0}
+  _adventurerBattle: {fileID: 11400000, guid: b708d40e053c196478bf13506299259f, type: 2}
+  _adventurerGeneration: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
+  _partySeed: 100
+  _partyLevels: 01000000030000000500000008000000
   _seed: 1234
   _clearedStages: 0
   _selectedStageNumber: 3
