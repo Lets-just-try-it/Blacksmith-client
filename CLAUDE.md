@@ -75,6 +75,7 @@ Assets/
     Sprites/
     Animations/
     Materials/
+    Fonts/       # 폰트 원본, 라이선스 문서(OFL.txt), TextMeshPro 폰트 에셋
 
   06.Audio/
     BGM/
