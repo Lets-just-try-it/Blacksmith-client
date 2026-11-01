@@ -1,6 +1,6 @@
 # Tempered Heroes (가제) 프로젝트 진행 현황
 
-> 기준일: 2026-10-31
+> 기준일: 2026-11-01
 >
 > 이 문서는 자신이 들어 있는 브랜치의 상태를 설명한다. 정확한 커밋은 `git log -1 -- docs/PROJECT_PROGRESS.md`로 확인한다.
 
@@ -10,7 +10,7 @@ Tempered Heroes는 Unity 6 URP 기반의 2.5D 쿼터뷰 대장간 경영·모험
 
 대장간에서 관리할 수 있는 모험가는 대장간 업그레이드로 슬롯이 1 → 2 → 4 → 6 → 8칸으로 늘어 최대 8명이다. 한 번에 파견할 수 있는 모험가는 최대 5명이다. 슬롯이 5칸보다 많으면 관리 중인 모험가 중에서 파견할 모험가를 골라 장비를 입혀 보낸다. 5명을 꼭 채워 보낼 필요는 없고, 몇 명을 보낼지는 파견할 때 플레이어가 정한다.
 
-현재 저장소에는 프로젝트 공통 문서(`CLAUDE.md`, `GIT_WORKFLOW.md`, 이 문서, `docs/GAME_CONCEPT.md`, `docs/NETWORK_DESIGN.md`, `docs/ai-prompts/README.md`), URP 템플릿으로 생성한 Unity 프로젝트, Photon Fusion 2 SDK와 Host 모드 네트워크 뼈대, 진행 중인 자동 전투 코드가 있다.
+현재 저장소에는 프로젝트 공통 문서(`CLAUDE.md`, `GIT_WORKFLOW.md`, 이 문서, `docs/GAME_CONCEPT.md`, `docs/NETWORK_DESIGN.md`, `docs/ai-prompts/README.md`), URP 템플릿으로 생성한 Unity 프로젝트, Photon Fusion 2 SDK와 Host 모드 네트워크 뼈대, 진행 중인 자동 전투 코드, 모험가 영입 기반 코드가 있다.
 
 ## 개발 및 배포 환경
 
@@ -22,7 +22,7 @@ Tempered Heroes는 Unity 6 URP 기반의 2.5D 쿼터뷰 대장간 경영·모험
 - 플랫폼: PC (Windows/Mac)
 - 배포: 스토브 우선 출시 → 스팀
 - 브랜치 전략: Git Flow (`main`, `dev`, 작업 브랜치, `release/`, `hotfix/`. `GIT_WORKFLOW.md` 참고)
-- 빌드 씬 순서: `Bootstrap` → `Lobby` → `Game` (`SampleScene`은 템플릿 기본값으로 뒤에 남아 있다)
+- 빌드 씬 순서: `Bootstrap` → `Lobby` → `Game` (`SampleScene`은 템플릿 기본값으로 뒤에 남아 있다. 그 뒤의 `PlazaTest`는 개발용 테스트 씬이다)
 - TODO: CI/CD 구성
 
 ### Photon 설정 (로컬 최초 1회)
@@ -85,16 +85,17 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 | 장비 등급 규칙 | 구현 | 미니게임 점수 평균을 5단계 등급으로 변환하는 `GradeRule`(`Core/`)과 경계값·등급 이름 데이터(`GradeThresholds`) |
 | 낮·밤 사이클 | 미구현 | |
 | 던전·파견·자동 전투 | 진행 중 | `Core/Battle`에 시드 기반 자동 전투 시뮬레이션(마나 자동 스킬, 스테이지 연속 진행, 쓰러짐·사망 판정)과 던전 단계별 스테이지 선택·진행 규칙. `Battle/`에 쿼터뷰 재생, 하단 HP·마나 HUD, 결과창. `01.Scenes/BattleTest`에서 임시 모델과 테스트 던전으로 확인한다. 파견 창, 보상·경험치, 실제 몬스터 데이터, Fusion 연동은 남아 있다. |
-| 모험가 영입·랜덤 생성 | 미구현 | |
+| 모험가 영입·랜덤 생성 | 진행 중 | `Core/Adventurers`에 모험가 정보 원본 형식(`AdventurerData`: 이름, 직업, 레벨, 외형 번호, 기본·성장 체력·공격력·방어력, 스킬 번호, 착용 장비 번호, 몸 상태), 시드 기반 생성(`AdventurerGenerator`, 후보 1~4명), 레벨 성장 공식(`AdventurerStatRules`). 수치는 `AdventurerGeneration`·직업(`Job_Warrior`)·`AdventurerRoster` 데이터. `Plaza/`에 호스트 소유 관리 목록(`AdventurerRosterState`, 최대 8), 광장 후보 스폰·영입 처리(`PlazaRecruitment`, `RecruitCandidate`), Player 프리팹의 `PlazaPlayerActions`(E로 영입 요청 RPC), 목록 창 UI, 초상 뼈대(`AdventurerPortraitProvider`). `01.Scenes/PlazaTest`에서 로비 없이 호스트로 시작해 확인한다. 직업은 전사 1종이다. 파견 창, 전투 결과 반영(부상·사망·경험치), 외형 적용, `Game` 씬 배치는 남아 있다. |
 | 대장간 업그레이드·해금 | 미구현 | |
 | 저장/불러오기 | 미구현 | |
 | Photon Fusion 2 연동 (Host 모드) | 진행 중 | Fusion 2.1.3 SDK. `Bootstrap` → `Lobby` → `Game` 씬 흐름, 세션명으로 Host 시작·Client 참가, 세션 종료 시 로비 복귀, 호스트의 플레이어 스폰·디스폰, `NetworkInput` 기반 예측 이동(입력 구조는 `docs/NETWORK_DESIGN.md` 3절), 필드 없는 공용 `GameState`. 임시 캡슐 모델을 쓴다. 클라이언트 요청 RPC는 Player 프리팹에 영역별 행동 컴포넌트(예: `ForgePlayerActions`)로 나눠 두기로 했다. 영역별 공유 상태·RPC, 스팀·스토브 초대는 남아 있다. |
 | 방송 연동 | 미구현 | |
-| 자동화 테스트 | 일부 | `02.Scripts/Tests/EditMode`에 전투 시뮬레이션 결정성·승패·마나·쓰러짐, 스테이지 선택·진행 테스트 15개, 장비 등급 경계값·평균 테스트 14개, 담금질 규칙 테스트 13개 |
+| 자동화 테스트 | 일부 | `02.Scripts/Tests/EditMode`에 전투 시뮬레이션 결정성·승패·마나·쓰러짐, 스테이지 선택·진행 테스트 15개, 장비 등급 경계값·평균 테스트 14개, 담금질 규칙 테스트 13개, 모험가 생성 결정성·범위와 레벨 성장 테스트 12개 |
 
 ## 검증 상태
 
-- 에디터 컴파일 오류 없음. EditMode 테스트 42개 통과 (`unity test --mode EditMode`).
+- 에디터 컴파일 오류 없음. EditMode 테스트 54개 통과 (`unity test --mode EditMode`).
+- `PlazaTest` 씬 플레이 모드에서 호스트 자동 시작, 영입 후보 1~4명 생성, 후보에게 다가가면 "E 영입" 표시, E 입력으로 영입해 후보가 사라지고 목록에 들어가는 것, 슬롯이 가득 차면 영입되지 않는 것, 목록 창을 연 상태에서 바로 갱신되는 것, 버튼으로 창을 열고 닫는 것을 확인했다. 콘솔 오류 없음. 빌드한 실행 파일과 에디터로 두 명이 접속해 영입, 관리 목록 동기화, 클라이언트 화면의 후보 위치를 확인했다. 이때 로비가 `PlazaTest`를 불러오도록 로컬에서만 임시로 바꿔 테스트했다.
 - `BattleTest` 씬 플레이 모드에서 스테이지 3개 진행, 승리, 결과창 표시를 확인했다. 진행 상황에 따라 다음 스테이지부터 선택한 스테이지까지만 싸우는 것도 확인했다. 콘솔 오류 없음.
 - Fusion SDK 임포트 후 에디터 컴파일 오류 없음, Fusion IL 위버 동작 확인.
 - Host 모드 뼈대: 에디터 플레이 모드에서 `Bootstrap` → `Lobby` → Host 시작 → `Game` 씬 로드, 플레이어 스폰, 키 입력에 따른 쿼터뷰 기준 이동, 세션 종료 후 로비 복귀를 확인했다. 세션명이 비었거나 인증에 실패하면 로비에 실패 문구가 뜨고 다시 시도할 수 있다. 빌드한 실행 파일과 에디터로 두 명이 접속해 이동과 동기화에 이상이 없는 것을 확인했다.
@@ -107,8 +108,9 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 2. 플레이어 캐릭터 담당을 팀에서 정한다.
 3. 역할별(대장간, 광장, 전투) 기능을 구현하고 MVP 시연으로 피드백을 받는다.
    - 대장간: 나머지 제작 미니게임 6종 이식(정제, 단조, 연마, 판 성형, 조립, 장신구), 미니게임 입력·화면, 작업대 사용권·결과 전송(`Forge/ForgePlayerActions`), 인벤토리, 판매
-   - 전투: 파견 창(광장 담당과 협의), 보상·경험치, 실제 몬스터·보스 데이터, 장비별 이펙트, Fusion 연동(시드 동기화, 결과를 `GameState`에 적용)
-4. 다른 `Core` 규칙(가격, 모험가 생성)에도 시드 결정성 EditMode 테스트를 추가한다.
+   - 전투: 파견 창(광장 담당과 협의), 보상·경험치, 실제 몬스터·보스 데이터, 장비별 이펙트, Fusion 연동(시드 동기화, 결과를 `GameState`에 적용). 모험가 정보는 `BattleTestStarter`의 임시값 대신 `AdventurerData`(관리 목록은 `AdventurerRosterState`)에서 읽어 `AdventurerSetup`을 만든다. 보정 전 능력치는 `AdventurerStatRules.GetCurrentStats`로 구하고, 장비·직업 보정과 직업별 공격 방식, `SkillId` → `SkillData` 표는 전투 쪽에서 정한다.
+   - 광장: 파견 창, 전투 결과(부상·사망·경험치)를 관리 목록에 반영하는 API, 외형 프리셋 적용, 낮이 시작될 때 후보 재생성, `Game` 씬에 관리 목록·광장 배치
+4. 다른 `Core` 규칙(가격)에도 시드 결정성 EditMode 테스트를 추가한다.
 5. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 확정 전 임시 폰트다. 둘 다 SIL OFL 1.1이며 `05.Art/Fonts`에 라이선스 문서와 함께 둔다.
 6. Unity CLI 사용이 안정되면 예비로 둔 Unity MCP 연동을 정리한다.
 

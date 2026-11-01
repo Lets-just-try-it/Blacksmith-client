@@ -110,6 +110,10 @@ InitTestScene*.unity*
 
 # Personal IDE settings
 .vscode/
+.idea/
+
+# MCP 설정 파일 제외
+.mcp.json
 
 # Photon 앱 설정 파일 제외 (App ID는 팀 비공개 채널로 공유)
 Assets/Photon/Fusion/Resources/PhotonAppSettings.asset

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 336957c210a2505489b7d1759cd7fe99, type: 3}
+  m_Name: Job_Warrior
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Plaza.AdventurerJobData
+  _jobId: 1
+  _displayName: "\uC804\uC0AC"
+  _baseStats:
+    MaxHp:
+      Min: 400
+      Max: 480
+    Attack:
+      Min: 34
+      Max: 42
+    Defense:
+      Min: 5
+      Max: 8
+  _growthStats:
+    MaxHp:
+      Min: 20
+      Max: 35
+    Attack:
+      Min: 2
+      Max: 4
+    Defense:
+      Min: 1
+      Max: 2
+  _skillIds: 01000000
