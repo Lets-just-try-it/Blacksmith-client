@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 736054878aa9ca144b28940d2456428e, type: 3}
+  m_Name: AdventurerBattle
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.AdventurerBattleData
+  _jobs:
+  - JobId: 1
+    Stats:
+      AttackRange: 120
+      AttackIntervalTicks: 20
+      MoveSpeed: 18
+      MaxMana: 1000
+      ManaPerTick: 10
+      ManaPerHit: 150
+    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
+  _skills:
+  - SkillId: 1
+    Skill:
+      Kind: 2
+      PowerPercent: 220
+      Radius: 250
