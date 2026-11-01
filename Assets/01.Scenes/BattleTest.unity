@@ -189,6 +189,7 @@ MonoBehaviour:
   _rules: {fileID: 11400000, guid: 73dc434290e55f544a6b3c50e71a7a38, type: 2}
   _dungeon: {fileID: 11400000, guid: 1443b783c230bf04b81784ec9d334cdb, type: 2}
   _adventurerBattle: {fileID: 11400000, guid: b708d40e053c196478bf13506299259f, type: 2}
+  _adventurerLevel: {fileID: 11400000, guid: 1c84aa393b703ec4585dab0f30ee4dc3, type: 2}
   _adventurerGeneration: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
   _partySeed: 100
   _partyLevels: 01000000030000000500000008000000
@@ -1072,8 +1073,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 800, y: 380}
+  m_AnchoredPosition: {x: 0, y: -40}
+  m_SizeDelta: {x: 800, y: 360}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1694590460
 MonoBehaviour:
@@ -1317,8 +1318,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 220}
-  m_SizeDelta: {x: 800, y: 60}
+  m_AnchoredPosition: {x: 0, y: 200}
+  m_SizeDelta: {x: 800, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1868094872
 MonoBehaviour:

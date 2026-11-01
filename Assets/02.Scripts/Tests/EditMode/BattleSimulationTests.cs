@@ -123,6 +123,62 @@ namespace Blacksmith.Tests
         }
 
         [Test]
+        public void StrongParty_EveryAdventurerClearsAllStages()
+        {
+            BattleResult result = new BattleSimulation(CreateSetup(1, 60, 5)).RunToEnd();
+
+            foreach (AdventurerBattleResult adventurer in result.Adventurers)
+            {
+                Assert.IsFalse(adventurer.IsInjured);
+                Assert.AreEqual(3, adventurer.StagesCleared);
+            }
+        }
+
+        [Test]
+        public void AdventurerStagesCleared_CountsOnlyClearsBeforeFalling()
+        {
+            // 이 시드에서는 모험가 1이 중간에 쓰러지고 모험가 2가 끝까지 남아 승리한다.
+            var simulation = new BattleSimulation(CreateSetup(1, 15, 10));
+            var unitToAdventurer = new Dictionary<int, int>();
+            foreach (BattleUnit unit in simulation.Units)
+            {
+                unitToAdventurer[unit.UnitId] = unit.SourceId;
+            }
+
+            var fallen = new HashSet<int>();
+            var expected = new Dictionary<int, int> { { 1, 0 }, { 2, 0 } };
+            while (!simulation.IsFinished)
+            {
+                foreach (BattleEvent e in simulation.Step())
+                {
+                    if (e.Type == BattleEventType.Fell && unitToAdventurer.TryGetValue(e.TargetUnitId, out int fellId))
+                    {
+                        fallen.Add(fellId);
+                    }
+
+                    if (e.Type == BattleEventType.StageCleared)
+                    {
+                        foreach (int adventurerId in new[] { 1, 2 })
+                        {
+                            if (!fallen.Contains(adventurerId))
+                            {
+                                expected[adventurerId]++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (AdventurerBattleResult adventurer in simulation.Result.Adventurers)
+            {
+                Assert.AreEqual(expected[adventurer.AdventurerId], adventurer.StagesCleared);
+                Assert.LessOrEqual(adventurer.StagesCleared, simulation.Result.StagesCleared);
+            }
+
+            Assert.AreNotEqual(expected[1], expected[2]);
+        }
+
+        [Test]
         public void WeakParty_LosesWhenAllAdventurersFall()
         {
             BattleResult result = new BattleSimulation(CreateSetup(1, 3, 60)).RunToEnd();

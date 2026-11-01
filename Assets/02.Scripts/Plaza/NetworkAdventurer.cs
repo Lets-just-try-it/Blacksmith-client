@@ -12,6 +12,7 @@ namespace Blacksmith.Plaza
         public NetworkString<_16> Name;
         public int JobId;
         public int Level;
+        public int Experience;
         public int HairPreset;
         public int EyePreset;
         public int MouthPreset;
@@ -37,6 +38,7 @@ namespace Blacksmith.Plaza
                 Name = data.Name,
                 JobId = data.JobId,
                 Level = data.Level,
+                Experience = data.Experience,
                 HairPreset = data.Appearance.HairPreset,
                 EyePreset = data.Appearance.EyePreset,
                 MouthPreset = data.Appearance.MouthPreset,
@@ -64,6 +66,7 @@ namespace Blacksmith.Plaza
                 Name = Name.ToString(),
                 JobId = JobId,
                 Level = Level,
+                Experience = Experience,
                 Appearance = new AdventurerAppearance
                 {
                     HairPreset = HairPreset,

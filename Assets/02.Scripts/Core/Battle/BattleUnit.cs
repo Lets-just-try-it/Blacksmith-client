@@ -23,6 +23,8 @@ namespace Blacksmith.Core.Battle
         public int AttackCooldown { get; internal set; }
         public bool IsFallen { get; internal set; }
         public int DamageDealt { get; internal set; }
+        // 쓰러지지 않은 채 클리어한 스테이지 수다. 경험치 계산에 쓴다.
+        public int StagesCleared { get; internal set; }
 
         internal BattleUnit(int unitId, BattleTeam team, int sourceId, int stageIndex, int lane,
             UnitStats stats, SkillData skill, int position)
