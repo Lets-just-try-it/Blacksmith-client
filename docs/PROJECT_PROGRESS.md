@@ -40,7 +40,7 @@ App ID가 담긴 `Assets/Photon/Fusion/Resources/PhotonAppSettings.asset`은 공
 
 - `Bootstrap` 씬에서 플레이를 시작한다. 로비에서 세션명을 입력하고 `Host`로 방을 열거나 `Join`으로 참가한다. 혼자 할 때도 `Host`로 시작한다.
 - 두 명 테스트는 빌드한 실행 파일과 에디터를 함께 띄워 같은 세션명으로 접속한다.
-- 로비 UI 문구는 한글 폰트 에셋이 추가될 때까지 영어로 둔다.
+- 로비 UI 문구는 한글 폰트를 UI에 적용할 때까지 영어로 둔다. 한글 폰트 에셋은 `05.Art/Fonts`에 임시로 추가했다.
 - `NetworkObject`가 붙은 프리팹을 새로 만든 뒤 스폰할 때 "has been baked with a guid ... failed to be translated into a prefab" 오류가 나면 `Tools > Fusion > Rebuild Prefab Table`을 실행한다.
 - 씬에 둔 `NetworkObject`는 씬을 저장할 때 Fusion이 베이크한다. 에디터 스크립트나 CLI로 씬을 만들었다면 `Tools > Fusion > Scene > Bake Scene Objects`를 실행하고 다시 저장한다. 베이크되지 않은 씬 오브젝트는 런타임에 등록되지 않는다.
 
@@ -98,7 +98,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 - `BattleTest` 씬 플레이 모드에서 스테이지 3개 진행, 승리, 결과창 표시를 확인했다. 진행 상황에 따라 다음 스테이지부터 선택한 스테이지까지만 싸우는 것도 확인했다. 콘솔 오류 없음.
 - Fusion SDK 임포트 후 에디터 컴파일 오류 없음, Fusion IL 위버 동작 확인.
 - Host 모드 뼈대: 에디터 플레이 모드에서 `Bootstrap` → `Lobby` → Host 시작 → `Game` 씬 로드, 플레이어 스폰, 키 입력에 따른 쿼터뷰 기준 이동, 세션 종료 후 로비 복귀를 확인했다. 세션명이 비었거나 인증에 실패하면 로비에 실패 문구가 뜨고 다시 시도할 수 있다. 빌드한 실행 파일과 에디터로 두 명이 접속해 이동과 동기화에 이상이 없는 것을 확인했다.
-- 기본 TextMesh Pro 폰트에 한글 글리프가 없어 UI 한글이 네모로 보인다. 한글 폰트 에셋 추가가 필요하다.
+- 기본 TextMesh Pro 폰트에 한글 글리프가 없어 UI 한글이 네모로 보인다. 한글 폰트 에셋(주아, 고운바탕)을 추가해 한글 글리프가 들어가는 것을 확인했지만, 기존 UI에는 아직 적용하지 않았다.
 - 빌드 검증은 아직 하지 않았다.
 
 ## 남은 우선 작업
@@ -109,7 +109,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
    - 대장간: 나머지 제작 미니게임 6종 이식(정제, 단조, 연마, 판 성형, 조립, 장신구), 미니게임 입력·화면, 작업대 사용권·결과 전송(`Forge/ForgePlayerActions`), 인벤토리, 판매
    - 전투: 파견 창(광장 담당과 협의), 보상·경험치, 실제 몬스터·보스 데이터, 장비별 이펙트, Fusion 연동(시드 동기화, 결과를 `GameState`에 적용)
 4. 다른 `Core` 규칙(가격, 모험가 생성)에도 시드 결정성 EditMode 테스트를 추가한다.
-5. UI용 한글 폰트 에셋을 정하고 추가한다.
+5. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 확정 전 임시 폰트다. 둘 다 SIL OFL 1.1이며 `05.Art/Fonts`에 라이선스 문서와 함께 둔다.
 6. Unity CLI 사용이 안정되면 예비로 둔 Unity MCP 연동을 정리한다.
 
 ## 관련 문서
