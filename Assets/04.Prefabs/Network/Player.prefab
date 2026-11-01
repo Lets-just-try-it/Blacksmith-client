@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 6226732348625818365}
   - component: {fileID: 4040520819848908152}
   - component: {fileID: 3907837863626657941}
+  - component: {fileID: 937976070452022237}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -207,6 +208,7 @@ MonoBehaviour:
   - {fileID: 6226732348625818365}
   - {fileID: 4040520819848908152}
   - {fileID: 3907837863626657941}
+  - {fileID: 937976070452022237}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &928977346244656201
 CharacterController:
@@ -278,3 +280,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Network.NetworkPlayer
   _localMarker: {fileID: 4285081122121494856}
+--- !u!114 &937976070452022237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6939742712899349512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b152cb9a551ca42aefaaa7a5cbcb45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Plaza.PlazaPlayerActions
+  _interactRadius: 1.5

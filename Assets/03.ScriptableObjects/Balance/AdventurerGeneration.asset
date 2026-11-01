@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e767a9743219052408b1b3115b5cbf3f, type: 3}
+  m_Name: AdventurerGeneration
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Plaza.AdventurerGenerationData
+  _names:
+  - "\uB808\uC628"
+  - "\uCE74\uC77C"
+  - "\uC5D0\uB9B0"
+  - "\uBE0C\uB78C"
+  - "\uC138\uB77C"
+  - "\uB3C4\uC724"
+  - "\uD558\uB9B0"
+  - "\uB8E8\uCE74"
+  - "\uBBF8\uB77C"
+  - "\uAC00\uB80C"
+  - "\uC5D8\uB9AC"
+  - "\uD1A0\uB974"
+  _jobs:
+  - {fileID: 11400000, guid: b3228c9e9b5379f49b42857e03559a21, type: 2}
+  _startLevel: 1
+  _hairPresetCount: 5
+  _eyePresetCount: 5
+  _mouthPresetCount: 5
+  _hairColorCount: 12
+  _skinColorCount: 5
+  _candidateCount:
+    Min: 1
+    Max: 4
