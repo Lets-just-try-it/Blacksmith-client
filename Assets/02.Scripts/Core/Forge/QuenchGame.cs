@@ -25,8 +25,9 @@ namespace Blacksmith.Core.Forge
         public float Diff { get; private set; }
         public bool TimedOut { get; private set; }
 
+        // 기준 시간에서 이 시간 안으로 꺼내면 만점이다.
+        public float PerfectBand => _difficulty.PerfectFraction * Math.Max(0.1f, Target);
         public float LimitTime => Target * _rules.LimitTargetMultiplier + _rules.LimitExtraSeconds;
-        public bool Submerged => Phase == PhaseKind.Dunk && PhaseClock >= _rules.CarryTime;
         public bool IsCountVisible => Elapsed < _rules.ShowSeconds;
 
         public QuenchGame(QuenchRules rules, int seed, int difficulty)
@@ -64,8 +65,7 @@ namespace Blacksmith.Core.Forge
 
         private void TickReady(MiniInput input)
         {
-            bool started = input.ActionPressed && PhaseClock >= _rules.ReadyLockTime;
-            if (started || PhaseClock >= _rules.ReadyAutoTime)
+            if (input.ActionPressed && PhaseClock >= _rules.ReadyLockTime)
             {
                 EnterPhase(PhaseKind.Dunk);
             }
@@ -73,12 +73,8 @@ namespace Blacksmith.Core.Forge
 
         private void TickDunk(MiniInput input)
         {
-            if (PhaseClock < _rules.CarryTime)
-            {
-                return;
-            }
-
-            Elapsed = PhaseClock - _rules.CarryTime;
+            // 담그는 키를 누른 순간부터 바로 센다. 칼날이 수조로 옮겨지는 연출 시간은 시간에 넣지 않는다.
+            Elapsed = PhaseClock;
             RaiseSecondTick();
 
             if (input.ActionPressed && Elapsed > _rules.MinPullTime)

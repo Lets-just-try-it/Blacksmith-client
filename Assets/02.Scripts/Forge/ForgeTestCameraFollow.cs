@@ -39,6 +39,7 @@ namespace Blacksmith.Forge
         [SerializeField, Min(0f)] private float _lookSensitivity = 0.1f;
 
         private Camera _camera;
+        private ForgeCameraFocus _focus;
         private InputAction _toggle;
         private InputAction _look;
         private InputAction[] _presetKeys;
@@ -54,6 +55,7 @@ namespace Blacksmith.Forge
         private void Awake()
         {
             _camera = GetComponent<Camera>();
+            _focus = GetComponent<ForgeCameraFocus>();
             _quarterNear = _camera.nearClipPlane;
             _toggle = new InputAction("ToggleView", binding: "<Keyboard>/v");
             _look = new InputAction("Look", binding: "<Mouse>/delta");
@@ -106,6 +108,12 @@ namespace Blacksmith.Forge
 
         private void LateUpdate()
         {
+            // 미니게임 포커스가 카메라를 잡고 있는 동안에는 따라가지 않는다.
+            if (_focus != null && _focus.IsActive)
+            {
+                return;
+            }
+
             if (_target == null)
             {
                 FindLocalPlayer();

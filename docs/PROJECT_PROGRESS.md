@@ -1,6 +1,6 @@
 # Tempered Heroes (가제) 프로젝트 진행 현황
 
-> 기준일: 2026-11-02
+> 기준일: 2026-11-03
 >
 > 이 문서는 자신이 들어 있는 브랜치의 상태를 설명한다. 정확한 커밋은 `git log -1 -- docs/PROJECT_PROGRESS.md`로 확인한다.
 
@@ -81,9 +81,9 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 
 | 영역 | 상태 | 구현 내용 |
 | --- | --- | --- |
-| 장비 제작 미니게임·판매 | 진행 중 | `Core/Forge`에 미니게임 기반(`MiniGame`, `MiniInput`, `MiniEvent`)과 담금질 규칙(`QuenchGame`: 시드 기반 기준 시간, 정확도 계산). 수치는 `QuenchRulesData`(`03.ScriptableObjects/Balance/QuenchRules.asset`). 나머지 미니게임 6종, 입력 연결, 화면, 작업대 사용권·결과 전송, 판매는 남아 있다. |
+| 장비 제작 미니게임·판매 | 진행 중 | `Core/Forge`에 미니게임 기반(`MiniGame`, `MiniInput`, `MiniEvent`)과 담금질 규칙(`QuenchGame`: 시드 기반 기준 시간, 정확도 계산). 수치는 `QuenchRulesData`(`03.ScriptableObjects/Balance/QuenchRules.asset`). 담금질은 `ForgeTest` 씬에서 한 명이 로컬로 해볼 수 있다. 담금질 작업대 앞(`QuenchStation`)에서 상호작용 키를 누르면 카메라가 작업대로 옮겨지고(`ForgeCameraFocus`), 같은 키로 담그고 꺼낸다. 준비 구간은 키를 눌러야 시작한다(자동 시작 없음). 기준 시간, 담근 뒤 2초까지만 보이는 `SS:cc` 시간, 결과 정확도와 시간선(기준 시간, 완벽 구간, 꺼낸 시간 마커)을 한글 폰트로 보여 주고(`QuenchView`), 칼날은 상자로 연출한다(`QuenchBladeVisual`). 하는 동안 캐릭터 이동은 잠긴다(`PlayerInputCollector.MovementLocked`). 효과음, 증기·물보라 연출, 나머지 미니게임 6종, 작업대 사용권·결과 전송, 판매는 남아 있다. |
 | 장비 등급 규칙 | 구현 | 미니게임 점수 평균을 5단계 등급으로 변환하는 `GradeRule`(`Core/`)과 경계값·등급 이름 데이터(`GradeThresholds`) |
-| 대장간 맵 | 진행 중 | `01.Scenes/ForgeTest`에서 `04.Prefabs/Town/ForgeRoom`을 확인한다. 외부 에셋 없이 상자만으로 만든 그레이박스다(머티리얼은 `05.Art/Materials/Greybox`). 씬을 열고 플레이하면 로비 없이 호스트로 시작해(`ForgeTestStarter`) 입구 앞에서 Player로 WASD로 걸어 다닐 수 있고, 카메라가 쿼터뷰로 따라간다(`ForgeTestCameraFollow`, 숫자 키 1~6으로 쿼터뷰 시점 6종(기본, 넓게, 높이, 낮게, 가까이, 직교)을 고르고 V 키로 1인칭과 번갈아 봄). `Game` 씬을 복제한 구성이다. 약 20m x 16m, 판매 구역(입구), 모험가 5명이 모이는 회의형 관리 구역, 제작 구역(작업대 7개와 공용 창고, 작업대마다 색을 달리함). 벽은 높이 1.6m로 통일했고 빈 틈이 문이다. 구역 사이 문 3곳은 `ForgeDoor`로 캐릭터가 다가가면 서서히 열리고 닫힌다. 벽·소품·바닥에 상자 충돌체를 달았다. 담금질 작업대에는 회색 상자 수조(`QuenchTrough`, 물 표면은 자식 `WaterSurface`)를 둔다. 쿼터뷰로 실행해 플레이어 스폰과 화면을 확인했다. 작업대별 상세, 미니게임 카메라 포커스, `Game` 씬 배치, 판매·관리 구역 기능, 실제 에셋 적용은 남아 있다. |
+| 대장간 맵 | 진행 중 | `01.Scenes/ForgeTest`에서 `04.Prefabs/Town/ForgeRoom`을 확인한다. 외부 에셋 없이 상자만으로 만든 그레이박스다(머티리얼은 `05.Art/Materials/Greybox`). 씬을 열고 플레이하면 로비 없이 호스트로 시작해(`ForgeTestStarter`) 입구 앞에서 Player로 WASD로 걸어 다닐 수 있고, 카메라가 쿼터뷰로 따라간다(`ForgeTestCameraFollow`, 숫자 키 1~6으로 쿼터뷰 시점 6종(기본, 넓게, 높이, 낮게, 가까이, 직교)을 고르고 V 키로 1인칭과 번갈아 봄). `Game` 씬을 복제한 구성이다. 약 20m x 16m, 판매 구역(입구), 모험가 5명이 모이는 회의형 관리 구역, 제작 구역(작업대 7개와 공용 창고, 작업대마다 색을 달리함). 벽은 높이 1.6m로 통일했고 빈 틈이 문이다. 구역 사이 문 3곳은 `ForgeDoor`로 캐릭터가 다가가면 서서히 열리고 닫힌다. 벽·소품·바닥에 상자 충돌체를 달았다. 담금질 작업대에는 회색 상자 수조(`QuenchTrough`, 물 표면은 자식 `WaterSurface`)를 둔다. 쿼터뷰로 실행해 플레이어 스폰과 화면을 확인했다. 작업대별 상세(담금질 작업대는 카메라 포커스까지 있음), `Game` 씬 배치, 판매·관리 구역 기능, 실제 에셋 적용은 남아 있다. |
 | 낮·밤 사이클 | 미구현 | |
 | 던전·파견·자동 전투 | 진행 중 | `Core/Battle`에 시드 기반 자동 전투 시뮬레이션(마나 자동 스킬, 스테이지 연속 진행, 쓰러짐·사망 판정)과 던전 단계별 스테이지 선택·진행 규칙. `Battle/`에 쿼터뷰 재생, 하단 HP·마나 HUD, 결과창. 모험가 정보(`AdventurerData`)를 전투 유닛으로 바꾸는 `AdventurerSetupRules`(체력·공격력·방어력은 `AdventurerStatRules.GetCurrentStats`)와, 직업별 전투 수치(사거리, 공격 간격, 이동 속도, 마나)·전투 모델과 `SkillId` → `SkillData` 표를 담은 `AdventurerBattle` 데이터. `01.Scenes/BattleTest`에서 광장과 같은 규칙으로 생성한 모험가 파티(레벨 지정)와 테스트 던전으로 확인한다. 생성된 모험가 유닛은 오브젝트 이름이 `이름 Lv레벨 (#ID)`이고, 인스펙터의 `AdventurerUnitInfo`에서 모험가 정보와 실제 전투 능력치를 볼 수 있다. 보상·경험치: 전투 결과에 모험가별로 쓰러지기 전까지 클리어한 스테이지 수를 담고, `BattleRewardRules`가 클리어한 스테이지의 골드·재료와 모험가별 경험치·레벨업을 계산한다. 스테이지 보상은 `DungeonData`, 레벨업 필요 경험치는 `AdventurerLevel` 데이터(`AdventurerLeveling`)에 둔다. 결과창에 보상과 경험치·레벨업을 보여 주고, 테스트 씬에서는 다음 전투에 레벨과 경험치를 이어서 쓴다. 파견 창, 골드·재료와 전투 결과를 게임 상태에 반영하기, 실제 몬스터 데이터, Fusion 연동은 남아 있다. |
 | 모험가 영입·랜덤 생성 | 진행 중 | `Core/Adventurers`에 모험가 정보 원본 형식(`AdventurerData`: 이름, 직업, 레벨, 외형 번호, 기본·성장 체력·공격력·방어력, 스킬 번호, 착용 장비 번호, 몸 상태), 시드 기반 생성(`AdventurerGenerator`, 후보 1~4명), 레벨 성장 공식(`AdventurerStatRules`). 수치는 `AdventurerGeneration`·직업(`Job_Warrior`)·`AdventurerRoster` 데이터. `Plaza/`에 호스트 소유 관리 목록(`AdventurerRosterState`, 최대 8), 광장 후보 스폰·영입 처리(`PlazaRecruitment`, `RecruitCandidate`), Player 프리팹의 `PlazaPlayerActions`(E로 영입 요청 RPC), 목록 창 UI, 초상 뼈대(`AdventurerPortraitProvider`). `01.Scenes/PlazaTest`에서 로비 없이 호스트로 시작해 확인한다. 직업은 전사 1종이다. 파견 창, 전투 결과 반영(부상·사망·경험치), 외형 적용, `Game` 씬 배치는 남아 있다. |
@@ -91,7 +91,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 | 저장/불러오기 | 미구현 | |
 | Photon Fusion 2 연동 (Host 모드) | 진행 중 | Fusion 2.1.3 SDK. `Bootstrap` → `Lobby` → `Game` 씬 흐름, 세션명으로 Host 시작·Client 참가, 세션 종료 시 로비 복귀, 호스트의 플레이어 스폰·디스폰, `NetworkInput` 기반 예측 이동(입력 구조는 `docs/NETWORK_DESIGN.md` 3절), 필드 없는 공용 `GameState`. 임시 캡슐 모델을 쓴다. 클라이언트 요청 RPC는 Player 프리팹에 영역별 행동 컴포넌트(예: `ForgePlayerActions`)로 나눠 두기로 했다. 영역별 공유 상태·RPC, 스팀·스토브 초대는 남아 있다. |
 | 방송 연동 | 미구현 | |
-| 자동화 테스트 | 일부 | `02.Scripts/Tests/EditMode`에 전투 시뮬레이션 결정성·승패·마나·쓰러짐, 스테이지 선택·진행 테스트 15개, 장비 등급 경계값·평균 테스트 14개, 담금질 규칙 테스트 13개, 모험가 생성 결정성·범위와 레벨 성장 테스트 12개, 모험가 → 전투 유닛 변환 테스트 5개, 모험가별 클리어 스테이지 테스트 2개, 보상·경험치·레벨업 테스트 7개 |
+| 자동화 테스트 | 일부 | `02.Scripts/Tests/EditMode`에 전투 시뮬레이션 결정성·승패·마나·쓰러짐, 스테이지 선택·진행 테스트 15개, 장비 등급 경계값·평균 테스트 14개, 담금질 규칙 테스트 15개(준비 구간 자동 시작 없음, 완벽 구간, 담그는 순간부터 시간 계산 포함), 모험가 생성 결정성·범위와 레벨 성장 테스트 12개, 모험가 → 전투 유닛 변환 테스트 5개, 모험가별 클리어 스테이지 테스트 2개, 보상·경험치·레벨업 테스트 7개 |
 
 ## 검증 상태
 

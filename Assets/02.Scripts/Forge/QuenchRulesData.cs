@@ -9,7 +9,6 @@ namespace Blacksmith.Forge
         [SerializeField, Min(0f)] private float _carryTime = 0.45f;
         [SerializeField, Min(0f)] private float _showSeconds = 2f;
         [SerializeField, Min(0f)] private float _readyLockTime = 0.6f;
-        [SerializeField, Min(0f)] private float _readyAutoTime = 4f;
         [SerializeField, Min(0f)] private float _minPullTime = 0.25f;
         [SerializeField, Min(0f)] private float _endDelay = 1.6f;
         [SerializeField, Min(0f)] private float _limitTargetMultiplier = 2f;
@@ -32,7 +31,6 @@ namespace Blacksmith.Forge
                 CarryTime = _carryTime,
                 ShowSeconds = _showSeconds,
                 ReadyLockTime = _readyLockTime,
-                ReadyAutoTime = _readyAutoTime,
                 MinPullTime = _minPullTime,
                 EndDelay = _endDelay,
                 LimitTargetMultiplier = _limitTargetMultiplier,

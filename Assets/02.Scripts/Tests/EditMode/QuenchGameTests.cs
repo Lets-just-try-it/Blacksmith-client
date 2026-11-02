@@ -18,7 +18,6 @@ namespace Blacksmith.Tests
                 CarryTime = 0.45f,
                 ShowSeconds = 2f,
                 ReadyLockTime = 0.6f,
-                ReadyAutoTime = 4f,
                 MinPullTime = 0.25f,
                 EndDelay = 1.6f,
                 LimitTargetMultiplier = 2f,
@@ -45,7 +44,7 @@ namespace Blacksmith.Tests
         {
             var rules = CreateRules();
             var game = new QuenchGame(rules, seed, difficulty);
-            Advance(game, rules.ReadyAutoTime + 0.05f);
+            game.Tick(rules.ReadyLockTime + 0.05f, Press);
             return game;
         }
 
@@ -96,15 +95,13 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Ready_StartsDunkingAutomaticallyWithoutInput()
+        public void Ready_WaitsForInputWithoutStartingAutomatically()
         {
             var game = new QuenchGame(CreateRules(), 1, 0);
 
-            Advance(game, 3.9f);
-            Assert.AreEqual(QuenchGame.PhaseKind.Ready, game.Phase);
+            Advance(game, 60f);
 
-            Advance(game, 0.2f);
-            Assert.AreEqual(QuenchGame.PhaseKind.Dunk, game.Phase);
+            Assert.AreEqual(QuenchGame.PhaseKind.Ready, game.Phase);
         }
 
         [Test]
@@ -120,14 +117,24 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Dunk_IgnoresInputRightAfterSubmerging()
+        public void Dunk_IgnoresInputRightAfterDunking()
         {
             var game = StartDunking();
-            Advance(game, 0.45f + 0.1f);
+            Advance(game, 0.1f);
 
             game.Tick(Dt, Press);
 
             Assert.AreEqual(QuenchGame.PhaseKind.Dunk, game.Phase);
+        }
+
+        [Test]
+        public void Dunk_CountsTimeFromTheMomentOfDunking()
+        {
+            var game = StartDunking();
+
+            Advance(game, 0.3f);
+
+            Assert.AreEqual(0.3f, game.Elapsed, 0.02f);
         }
 
         [Test]
@@ -140,6 +147,18 @@ namespace Blacksmith.Tests
 
             Assert.AreEqual(1f, game.Accuracy);
             Assert.IsTrue(Drain(game).Exists(e => e.Kind == MiniEventKind.Perfect));
+        }
+
+        [Test]
+        public void PerfectBand_IsFractionOfTarget_AndPullInsideItGivesFullAccuracy()
+        {
+            var game = StartDunking();
+
+            Assert.AreEqual(game.Target * 0.1f, game.PerfectBand, 0.0001f);
+
+            PullAtElapsed(game, game.Target + game.PerfectBand * 0.9f);
+
+            Assert.AreEqual(1f, game.Accuracy, 0.001f);
         }
 
         [Test]
@@ -217,7 +236,7 @@ namespace Blacksmith.Tests
             var game = StartDunking();
             Drain(game);
 
-            Advance(game, 0.45f + 3.5f);
+            Advance(game, 3.5f);
 
             var seconds = Drain(game).FindAll(e => e.Kind == MiniEventKind.SecondTick);
             Assert.AreEqual(2, seconds.Count);

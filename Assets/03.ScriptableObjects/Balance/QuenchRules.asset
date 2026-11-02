@@ -15,7 +15,6 @@ MonoBehaviour:
   _carryTime: 0.45
   _showSeconds: 2
   _readyLockTime: 0.6
-  _readyAutoTime: 4
   _minPullTime: 0.25
   _endDelay: 1.6
   _limitTargetMultiplier: 2

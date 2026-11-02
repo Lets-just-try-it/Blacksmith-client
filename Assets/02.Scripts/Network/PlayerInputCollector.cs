@@ -13,6 +13,9 @@ namespace Blacksmith.Network
         [SerializeField] private InputActionReference _move;
         [SerializeField] private InputActionReference _interact;
 
+        // 미니게임처럼 캐릭터가 제자리에 있어야 하는 동안 이동 입력을 0으로 보낸다.
+        public bool MovementLocked { get; set; }
+
         private void OnEnable()
         {
             _move.action.Enable();
@@ -23,7 +26,7 @@ namespace Blacksmith.Network
         {
             var data = new PlayerNetworkInput
             {
-                MoveDirection = ToWorldDirection(_move.action.ReadValue<Vector2>()),
+                MoveDirection = MovementLocked ? Vector2.zero : ToWorldDirection(_move.action.ReadValue<Vector2>()),
             };
             data.Buttons.Set(PlayerButton.Interact, _interact.action.IsPressed());
             input.Set(data);

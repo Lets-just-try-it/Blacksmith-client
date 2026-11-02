@@ -5,14 +5,12 @@ namespace Blacksmith.Core.Forge
     // 밸런스 수치는 ScriptableObject에서 읽어 넘긴다.
     public sealed class QuenchRules
     {
-        // 화로에서 통으로 옮기는 시간이다. 담근 시간(초)에 넣지 않는다.
+        // 칼날이 수조로 옮겨지는 연출 시간이다. 시간 계산에는 쓰지 않고 화면만 쓴다.
         public float CarryTime { get; set; }
         // 담근 뒤 이 시간까지만 초를 보여 준다.
         public float ShowSeconds { get; set; }
         // 준비 직후에 눌린 입력이 바로 담그기로 넘어가지 않도록 막는 시간이다.
         public float ReadyLockTime { get; set; }
-        // 이 시간이 지나면 입력이 없어도 자동으로 담근다.
-        public float ReadyAutoTime { get; set; }
         // 담근 직후에 눌린 입력이 바로 꺼내기로 넘어가지 않도록 막는 시간이다.
         public float MinPullTime { get; set; }
         public float EndDelay { get; set; }
