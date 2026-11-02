@@ -7091,6 +7091,7 @@ MonoBehaviour:
   _focusPoint: {fileID: 2010794549895610826}
   _view: {fileID: 1851608052658183057}
   _blade: {fileID: 2473504277773846161}
+  _inputLock: {fileID: 11400000, guid: 55343e3bee392d840ad4d7043c323fbc, type: 2}
 --- !u!1 &4515435152139103912
 GameObject:
   m_ObjectHideFlags: 0
