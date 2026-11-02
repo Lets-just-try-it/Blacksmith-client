@@ -116,6 +116,7 @@ namespace Blacksmith.Core.Battle
 
             if (!HasAliveTeam(BattleTeam.Monster))
             {
+                CreditStageClear();
                 _events.Add(new BattleEvent(BattleEventType.StageCleared, BattleEvent.NoUnit, BattleEvent.NoUnit, _stageIndex));
                 TryStartNextStage();
                 return;
@@ -124,6 +125,17 @@ namespace Blacksmith.Core.Battle
             if (Tick >= _rules.MaxTicks)
             {
                 Finish(false);
+            }
+        }
+
+        private void CreditStageClear()
+        {
+            for (int i = 0; i < _units.Count; i++)
+            {
+                if (_units[i].Team == BattleTeam.Adventurer && _units[i].IsAlive)
+                {
+                    _units[i].StagesCleared++;
+                }
             }
         }
 
@@ -344,7 +356,8 @@ namespace Blacksmith.Core.Battle
                 }
 
                 bool isDead = unit.IsFallen && BattleFormulas.RollDeath(_rules.DeathChancePercent, _random);
-                adventurers.Add(new AdventurerBattleResult(unit.SourceId, unit.IsFallen, isDead, unit.DamageDealt));
+                adventurers.Add(new AdventurerBattleResult(unit.SourceId, unit.IsFallen, isDead, unit.DamageDealt,
+                    unit.StagesCleared));
             }
 
             Result = new BattleResult(isVictory, stagesCleared, Tick, adventurers);

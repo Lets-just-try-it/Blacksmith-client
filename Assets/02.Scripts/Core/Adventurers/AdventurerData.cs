@@ -41,6 +41,8 @@ namespace Blacksmith.Core.Adventurers
         public string Name { get; set; }
         public int JobId { get; set; }
         public int Level { get; set; }
+        // 현재 레벨에서 쌓은 경험치다. 레벨이 오르면 필요 경험치만큼 빠지고 나머지가 남는다.
+        public int Experience { get; set; }
         public AdventurerAppearance Appearance { get; set; }
         // 1레벨 기준 값이다. 현재 레벨의 값은 AdventurerStatRules로 구한다.
         public AdventurerStats BaseStats { get; set; }

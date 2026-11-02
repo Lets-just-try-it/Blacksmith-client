@@ -16,6 +16,7 @@ namespace Blacksmith.Battle
         [SerializeField] private BattleRulesData _rules;
         [SerializeField] private DungeonData _dungeon;
         [SerializeField] private AdventurerBattleData _adventurerBattle;
+        [SerializeField] private AdventurerLevelData _adventurerLevel;
         [Tooltip("파티 모험가를 광장과 같은 규칙으로 생성한다. 관리 목록은 호스트 세션이 있어야 해서 여기서는 쓰지 않는다.")]
         [SerializeField] private AdventurerGenerationData _adventurerGeneration;
         [Tooltip("파티 모험가의 생성 시드. 모험가마다 이 값에 순번을 더해 쓴다.")]
@@ -113,9 +114,24 @@ namespace Blacksmith.Battle
 
         private void HandleFinished(BattleResult result)
         {
+            BattleRewards rewards = BattleRewardRules.Calculate(_dungeon.GetStageRewards(_firstStage, _lastStage), result,
+                FindAdventurer, _adventurerLevel.ToRules());
             _clearedStages = DungeonProgressRules.ApplyResult(_clearedStages, result);
-            _resultView.Show(result, _dungeon.DisplayName, _firstStage, _lastStage,
+            _resultView.Show(result, rewards, _dungeon.DisplayName, _firstStage, _lastStage,
                 id => FindAdventurer(id)?.Name ?? id.ToString());
+            ApplyGrowth(rewards);
+        }
+
+        // 다음 전투에서 성장이 보이도록 레벨과 경험치만 반영한다.
+        // 부상·사망은 반영하지 않아 테스트 파티가 줄지 않는다. 실제 반영은 호스트가 관리 목록에 한다.
+        private void ApplyGrowth(BattleRewards rewards)
+        {
+            foreach (AdventurerReward reward in rewards.Adventurers)
+            {
+                AdventurerData adventurer = FindAdventurer(reward.AdventurerId);
+                adventurer.Level = reward.Progress.Level;
+                adventurer.Experience = reward.Progress.Experience;
+            }
         }
 
         private AdventurerData FindAdventurer(int adventurerId)

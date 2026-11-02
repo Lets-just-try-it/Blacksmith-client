@@ -21,6 +21,11 @@ namespace Blacksmith.Battle
         {
             public bool IsBoss;
             public List<MonsterSpawn> Spawns = new List<MonsterSpawn>();
+            [Tooltip("이 스테이지를 클리어하면 받는 골드")]
+            public int Gold;
+            [Tooltip("이 스테이지를 쓰러지지 않고 클리어한 모험가가 받는 경험치")]
+            public int Experience;
+            public List<MaterialReward> Materials = new List<MaterialReward>();
         }
 
         [SerializeField] private int _dungeonId;
@@ -45,6 +50,24 @@ namespace Blacksmith.Battle
 
                 setup.Stages.Add(stage);
             }
+        }
+
+        // AddStagesTo와 같은 범위의 스테이지 보상을 싸우는 순서대로 돌려준다.
+        public List<StageReward> GetStageRewards(int firstStage, int lastStage)
+        {
+            var rewards = new List<StageReward>();
+            for (int i = firstStage; i <= lastStage; i++)
+            {
+                StageEntry entry = _stages[i];
+                rewards.Add(new StageReward
+                {
+                    Gold = entry.Gold,
+                    Experience = entry.Experience,
+                    Materials = entry.Materials,
+                });
+            }
+
+            return rewards;
         }
 
         public MonsterData FindMonster(int monsterId)
