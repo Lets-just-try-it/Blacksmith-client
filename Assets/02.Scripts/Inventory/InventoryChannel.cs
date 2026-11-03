@@ -19,6 +19,20 @@ namespace Blacksmith.Inventory
 
         public event Action LocalPlayerInventoryChanged;
 
+        // 손에 든 내 개인 슬롯 번호. 아무것도 들지 않았으면 -1이다. 내 PC에서만 정하고, 제작 요청에 실려 호스트에 간다.
+        public int HeldSlot { get; private set; } = -1;
+
+        public event Action HeldSlotChanged;
+
+        public void SetHeldSlot(int slot)
+        {
+            if (HeldSlot != slot)
+            {
+                HeldSlot = slot;
+                HeldSlotChanged?.Invoke();
+            }
+        }
+
         public void Register(InventoryPlayerActions actions)
         {
             _localActions = actions;
@@ -43,6 +57,7 @@ namespace Blacksmith.Inventory
             if (LocalPlayerInventory == inventory)
             {
                 LocalPlayerInventory = null;
+                SetHeldSlot(-1);
                 LocalPlayerInventoryChanged?.Invoke();
             }
         }
