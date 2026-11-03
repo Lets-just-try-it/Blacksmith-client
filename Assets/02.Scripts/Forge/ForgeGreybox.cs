@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace Blacksmith.Forge
 {
-    // 정제 작업대 임시 그레이박스를 만드는 도구. 상자·원통 하나에 머티리얼 하나를 쓰고 색은 MaterialPropertyBlock으로 칠한다.
-    // 실제 모델이 들어오면 SmeltingStage가 이 도구로 만드는 부분을 프리팹으로 바꾸면 된다.
-    public class SmeltingGreybox
+    // 작업대 임시 그레이박스(정제, 연마)를 만드는 도구. 상자·원통 하나에 머티리얼 하나를 쓰고 색은 MaterialPropertyBlock으로 칠한다.
+    // 실제 모델이 들어오면 작업대 무대가 이 도구로 만드는 부분을 프리팹으로 바꾸면 된다.
+    public class ForgeGreybox
     {
         private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
@@ -13,7 +13,7 @@ namespace Blacksmith.Forge
         private readonly Material _particle;
         private readonly MaterialPropertyBlock _block = new MaterialPropertyBlock();
 
-        public SmeltingGreybox(Material body, Material particle)
+        public ForgeGreybox(Material body, Material particle)
         {
             _body = body;
             _particle = particle;

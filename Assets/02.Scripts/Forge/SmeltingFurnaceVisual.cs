@@ -14,7 +14,7 @@ namespace Blacksmith.Forge
         private const float RimRadius = 0.96f;
         private static readonly Vector3 NuggetSize = new Vector3(0.36f, 0.3f, 0.34f);
 
-        private readonly SmeltingGreybox _kit;
+        private readonly ForgeGreybox _kit;
         private readonly List<Renderer> _pot = new List<Renderer>();
         private readonly Renderer _hearthMouth;
         private readonly List<Transform> _nuggets = new List<Transform>();
@@ -33,7 +33,7 @@ namespace Blacksmith.Forge
         // 지금 화덕이 달궈진 정도(0~1). 불꽃과 조명, 소리가 따라 쓴다.
         public float HeatShown { get; private set; }
 
-        public SmeltingFurnaceVisual(SmeltingGreybox kit, Transform stage)
+        public SmeltingFurnaceVisual(ForgeGreybox kit, Transform stage)
         {
             _kit = kit;
             Color stone = new Color(0.30f, 0.29f, 0.31f);

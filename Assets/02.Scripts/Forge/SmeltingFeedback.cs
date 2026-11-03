@@ -26,7 +26,7 @@ namespace Blacksmith.Forge
         private float _lastWarn;
         private int _lastComboPopup;
 
-        public SmeltingFeedback(SmeltingGreybox kit, Transform stage, Transform fxRoot, float scale,
+        public SmeltingFeedback(ForgeGreybox kit, Transform stage, Transform fxRoot, float scale,
             AudioSource sfx, ForgeNoiseSynth fireSound, ForgeNoiseSynth pourSound, Light glow)
         {
             _scale = scale;
@@ -64,11 +64,11 @@ namespace Blacksmith.Forge
         {
             _fireSound.Volume = 0f;
             _pourSound.Volume = 0f;
-            SmeltingGreybox.SetRate(_flames, 0f);
-            SmeltingGreybox.SetRate(_embers, 0f);
-            SmeltingGreybox.SetRate(_sparks, 0f);
-            SmeltingGreybox.SetRate(_steam, 0f);
-            SmeltingGreybox.SetRate(_pourSparks, 0f);
+            ForgeGreybox.SetRate(_flames, 0f);
+            ForgeGreybox.SetRate(_embers, 0f);
+            ForgeGreybox.SetRate(_sparks, 0f);
+            ForgeGreybox.SetRate(_steam, 0f);
+            ForgeGreybox.SetRate(_pourSparks, 0f);
             _glow.intensity = 0f;
             _camera = null;
             _view = null;
@@ -81,9 +81,9 @@ namespace Blacksmith.Forge
         {
             Vector3 point = _stage.TransformPoint(local + SmeltingLayout.ArenaNormal * 0.4f);
             _chips.transform.position = point;
-            SmeltingGreybox.Burst(_chips, Mathf.RoundToInt(8f + 10f * strength));
+            ForgeGreybox.Burst(_chips, Mathf.RoundToInt(8f + 10f * strength));
             _sparks.transform.position = point;
-            SmeltingGreybox.Burst(_sparks, Mathf.RoundToInt(5f + 8f * strength));
+            ForgeGreybox.Burst(_sparks, Mathf.RoundToInt(5f + 8f * strength));
 
             Play(ForgeProceduralSfx.Rock(Random.Range(0, 3)), Mathf.Clamp01(0.5f + 0.4f * quality), 0.9f + Random.Range(-0.08f, 0.1f) + (1f - quality) * 0.2f);
             Play(ForgeProceduralSfx.Clang(Random.Range(0, 3)), 0.25f * quality, 1.2f);
@@ -133,7 +133,7 @@ namespace Blacksmith.Forge
         public void PlayCurse(Vector3 local)
         {
             _pourSparks.transform.position = _stage.TransformPoint(local);
-            SmeltingGreybox.Burst(_pourSparks, 20);
+            ForgeGreybox.Burst(_pourSparks, 20);
             Play(ForgeProceduralSfx.Crack(), 0.8f, 0.8f);
             Play(ForgeProceduralSfx.Fail(), 0.5f, 0.9f);
             Shake(0.07f, 0.3f);
@@ -157,9 +157,9 @@ namespace Blacksmith.Forge
         public void PlaySplit(Vector3 boulderWorld, float yield)
         {
             _chips.transform.position = boulderWorld;
-            SmeltingGreybox.Burst(_chips, 50);
+            ForgeGreybox.Burst(_chips, 50);
             _sparks.transform.position = boulderWorld;
-            SmeltingGreybox.Burst(_sparks, 40);
+            ForgeGreybox.Burst(_sparks, 40);
             Play(ForgeProceduralSfx.Boom(), 0.9f, 0.9f);
             Play(ForgeProceduralSfx.Rock(2), 0.9f, 0.7f);
             Play(ForgeProceduralSfx.Success(), 0.5f, 1.2f);
@@ -173,7 +173,7 @@ namespace Blacksmith.Forge
         public void PlayNuggetLanded(Vector3 local, int arrived)
         {
             _sparks.transform.position = _stage.TransformPoint(local);
-            SmeltingGreybox.Burst(_sparks, 10);
+            ForgeGreybox.Burst(_sparks, 10);
             Play(ForgeProceduralSfx.Clang(arrived % 3), 0.35f, 0.7f + 0.05f * arrived);
             Shake(0.015f, 0.1f);
         }
@@ -189,14 +189,14 @@ namespace Blacksmith.Forge
             }
 
             Play(ForgeProceduralSfx.Whoosh(), 0.4f, 1.2f);
-            SmeltingGreybox.Burst(_flames, 8);
-            SmeltingGreybox.Burst(_sparks, 2);
+            ForgeGreybox.Burst(_flames, 8);
+            ForgeGreybox.Burst(_sparks, 2);
         }
 
         public void PlayMolten(float fluidity, bool timedOut)
         {
-            SmeltingGreybox.Burst(_sparks, 70);
-            SmeltingGreybox.Burst(_flames, 30);
+            ForgeGreybox.Burst(_sparks, 70);
+            ForgeGreybox.Burst(_flames, 30);
             Play(ForgeProceduralSfx.Success(), 0.8f, 1f);
             Play(ForgeProceduralSfx.Boom(), 0.6f, 1.1f);
             Shake(0.08f, 0.35f);
@@ -257,7 +257,7 @@ namespace Blacksmith.Forge
             Flash(0.15f, new Color(1f, 0.85f, 0.55f));
             Shake(0.05f, 0.25f);
             _steam.transform.position = moldWorld;
-            SmeltingGreybox.Burst(_steam, 30);
+            ForgeGreybox.Burst(_steam, 30);
             PopupWorld("주괴 완성!", new Color(1f, 0.85f, 0.3f), _stage.InverseTransformPoint(moldWorld));
         }
 
@@ -272,10 +272,10 @@ namespace Blacksmith.Forge
         public void Tick(SmeltingGame game, SmeltingFurnaceVisual furnace, SmeltingPourVisual pour)
         {
             float heat = furnace.HeatShown;
-            SmeltingGreybox.SetRate(_flames, game.Act == SmeltingGame.ActKind.Crack ? 6f : 8f + 50f * heat);
+            ForgeGreybox.SetRate(_flames, game.Act == SmeltingGame.ActKind.Crack ? 6f : 8f + 50f * heat);
             ParticleSystem.MainModule flames = _flames.main;
             flames.startColor = Color.Lerp(new Color(1f, 0.55f, 0.15f, 0.9f), new Color(1f, 0.95f, 0.8f, 0.95f), Mathf.Clamp01((heat - 0.5f) * 2f));
-            SmeltingGreybox.SetRate(_embers, heat > 0.4f ? (heat - 0.4f) * 40f : 0f);
+            ForgeGreybox.SetRate(_embers, heat > 0.4f ? (heat - 0.4f) * 40f : 0f);
 
             _fireSound.Volume = 0.03f + 0.13f * heat;
             _fireSound.Brightness = 0.1f + 0.3f * heat;
@@ -291,8 +291,8 @@ namespace Blacksmith.Forge
             if (!pour.Flowing)
             {
                 _pourSound.Volume = 0f;
-                SmeltingGreybox.SetRate(_pourSparks, 0f);
-                SmeltingGreybox.SetRate(_steam, 0f);
+                ForgeGreybox.SetRate(_pourSparks, 0f);
+                ForgeGreybox.SetRate(_steam, 0f);
                 return;
             }
 
@@ -302,8 +302,8 @@ namespace Blacksmith.Forge
             Vector3 land = _stage.TransformPoint(pour.LandPoint);
             _pourSparks.transform.position = land;
             _steam.transform.position = land + Vector3.up * 0.1f * _scale;
-            SmeltingGreybox.SetRate(_pourSparks, 18f + 60f * pour.Spilling);
-            SmeltingGreybox.SetRate(_steam, pour.LandsInMold ? 4f : 14f);
+            ForgeGreybox.SetRate(_pourSparks, 18f + 60f * pour.Spilling);
+            ForgeGreybox.SetRate(_steam, pour.LandsInMold ? 4f : 14f);
             Shake(0.002f + 0.006f * game.Flow, 0.08f);
             if (pour.Spilling > 0.02f)
             {

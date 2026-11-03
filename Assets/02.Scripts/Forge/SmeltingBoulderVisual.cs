@@ -35,7 +35,7 @@ namespace Blacksmith.Forge
             public float Quality;
         }
 
-        private readonly SmeltingGreybox _kit;
+        private readonly ForgeGreybox _kit;
         private readonly Transform _stage;
         private readonly Transform _boulder;
         private readonly GameObject _block;
@@ -62,7 +62,7 @@ namespace Blacksmith.Forge
         // 쪼개진 쇳덩이가 도가니에 떨어졌다(로컬 위치)
         public event Action<Vector3> NuggetLanded;
 
-        public SmeltingBoulderVisual(SmeltingGreybox kit, Transform stage)
+        public SmeltingBoulderVisual(ForgeGreybox kit, Transform stage)
         {
             _kit = kit;
             _stage = stage;
@@ -84,7 +84,7 @@ namespace Blacksmith.Forge
         }
 
         // 곡괭이 머리: 자루 끝의 굵은 마디에서 양쪽으로 자루 쪽으로 휘며 뾰족해진다. 왼쪽 끝(PickTip)이 내리찍는 곳이다.
-        private void BuildPickHead(SmeltingGreybox kit)
+        private void BuildPickHead(ForgeGreybox kit)
         {
             const int segments = 10;
             const float radius = 2f;

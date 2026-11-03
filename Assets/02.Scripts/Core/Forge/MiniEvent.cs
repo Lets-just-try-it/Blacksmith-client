@@ -27,6 +27,8 @@ namespace Blacksmith.Core.Forge
         Overflow,
         Warn,
         Solidify,
+        // 연마: 날이 탔다(Hazard, Index는 닿은 칸, Value는 지금까지의 탄 벌점). 칸을 다 갈면 Good, 물에 담그면 Hit, 열이 경고 구간을 넘으면 Warn
+        Hazard,
     }
 
     // 화면이 효과음과 연출을 만들 수 있도록 미니게임이 알려 주는 사건이다.

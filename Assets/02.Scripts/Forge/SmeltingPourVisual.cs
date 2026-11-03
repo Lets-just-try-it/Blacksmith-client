@@ -11,7 +11,7 @@ namespace Blacksmith.Forge
         private const int StreamSegments = 16;
         private const float MaxTiltDegrees = 62f;
 
-        private readonly SmeltingGreybox _kit;
+        private readonly ForgeGreybox _kit;
         private readonly Transform _stage;
         private readonly SmeltingFurnaceVisual _furnace;
         private readonly Transform _mold;
@@ -51,7 +51,7 @@ namespace Blacksmith.Forge
         public float Spilling { get; private set; }
         public Vector3 MoldCenter => new Vector3(_game != null ? _game.MoldX : 0f, SmeltingLayout.MoldY + 0.7f, SmeltingLayout.RailZ);
 
-        public SmeltingPourVisual(SmeltingGreybox kit, Transform stage, SmeltingFurnaceVisual furnace)
+        public SmeltingPourVisual(ForgeGreybox kit, Transform stage, SmeltingFurnaceVisual furnace)
         {
             _kit = kit;
             _stage = stage;

@@ -238,7 +238,7 @@ namespace Blacksmith.Forge
 
             float heat = Mathf.Clamp01(game.Heat);
             _heatFill.anchorMax = new Vector2(heat, 1f);
-            _heatImage.color = SmeltingGreybox.HeatColor(Mathf.Clamp01(0.25f + heat * 0.8f));
+            _heatImage.color = ForgeGreybox.HeatColor(Mathf.Clamp01(0.25f + heat * 0.8f));
             int percent = Mathf.RoundToInt(heat * 100f);
             if (percent != _shownHeat)
             {

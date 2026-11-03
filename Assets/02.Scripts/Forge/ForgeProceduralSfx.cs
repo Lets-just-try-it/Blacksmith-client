@@ -109,6 +109,18 @@ namespace Blacksmith.Forge
             return Make("tick", 0.08f, t => Mathf.Sin(2f * Mathf.PI * 1400f * t) * Mathf.Exp(-t * 60f) * 0.4f);
         }
 
+        // 날 끝을 갈아 흠집을 지웠을 때 나는 가는 쇠 소리
+        public static AudioClip Etch(int variant)
+        {
+            float frequency = 1100f + variant * 140f;
+            return Make("etch" + variant, 0.22f, t =>
+            {
+                float tone = Mathf.Sin(2f * Mathf.PI * frequency * t) * Mathf.Exp(-t * 26f) * 0.5f
+                    + Mathf.Sin(2f * Mathf.PI * frequency * 1.51f * t) * Mathf.Exp(-t * 40f) * 0.25f;
+                return tone + Noise() * Mathf.Exp(-t * 300f) * 0.6f;
+            });
+        }
+
         public static AudioClip Success()
         {
             float[] notes = { 523.25f, 659.25f, 783.99f };
