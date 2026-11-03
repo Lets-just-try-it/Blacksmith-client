@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b5f2de25f2c17f4c930dd04a81f0a0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleUnitHpBar
-  _fill: {fileID: 5596463837606953520}
+  _fill: {fileID: 989405612564879777}
   _pullTowardCamera: 0.6
 --- !u!1 &5261645714541760179
 GameObject:
@@ -14971,8 +14971,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 3
+  m_Sprite: {fileID: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0

@@ -10,7 +10,6 @@ namespace Blacksmith.Battle
         [SerializeField] private BattlePlayer _player;
         [SerializeField] private GameObject _root;
         [SerializeField] private TMP_Text _nameText;
-        [Tooltip("오른쪽 앵커를 체력 비율로 줄인다. 긴 바에서 둥근 스프라이트가 늘어나 보이지 않도록 Filled 대신 쓴다.")]
         [SerializeField] private RectTransform _fill;
 
         private BattleUnit _boss;
@@ -51,7 +50,7 @@ namespace Blacksmith.Battle
                 return;
             }
 
-            _fill.anchorMax = new Vector2((float)_boss.Hp / _boss.Stats.MaxHp, _fill.anchorMax.y);
+            BarFill.SetRatio(_fill, (float)_boss.Hp / _boss.Stats.MaxHp);
             if (_boss.IsFallen)
             {
                 Hide();
