@@ -13,7 +13,6 @@ namespace Blacksmith.Forge
     public class ForgingStation : MonoBehaviour
     {
         [SerializeField] private ForgingRulesData _rulesData;
-        [SerializeField, Min(0)] private int _difficulty;
         [SerializeField] private InputActionReference _interact;
         [SerializeField] private Transform _cameraAnchor;
         [SerializeField] private Transform _focusPoint;
@@ -21,6 +20,7 @@ namespace Blacksmith.Forge
         [SerializeField] private ForgingBladeVisual _blade;
         [SerializeField] private ForgingFeedback _feedback;
         [SerializeField] private PlayerNetworkInputLock _inputLock;
+        [SerializeField] private ForgeStationLink _link;
 
         private BoxCollider _range;
         private ForgingRules _rules;
@@ -43,11 +43,13 @@ namespace Blacksmith.Forge
 
         private void OnEnable()
         {
+            _link.Approved += Begin;
             _interact.action.Enable();
         }
 
         private void OnDisable()
         {
+            _link.Approved -= Begin;
             if (_game != null)
             {
                 End();
@@ -89,7 +91,7 @@ namespace Blacksmith.Forge
 
                 if (_localPlayer != null && _interact.action.WasPressedThisFrame())
                 {
-                    Begin();
+                    _link.RequestStart();
                 }
                 return;
             }
@@ -105,6 +107,7 @@ namespace Blacksmith.Forge
             {
                 float accuracy = _game.Accuracy;
                 End();
+                _link.SubmitResult(accuracy);
                 Completed?.Invoke(accuracy);
             }
         }
@@ -142,7 +145,7 @@ namespace Blacksmith.Forge
 
         private void Begin()
         {
-            _game = new ForgingGame(_rules, Environment.TickCount, _difficulty);
+            _game = new ForgingGame(_rules, Environment.TickCount, _link.Difficulty);
             _inputLock.Lock(this);
 
             _cameraFocus = Camera.main.GetComponent<ForgeCameraFocus>();
@@ -208,9 +211,9 @@ namespace Blacksmith.Forge
             InputAction action = _interact.action;
             return new MiniInput
             {
-                ActionPressed = action.WasPressedThisFrame(),
-                ActionHeld = action.IsPressed(),
-                ActionReleased = action.WasReleasedThisFrame(),
+                ActionPressed = MinigameActionKey.WasPressed(action),
+                ActionHeld = MinigameActionKey.IsHeld(action),
+                ActionReleased = MinigameActionKey.WasReleased(action),
             };
         }
 

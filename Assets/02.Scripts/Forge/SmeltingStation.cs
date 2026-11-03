@@ -15,13 +15,13 @@ namespace Blacksmith.Forge
     public class SmeltingStation : MonoBehaviour
     {
         [SerializeField] private SmeltingRulesData _rulesData;
-        [SerializeField, Min(0)] private int _difficulty;
         [SerializeField] private InputActionReference _interact;
         [SerializeField] private InputActionReference _point;
         [SerializeField] private InputActionReference _click;
         [SerializeField] private SmeltingView _view;
         [SerializeField] private SmeltingStage _stage;
         [SerializeField] private PlayerNetworkInputLock _inputLock;
+        [SerializeField] private ForgeStationLink _link;
 
         private BoxCollider _range;
         private SmeltingRules _rules;
@@ -47,6 +47,7 @@ namespace Blacksmith.Forge
 
         private void OnEnable()
         {
+            _link.Approved += Begin;
             _interact.action.Enable();
             _point.action.Enable();
             _click.action.Enable();
@@ -54,6 +55,7 @@ namespace Blacksmith.Forge
 
         private void OnDisable()
         {
+            _link.Approved -= Begin;
             if (_game != null)
             {
                 End();
@@ -95,7 +97,7 @@ namespace Blacksmith.Forge
 
                 if (_localPlayer != null && _interact.action.WasPressedThisFrame())
                 {
-                    Begin();
+                    _link.RequestStart();
                 }
                 return;
             }
@@ -110,6 +112,7 @@ namespace Blacksmith.Forge
             {
                 float accuracy = _game.Accuracy;
                 End();
+                _link.SubmitResult(accuracy);
                 Completed?.Invoke(accuracy);
             }
         }
@@ -129,7 +132,7 @@ namespace Blacksmith.Forge
 
         private void Begin()
         {
-            _game = new SmeltingGame(_rules, Environment.TickCount, _difficulty);
+            _game = new SmeltingGame(_rules, Environment.TickCount, _link.Difficulty);
             _inputLock.Lock(this);
 
             _camera = Camera.main;
@@ -214,9 +217,9 @@ namespace Blacksmith.Forge
 
             return new MiniInput
             {
-                ActionPressed = action.WasPressedThisFrame(),
-                ActionHeld = action.IsPressed(),
-                ActionReleased = action.WasReleasedThisFrame(),
+                ActionPressed = MinigameActionKey.WasPressed(action),
+                ActionHeld = MinigameActionKey.IsHeld(action),
+                ActionReleased = MinigameActionKey.WasReleased(action),
                 PointerPressed = _click.action.WasPressedThisFrame(),
                 PointerHeld = held,
                 PointerX = x,

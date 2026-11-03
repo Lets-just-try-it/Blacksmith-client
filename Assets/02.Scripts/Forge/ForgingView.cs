@@ -72,7 +72,7 @@ namespace Blacksmith.Forge
             _lane.Bind(game, rules);
             _feedbackText.text = string.Empty;
             _resultText.text = string.Empty;
-            _hintText.text = "행동 키  톡: 작은 박자     금색 긴 박자: 시작에서 꾹 눌러 힘을 모으고, 끝에서 떼기";
+            _hintText.text = "박자에 맞춰 망치질하자!\n• 작은 박자: E 또는 스페이스바를 톡\n• 금색 긴 박자: 시작에서 꾹 눌러 힘을 모으고, 끝에서 떼기";
             _shownMatch = _shownCombo = _shownBeatsLeft = -1;
             Refresh(game);
         }

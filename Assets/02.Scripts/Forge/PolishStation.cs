@@ -15,9 +15,6 @@ namespace Blacksmith.Forge
     public class PolishStation : MonoBehaviour
     {
         [SerializeField] private PolishRulesData _rulesData;
-        [SerializeField, Min(0)] private int _difficulty;
-        // 앞 단계(정제, 단조, 담금질)의 평균 정확도. 낮을수록 흠집이 많다. 앞 단계 결과를 잇기 전까지 고정값을 쓴다.
-        [SerializeField, Range(0f, 1f)] private float _priorAccuracy = 0.6f;
         [SerializeField] private InputActionReference _interact;
         [SerializeField] private InputActionReference _point;
         [SerializeField] private InputActionReference _click;
@@ -25,6 +22,7 @@ namespace Blacksmith.Forge
         [SerializeField] private PolishLensView _lens;
         [SerializeField] private PolishStage _stage;
         [SerializeField] private PlayerNetworkInputLock _inputLock;
+        [SerializeField] private ForgeStationLink _link;
 
         private BoxCollider _range;
         private PolishRules _rules;
@@ -48,6 +46,7 @@ namespace Blacksmith.Forge
 
         private void OnEnable()
         {
+            _link.Approved += Begin;
             _interact.action.Enable();
             _point.action.Enable();
             _click.action.Enable();
@@ -55,6 +54,7 @@ namespace Blacksmith.Forge
 
         private void OnDisable()
         {
+            _link.Approved -= Begin;
             if (_game != null)
             {
                 End();
@@ -96,7 +96,7 @@ namespace Blacksmith.Forge
 
                 if (_localPlayer != null && _interact.action.WasPressedThisFrame())
                 {
-                    Begin();
+                    _link.RequestStart();
                 }
                 return;
             }
@@ -111,6 +111,7 @@ namespace Blacksmith.Forge
             {
                 float accuracy = _game.Accuracy;
                 End();
+                _link.SubmitResult(accuracy);
                 Completed?.Invoke(accuracy);
             }
         }
@@ -130,7 +131,7 @@ namespace Blacksmith.Forge
 
         private void Begin()
         {
-            _game = new PolishGame(_rules, Environment.TickCount, _difficulty, _priorAccuracy);
+            _game = new PolishGame(_rules, Environment.TickCount, _link.Difficulty, _link.PriorAccuracy);
             _inputLock.Lock(this);
 
             Camera camera = Camera.main;
@@ -209,9 +210,9 @@ namespace Blacksmith.Forge
             bool mapped = _lens.TryMap(_point.action.ReadValue<Vector2>(), out float x, out float y);
             return new MiniInput
             {
-                ActionPressed = _interact.action.WasPressedThisFrame(),
-                ActionHeld = _interact.action.IsPressed(),
-                ActionReleased = _interact.action.WasReleasedThisFrame(),
+                ActionPressed = MinigameActionKey.WasPressed(_interact.action),
+                ActionHeld = MinigameActionKey.IsHeld(_interact.action),
+                ActionReleased = MinigameActionKey.WasReleased(_interact.action),
                 PointerPressed = _click.action.WasPressedThisFrame(),
                 PointerHeld = _click.action.IsPressed(),
                 PointerX = mapped ? x : -100f,

@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace Blacksmith.Forge
 {
-    // ForgeTest 씬에서 내 플레이어를 따라간다. 기본은 쿼터뷰이고, 숫자 키로 쿼터뷰 시점을 고르고 V 키로 1인칭과 번갈아 본다.
+    // ForgeTest 씬에서 내 플레이어를 따라간다. 기본은 쿼터뷰이고, F1~F6 키로 쿼터뷰 시점을 고르고(숫자 키는 손에 들 슬롯 선택에 쓴다) V 키로 1인칭과 번갈아 본다.
     // 1인칭에서는 마우스로 둘러보고, 이동은 보는 방향 기준이다. Game 씬에 카메라 추적이 생기면 지운다.
     public class ForgeTestCameraFollow : MonoBehaviour
     {
@@ -65,7 +65,7 @@ namespace Blacksmith.Forge
             for (int i = 0; i < _presets.Length; i++)
             {
                 int index = i;
-                _presetKeys[i] = new InputAction("Preset" + (i + 1), binding: "<Keyboard>/" + (i + 1));
+                _presetKeys[i] = new InputAction("Preset" + (i + 1), binding: "<Keyboard>/f" + (i + 1));
                 _presetKeys[i].performed += _ => SelectPreset(index);
             }
         }
