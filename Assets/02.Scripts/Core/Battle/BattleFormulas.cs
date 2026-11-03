@@ -17,6 +17,13 @@ namespace Blacksmith.Core.Battle
             return Math.Max(1, attack * powerPercent / 100);
         }
 
+        public static UnitStats ApplyEnrage(UnitStats stats, EnrageData enrage)
+        {
+            stats.Attack = stats.Attack * (100 + enrage.AttackBonusPercent) / 100;
+            stats.AttackIntervalTicks = Math.Max(1, stats.AttackIntervalTicks * (100 - enrage.AttackIntervalReductionPercent) / 100);
+            return stats;
+        }
+
         public static bool RollDeath(int deathChancePercent, Random random)
         {
             return random.Next(100) < deathChancePercent;

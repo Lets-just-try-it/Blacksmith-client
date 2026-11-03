@@ -19,6 +19,7 @@ namespace Blacksmith.Battle
         [SerializeField] private ParticleSystem _skillEffect;
         [SerializeField] private ParticleSystem _hitEffect;
         [SerializeField] private ParticleSystem _healEffect;
+        [SerializeField] private ParticleSystem _enrageEffect;
 
         public BattleUnit Unit { get; private set; }
 
@@ -56,6 +57,11 @@ namespace Blacksmith.Battle
         public void PlayHeal()
         {
             Play(_healEffect);
+        }
+
+        public void PlayEnrage()
+        {
+            Play(_enrageEffect);
         }
 
         public void PlayFall()

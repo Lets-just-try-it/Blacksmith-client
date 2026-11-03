@@ -74,7 +74,7 @@ namespace Blacksmith.Core.Battle
             {
                 AdventurerSetup adventurer = _setup.Adventurers[i];
                 _units.Add(new BattleUnit(_units.Count, BattleTeam.Adventurer, adventurer.AdventurerId, -1, i,
-                    adventurer.Stats, adventurer.Skill, -i * _rules.FormationSpacing));
+                    adventurer.Stats, new[] { adventurer.Skill }, default, -i * _rules.FormationSpacing));
             }
         }
 
@@ -99,7 +99,7 @@ namespace Blacksmith.Core.Battle
             {
                 MonsterSetup monster = stage.Monsters[i];
                 _units.Add(new BattleUnit(_units.Count, BattleTeam.Monster, monster.MonsterId, _stageIndex, i,
-                    monster.Stats, monster.Skill, spawnBase + monster.SpawnOffset));
+                    monster.Stats, monster.Skills, monster.Enrage, spawnBase + monster.SpawnOffset));
             }
 
             _events.Add(new BattleEvent(BattleEventType.StageStarted, BattleEvent.NoUnit, BattleEvent.NoUnit, _stageIndex));
@@ -194,23 +194,25 @@ namespace Blacksmith.Core.Battle
 
         private void CastSkill(BattleUnit unit, BattleUnit target)
         {
+            SkillData skill = unit.Skill;
+            unit.AdvanceSkill();
             unit.Mana = 0;
             unit.AttackCooldown = unit.Stats.AttackIntervalTicks;
-            _events.Add(new BattleEvent(BattleEventType.SkillCast, unit.UnitId, target.UnitId, (int)unit.Skill.Kind));
+            _events.Add(new BattleEvent(BattleEventType.SkillCast, unit.UnitId, target.UnitId, (int)skill.Kind));
 
-            switch (unit.Skill.Kind)
+            switch (skill.Kind)
             {
                 case SkillKind.SingleDamage:
-                    DealDamage(unit, target, unit.Skill.PowerPercent);
+                    DealDamage(unit, target, skill.PowerPercent);
                     break;
                 case SkillKind.AreaDamage:
-                    DealAreaDamage(unit, target);
+                    DealAreaDamage(unit, target, skill);
                     break;
                 case SkillKind.HealLowestAlly:
                     BattleUnit ally = FindLowestHpAlly(unit);
                     if (ally != null)
                     {
-                        Heal(unit, ally);
+                        Heal(unit, ally, skill.PowerPercent);
                     }
 
                     break;
@@ -219,7 +221,7 @@ namespace Blacksmith.Core.Battle
                     {
                         if (_units[i].Team == unit.Team && _units[i].IsAlive)
                         {
-                            Heal(unit, _units[i]);
+                            Heal(unit, _units[i], skill.PowerPercent);
                         }
                     }
 
@@ -227,15 +229,15 @@ namespace Blacksmith.Core.Battle
             }
         }
 
-        private void DealAreaDamage(BattleUnit unit, BattleUnit center)
+        private void DealAreaDamage(BattleUnit unit, BattleUnit center, SkillData skill)
         {
             int centerPosition = center.Position;
             for (int i = 0; i < _units.Count; i++)
             {
                 BattleUnit other = _units[i];
-                if (other.Team != unit.Team && other.IsAlive && Math.Abs(other.Position - centerPosition) <= unit.Skill.Radius)
+                if (other.Team != unit.Team && other.IsAlive && Math.Abs(other.Position - centerPosition) <= skill.Radius)
                 {
-                    DealDamage(unit, other, unit.Skill.PowerPercent);
+                    DealDamage(unit, other, skill.PowerPercent);
                 }
             }
         }
@@ -254,12 +256,27 @@ namespace Blacksmith.Core.Battle
                 target.IsFallen = true;
                 target.Mana = 0;
                 _events.Add(new BattleEvent(BattleEventType.Fell, source.UnitId, target.UnitId, 0));
+                return;
             }
+
+            TryEnrage(target);
         }
 
-        private void Heal(BattleUnit source, BattleUnit target)
+        private void TryEnrage(BattleUnit unit)
         {
-            int amount = Math.Min(BattleFormulas.Heal(source.Stats.Attack, source.Skill.PowerPercent),
+            if (unit.IsEnraged || !unit.Enrage.IsEnabled || (long)unit.Hp * 100 > (long)unit.Stats.MaxHp * unit.Enrage.HpPercent)
+            {
+                return;
+            }
+
+            unit.IsEnraged = true;
+            unit.Stats = BattleFormulas.ApplyEnrage(unit.Stats, unit.Enrage);
+            _events.Add(new BattleEvent(BattleEventType.Enraged, unit.UnitId, BattleEvent.NoUnit, 0));
+        }
+
+        private void Heal(BattleUnit source, BattleUnit target, int powerPercent)
+        {
+            int amount = Math.Min(BattleFormulas.Heal(source.Stats.Attack, powerPercent),
                 target.Stats.MaxHp - target.Hp);
             target.Hp += amount;
             _events.Add(new BattleEvent(BattleEventType.Healed, source.UnitId, target.UnitId, amount));

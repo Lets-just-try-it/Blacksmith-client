@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b6fe6e6b5a0d0b4fae35884e88db5bd, type: 3}
-  m_Name: Monster_TestMobB
+  m_Name: Monster_SkeletonArcher
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.MonsterData
-  _monsterId: 2
-  _displayName: "\uC784\uC2DC \uC7A1\uBAB9 B"
+  _monsterId: 202
+  _displayName: "\uD574\uACE8 \uAD81\uC218"
   _stats:
-    MaxHp: 250
-    Attack: 20
-    Defense: 4
-    AttackRange: 100
-    AttackIntervalTicks: 25
-    MoveSpeed: 12
+    MaxHp: 180
+    Attack: 24
+    Defense: 3
+    AttackRange: 450
+    AttackIntervalTicks: 30
+    MoveSpeed: 10
     MaxMana: 0
     ManaPerTick: 0
     ManaPerHit: 0
-  _skill:
-    Kind: 0
-    PowerPercent: 0
-    Radius: 0
-  _viewPrefab: {fileID: 6520044602737739183, guid: 56a22989bc50398449229449e26c984a, type: 3}
+  _skills: []
+  _enrage:
+    HpPercent: 0
+    AttackBonusPercent: 0
+    AttackIntervalReductionPercent: 0
+  _viewPrefab: {fileID: 643285375811587093, guid: 529b93ae62526ff498d3b742319e5017, type: 3}

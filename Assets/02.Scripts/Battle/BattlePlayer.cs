@@ -121,6 +121,9 @@ namespace Blacksmith.Battle
                 case BattleEventType.Fell:
                     _views[battleEvent.TargetUnitId].PlayFall();
                     break;
+                case BattleEventType.Enraged:
+                    _views[battleEvent.SourceUnitId].PlayEnrage();
+                    break;
                 case BattleEventType.StageStarted:
                     HideFallenUnits();
                     break;

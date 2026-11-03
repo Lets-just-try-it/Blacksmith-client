@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b6fe6e6b5a0d0b4fae35884e88db5bd, type: 3}
-  m_Name: Monster_TestMobA
+  m_Name: Monster_GoblinArcher
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.MonsterData
-  _monsterId: 1
-  _displayName: "\uC784\uC2DC \uC7A1\uBAB9 A"
+  _monsterId: 102
+  _displayName: "\uACE0\uBE14\uB9B0 \uAD81\uC218"
   _stats:
-    MaxHp: 150
-    Attack: 15
-    Defense: 2
-    AttackRange: 100
-    AttackIntervalTicks: 25
-    MoveSpeed: 12
+    MaxHp: 110
+    Attack: 14
+    Defense: 1
+    AttackRange: 450
+    AttackIntervalTicks: 30
+    MoveSpeed: 10
     MaxMana: 0
     ManaPerTick: 0
     ManaPerHit: 0
-  _skill:
-    Kind: 0
-    PowerPercent: 0
-    Radius: 0
-  _viewPrefab: {fileID: 6520044602737739183, guid: 56a22989bc50398449229449e26c984a, type: 3}
+  _skills: []
+  _enrage:
+    HpPercent: 0
+    AttackBonusPercent: 0
+    AttackIntervalReductionPercent: 0
+  _viewPrefab: {fileID: 3825516864959432135, guid: 16ed6d306a694cb48b2e2641cb7c7151, type: 3}

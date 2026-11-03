@@ -48,6 +48,17 @@ namespace Blacksmith.Core.Battle
         public int Radius;
     }
 
+    // 체력이 HpPercent% 이하로 처음 떨어질 때 한 번 강해진다. HpPercent가 0이면 분노하지 않는다.
+    [Serializable]
+    public struct EnrageData
+    {
+        public int HpPercent;
+        public int AttackBonusPercent;
+        public int AttackIntervalReductionPercent;
+
+        public bool IsEnabled => HpPercent > 0;
+    }
+
     public sealed class AdventurerSetup
     {
         public int AdventurerId { get; set; }
@@ -59,7 +70,9 @@ namespace Blacksmith.Core.Battle
     {
         public int MonsterId { get; set; }
         public UnitStats Stats { get; set; }
-        public SkillData Skill { get; set; }
+        // 마나가 찰 때마다 앞에서부터 차례로 쓰고, 끝까지 쓰면 처음으로 돌아간다.
+        public IReadOnlyList<SkillData> Skills { get; set; } = Array.Empty<SkillData>();
+        public EnrageData Enrage { get; set; }
         public int SpawnOffset { get; set; }
     }
 

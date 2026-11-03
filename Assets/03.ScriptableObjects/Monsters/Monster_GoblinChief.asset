@@ -10,22 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b6fe6e6b5a0d0b4fae35884e88db5bd, type: 3}
-  m_Name: Monster_TestBoss
+  m_Name: Monster_GoblinChief
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.MonsterData
-  _monsterId: 100
-  _displayName: "\uC784\uC2DC \uBCF4\uC2A4"
+  _monsterId: 110
+  _displayName: "\uACE0\uBE14\uB9B0 \uB300\uC7A5"
   _stats:
-    MaxHp: 2500
-    Attack: 45
-    Defense: 8
-    AttackRange: 150
+    MaxHp: 1800
+    Attack: 40
+    Defense: 6
+    AttackRange: 140
     AttackIntervalTicks: 30
     MoveSpeed: 10
     MaxMana: 1000
-    ManaPerTick: 8
-    ManaPerHit: 100
-  _skill:
-    Kind: 2
-    PowerPercent: 200
+    ManaPerTick: 10
+    ManaPerHit: 120
+  _skills:
+  - Kind: 1
+    PowerPercent: 250
+    Radius: 0
+  - Kind: 2
+    PowerPercent: 160
     Radius: 300
-  _viewPrefab: {fileID: 3358962888622876441, guid: 7013a684a73c931469fa6ceca48aebea, type: 3}
+  _enrage:
+    HpPercent: 50
+    AttackBonusPercent: 30
+    AttackIntervalReductionPercent: 25
+  _viewPrefab: {fileID: 7103482918291794740, guid: 0d6e3974dab4ba1468254a457e10b2fd, type: 3}

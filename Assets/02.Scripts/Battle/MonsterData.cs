@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Blacksmith.Core.Battle;
 using UnityEngine;
 
@@ -9,7 +10,10 @@ namespace Blacksmith.Battle
         [SerializeField] private int _monsterId;
         [SerializeField] private string _displayName;
         [SerializeField] private UnitStats _stats;
-        [SerializeField] private SkillData _skill;
+        [Tooltip("마나가 찰 때마다 위에서부터 차례로 쓴다. 끝까지 쓰면 처음으로 돌아간다. 비우면 기본 공격만 한다.")]
+        [SerializeField] private List<SkillData> _skills = new List<SkillData>();
+        [Tooltip("체력이 HpPercent% 이하로 처음 떨어지면 한 번 강해진다. HpPercent가 0이면 분노하지 않는다.")]
+        [SerializeField] private EnrageData _enrage;
         [SerializeField] private BattleUnitView _viewPrefab;
 
         public int MonsterId => _monsterId;
@@ -22,7 +26,8 @@ namespace Blacksmith.Battle
             {
                 MonsterId = _monsterId,
                 Stats = _stats,
-                Skill = _skill,
+                Skills = _skills.ToArray(),
+                Enrage = _enrage,
                 SpawnOffset = spawnOffset,
             };
         }
