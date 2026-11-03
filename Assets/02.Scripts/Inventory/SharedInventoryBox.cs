@@ -97,7 +97,12 @@ namespace Blacksmith.Inventory
         private void Close()
         {
             _isOpen = false;
-            _view.Hide();
+            // 씬을 내릴 때는 창이 먼저 파괴되었을 수 있다.
+            if (_view != null)
+            {
+                _view.Hide();
+            }
+
             _inputLock.Release(this);
         }
 

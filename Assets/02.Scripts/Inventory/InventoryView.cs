@@ -17,6 +17,7 @@ namespace Blacksmith.Inventory
         [Tooltip("등급 이름을 찾는 데 쓴다")]
         [SerializeField] private GradeThresholdData _grades;
         [SerializeField] private GameObject _panel;
+        [Tooltip("비워 두면 크기를 표시하지 않는다")]
         [SerializeField] private TMP_Text _sizeText;
         [Tooltip("GridLayoutGroup이 붙은 칸 부모. 가로 칸 수는 인벤토리에 맞춰 바꾼다")]
         [SerializeField] private GridLayoutGroup _slotRoot;
@@ -57,8 +58,17 @@ namespace Blacksmith.Inventory
                 _inventory = null;
             }
 
-            EndDrag();
-            _panel.SetActive(false);
+            _channel.EndDrag();
+            // 씬을 내릴 때는 이 창의 자식이 먼저 파괴된 뒤 다른 오브젝트(예: 상자)의 OnDisable에서 불릴 수 있다.
+            if (_dragIcon != null)
+            {
+                _dragIcon.gameObject.SetActive(false);
+            }
+
+            if (_panel != null)
+            {
+                _panel.SetActive(false);
+            }
         }
 
         private void Refresh()
@@ -70,7 +80,10 @@ namespace Blacksmith.Inventory
 
             _slotRoot.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             _slotRoot.constraintCount = _inventory.Columns;
-            _sizeText.text = $"{_inventory.Columns} x {_inventory.Rows}";
+            if (_sizeText != null)
+            {
+                _sizeText.text = $"{_inventory.Columns} x {_inventory.Rows}";
+            }
             EnsureSlotCount(_inventory.SlotCount);
             for (int i = 0; i < _slots.Count; i++)
             {
