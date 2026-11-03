@@ -254,5 +254,47 @@ namespace Blacksmith.Tests
             Assert.AreEqual(4, grid.Rows);
             Assert.AreEqual(new ItemStack(Sword, 1, 1), grid.Get(0));
         }
+
+        [Test]
+        public void TryReplaceOne_SingleItem_ReplacesInSameSlot()
+        {
+            InventoryGrid grid = CreatePlayer();
+            grid.TryAdd(new ItemStack(Sword, 1, 1));
+            grid.TryAdd(new ItemStack(Ore, 1, 1));
+
+            Assert.IsTrue(grid.TryReplaceOne(1, new ItemStack(Sword, 70, 1)));
+            Assert.AreEqual(new ItemStack(Sword, 70, 1), grid.Get(1));
+            Assert.AreEqual(new ItemStack(Sword, 1, 1), grid.Get(0));
+        }
+
+        [Test]
+        public void TryReplaceOne_Stack_ConsumesOneAndPlacesResultInEmptySlot()
+        {
+            InventoryGrid grid = CreatePlayer();
+            grid.TryAdd(new ItemStack(Ore, 1, 5));
+
+            Assert.IsTrue(grid.TryReplaceOne(0, new ItemStack(Sword, 70, 1)));
+            Assert.AreEqual(new ItemStack(Ore, 1, 4), grid.Get(0));
+            Assert.AreEqual(new ItemStack(Sword, 70, 1), grid.Get(1));
+        }
+
+        [Test]
+        public void TryReplaceOne_StackWithNoRoom_ChangesNothing()
+        {
+            InventoryGrid grid = CreatePlayer();
+            grid.TryAdd(new ItemStack(Ore, 1, 5));
+            Fill(grid, 7);
+
+            Assert.IsFalse(grid.TryReplaceOne(0, new ItemStack(Sword, 70, 1)));
+            Assert.AreEqual(new ItemStack(Ore, 1, 5), grid.Get(0));
+        }
+
+        [Test]
+        public void TryReplaceOne_EmptyOrInvalidSlot_Fails()
+        {
+            InventoryGrid grid = CreatePlayer();
+            Assert.IsFalse(grid.TryReplaceOne(0, new ItemStack(Sword, 1, 1)));
+            Assert.IsFalse(grid.TryReplaceOne(99, new ItemStack(Sword, 1, 1)));
+        }
     }
 }
