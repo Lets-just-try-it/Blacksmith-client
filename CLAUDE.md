@@ -52,6 +52,7 @@ Assets/
     Forge/       # 대장간: 무기·방어구 제작, 대장간 업그레이드
     Plaza/       # 광장: 모험가 영입, 랜덤 생성, 파견
     Battle/      # 자동 전투, 몬스터, 던전
+    Inventory/   # 개인·공용 인벤토리, 손에 들 슬롯 선택, 아이템 정의
     Dialogue/    # 영역 공통 대화: NPC 대화, 함께 보는 대화(컷씬·튜토리얼), 대화창
     UI/
     Utils/
@@ -60,6 +61,7 @@ Assets/
   03.ScriptableObjects/
     Balance/     # 미니게임, 경제 등 밸런스 수치
     Equipment/
+    Items/       # 아이템 정의(재료, 제작 중간 형태, 장비)와 아이템 번호 표
     Adventurers/
     Monsters/
     Dungeons/
@@ -102,7 +104,7 @@ Assets/
 - 효과음 → `Assets/06.Audio/SFX/`
 - 공용 머티리얼 → `Assets/05.Art/Materials/`
 
-도메인 폴더(`Forge`, `Plaza`, `Battle`, `Dialogue`)에는 상태를 가진 `NetworkBehaviour`와 화면·연출을 담당하는 `MonoBehaviour`를 두고, 계산 규칙은 `Core/`에 둔다.
+도메인 폴더(`Forge`, `Plaza`, `Battle`, `Inventory`, `Dialogue`)에는 상태를 가진 `NetworkBehaviour`와 화면·연출을 담당하는 `MonoBehaviour`를 두고, 계산 규칙은 `Core/`에 둔다.
 
 ---
 
@@ -188,11 +190,12 @@ Assets/
 
 ## 역할 경계
 
-팀은 세 영역으로 작업을 나눈다. 초기에는 빠른 개발을 위해 모두 클라이언트 개발을 맡는다.
+팀은 네 영역으로 작업을 나눈다. 초기에는 빠른 개발을 위해 모두 클라이언트 개발을 맡는다.
 
 1. 대장간: 무기·방어구 제작, 대장간 업그레이드 (`Forge/`)
 2. 광장: 광장 구현, 모험가 영입, 모험가 랜덤 생성(외형과 스탯), 모험가 파견 (`Plaza/`)
 3. 전투: 모험가와 몬스터의 자동 전투, 몬스터 종류, 던전 구현 (`Battle/`)
+4. 인벤토리: 개인·공용 인벤토리, 손에 들 슬롯 선택, 아이템 정의 (`Inventory/`)
 
 각자 맡은 부분을 끝낸 뒤 MVP 시연으로 피드백을 받고 고도화한다.
 

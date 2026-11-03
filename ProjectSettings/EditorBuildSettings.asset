@@ -23,6 +23,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/01.Scenes/ForgeTest.unity
     guid: 2435be9cd904a59428af0048ff45b1c7
+  - enabled: 1
+    path: Assets/01.Scenes/BattleTest.unity
+    guid: 71134a5b3dc5e51419f9b92069fb5a1d
+  - enabled: 1
+    path: Assets/01.Scenes/InventoryTest.unity
+    guid: 44ce59dec5f791348860daed6fe17fb8
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
