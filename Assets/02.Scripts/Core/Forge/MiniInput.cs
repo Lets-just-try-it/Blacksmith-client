@@ -6,5 +6,10 @@ namespace Blacksmith.Core.Forge
         public bool ActionPressed;
         public bool ActionHeld;
         public bool ActionReleased;
+        // 화면을 직접 찍거나 쥐는 미니게임의 포인터. 이번 프레임에 눌렀는지, 누르고 있는지, 미니게임 좌표의 위치다.
+        public bool PointerPressed;
+        public bool PointerHeld;
+        public float PointerX;
+        public float PointerY;
     }
 }
