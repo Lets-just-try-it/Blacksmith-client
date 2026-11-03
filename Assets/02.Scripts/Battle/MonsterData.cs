@@ -9,6 +9,8 @@ namespace Blacksmith.Battle
     {
         [SerializeField] private int _monsterId;
         [SerializeField] private string _displayName;
+        [Tooltip("보스는 머리 위 체력바 대신 화면 상단 체력바로 보여 준다.")]
+        [SerializeField] private bool _isBoss;
         [SerializeField] private UnitStats _stats;
         [Tooltip("마나가 찰 때마다 위에서부터 차례로 쓴다. 끝까지 쓰면 처음으로 돌아간다. 비우면 기본 공격만 한다.")]
         [SerializeField] private List<SkillData> _skills = new List<SkillData>();
@@ -18,6 +20,7 @@ namespace Blacksmith.Battle
 
         public int MonsterId => _monsterId;
         public string DisplayName => _displayName;
+        public bool IsBoss => _isBoss;
         public BattleUnitView ViewPrefab => _viewPrefab;
 
         public MonsterSetup ToSetup(int spawnOffset)

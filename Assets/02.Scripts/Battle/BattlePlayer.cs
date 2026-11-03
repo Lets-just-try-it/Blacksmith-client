@@ -11,6 +11,8 @@ namespace Blacksmith.Battle
     {
         [SerializeField] private Transform _unitRoot;
         [SerializeField] private Transform _pathOrigin;
+        [Tooltip("유닛 체력바가 바라볼 카메라")]
+        [SerializeField] private Camera _camera;
         [Tooltip("시뮬레이션 위치 1이 이동하는 월드 거리와 방향 (쿼터뷰 길 방향)")]
         [SerializeField] private Vector3 _pathStep = new Vector3(0.01f, 0f, 0.005f);
         [Tooltip("라인 번호 1당 옆으로 벌어지는 월드 거리")]
@@ -95,7 +97,7 @@ namespace Blacksmith.Battle
             {
                 BattleUnit unit = units[i];
                 BattleUnitView view = Instantiate(_getPrefab(unit), ToWorld(unit.Position, unit.Lane), Quaternion.identity, _unitRoot);
-                view.Bind(unit);
+                view.Bind(unit, _camera.transform.rotation);
                 _views.Add(view);
                 _previousPositions.Add(unit.Position);
                 UnitSpawned?.Invoke(view);
@@ -114,12 +116,15 @@ namespace Blacksmith.Battle
                     break;
                 case BattleEventType.Damaged:
                     _views[battleEvent.TargetUnitId].PlayHit();
+                    _views[battleEvent.TargetUnitId].RefreshHp();
                     break;
                 case BattleEventType.Healed:
                     _views[battleEvent.TargetUnitId].PlayHeal();
+                    _views[battleEvent.TargetUnitId].RefreshHp();
                     break;
                 case BattleEventType.Fell:
                     _views[battleEvent.TargetUnitId].PlayFall();
+                    _views[battleEvent.TargetUnitId].RefreshHp();
                     break;
                 case BattleEventType.Enraged:
                     _views[battleEvent.SourceUnitId].PlayEnrage();

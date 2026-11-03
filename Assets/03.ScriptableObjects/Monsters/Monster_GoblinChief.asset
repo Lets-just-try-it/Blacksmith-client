@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.MonsterData
   _monsterId: 110
   _displayName: "\uACE0\uBE14\uB9B0 \uB300\uC7A5"
+  _isBoss: 1
   _stats:
     MaxHp: 1800
     Attack: 40

@@ -20,12 +20,27 @@ namespace Blacksmith.Battle
         [SerializeField] private ParticleSystem _hitEffect;
         [SerializeField] private ParticleSystem _healEffect;
         [SerializeField] private ParticleSystem _enrageEffect;
+        [Tooltip("잡몹만 쓴다. 비워 두면 체력바를 표시하지 않는다.")]
+        [SerializeField] private BattleUnitHpBar _hpBar;
 
         public BattleUnit Unit { get; private set; }
 
-        public void Bind(BattleUnit unit)
+        public void Bind(BattleUnit unit, Quaternion cameraRotation)
         {
             Unit = unit;
+            if (_hpBar != null)
+            {
+                _hpBar.FaceCamera(cameraRotation);
+                _hpBar.Refresh(unit);
+            }
+        }
+
+        public void RefreshHp()
+        {
+            if (_hpBar != null)
+            {
+                _hpBar.Refresh(Unit);
+            }
         }
 
         public void SetMoving(bool isMoving)
