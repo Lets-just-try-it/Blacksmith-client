@@ -19,12 +19,12 @@ namespace Blacksmith.Forge
         [SerializeField] private Transform _focusPoint;
         [SerializeField] private QuenchView _view;
         [SerializeField] private QuenchBladeVisual _blade;
+        [SerializeField] private PlayerNetworkInputLock _inputLock;
 
         private BoxCollider _range;
         private QuenchRules _rules;
         private QuenchGame _game;
         private NetworkPlayer _localPlayer;
-        private PlayerInputCollector _collector;
         private ForgeCameraFocus _cameraFocus;
 
         public event Action<float> Completed;
@@ -117,12 +117,7 @@ namespace Blacksmith.Forge
         private void Begin()
         {
             _game = new QuenchGame(_rules, Environment.TickCount, _difficulty);
-
-            _collector = _localPlayer.Runner.GetComponent<PlayerInputCollector>();
-            if (_collector != null)
-            {
-                _collector.MovementLocked = true;
-            }
+            _inputLock.Lock(this);
 
             _cameraFocus = Camera.main.GetComponent<ForgeCameraFocus>();
             if (_cameraFocus != null)
@@ -139,11 +134,7 @@ namespace Blacksmith.Forge
         private void End()
         {
             _game = null;
-            if (_collector != null)
-            {
-                _collector.MovementLocked = false;
-                _collector = null;
-            }
+            _inputLock.Release(this);
 
             if (_cameraFocus != null)
             {

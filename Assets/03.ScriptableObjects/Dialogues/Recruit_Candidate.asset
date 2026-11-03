@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2089426017e9c1f4fafdfbf9cc575970, type: 3}
+  m_Name: Recruit_Candidate
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Dialogue.DialogueData
+  _entries:
+  - Conditions:
+    - Stat: 0
+      Compare: 0
+      Value: 1
+    Lines:
+    - Speaker: {fileID: 0}
+      Text: "\uBAA8\uD5D8\uC744 \uD568\uAED8 \uB5A0\uB0A0 \uB300\uC7A5\uAC04\uC744
+        \uCC3E\uACE0 \uC788\uC5B4\uC694."
+    - Speaker: {fileID: 0}
+      Text: "\uC800\uB97C \uB370\uB824\uAC00 \uC8FC\uC2DC\uACA0\uC5B4\uC694?"
+  - Conditions: []
+    Lines:
+    - Speaker: {fileID: 0}
+      Text: "\uBAA8\uD5D8\uC744 \uD568\uAED8 \uB5A0\uB0A0 \uB300\uC7A5\uAC04\uC744
+        \uCC3E\uACE0 \uC788\uC5B4\uC694."
+    - Speaker: {fileID: 0}
+      Text: "\uC9C0\uAE08\uC740 \uC790\uB9AC\uAC00 \uC5C6\uC5B4 \uBCF4\uC774\uB124\uC694.
+        \uB2E4\uC74C\uC5D0 \uB610 \uB4E4\uB97C\uAC8C\uC694."
+  _choices:
+  - Text: "\uC601\uC785\uD558\uAE30"
+    EnableConditions:
+    - Stat: 0
+      Compare: 0
+      Value: 1
+    DisabledText: "\uAD00\uB9AC \uC2AC\uB86F\uC774 \uAC00\uB4DD \uCC3C\uB2E4"
+    ActionId: Recruit
+  - Text: "\uADF8\uB9CC\uB450\uAE30"
+    EnableConditions: []
+    DisabledText: 
+    ActionId: 

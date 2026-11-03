@@ -10,7 +10,7 @@ Tempered Heroes는 Unity 6 URP 기반의 2.5D 쿼터뷰 대장간 경영·모험
 
 대장간에서 관리할 수 있는 모험가는 대장간 업그레이드로 슬롯이 1 → 2 → 4 → 6 → 8칸으로 늘어 최대 8명이다. 한 번에 파견할 수 있는 모험가는 최대 5명이다. 슬롯이 5칸보다 많으면 관리 중인 모험가 중에서 파견할 모험가를 골라 장비를 입혀 보낸다. 5명을 꼭 채워 보낼 필요는 없고, 몇 명을 보낼지는 파견할 때 플레이어가 정한다.
 
-현재 저장소에는 프로젝트 공통 문서(`CLAUDE.md`, `GIT_WORKFLOW.md`, 이 문서, `docs/GAME_CONCEPT.md`, `docs/NETWORK_DESIGN.md`, `docs/ai-prompts/README.md`), URP 템플릿으로 생성한 Unity 프로젝트, Photon Fusion 2 SDK와 Host 모드 네트워크 뼈대, 진행 중인 자동 전투 코드, 모험가 영입 기반 코드가 있다.
+현재 저장소에는 프로젝트 공통 문서(`CLAUDE.md`, `GIT_WORKFLOW.md`, 이 문서, `docs/GAME_CONCEPT.md`, `docs/NETWORK_DESIGN.md`, `docs/ai-prompts/README.md`), URP 템플릿으로 생성한 Unity 프로젝트, Photon Fusion 2 SDK와 Host 모드 네트워크 뼈대, 진행 중인 자동 전투 코드, 모험가 영입 기반 코드, 영역 공통 대화(다이얼로그) 시스템이 있다.
 
 ## 개발 및 배포 환경
 
@@ -81,22 +81,32 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 
 | 영역 | 상태 | 구현 내용 |
 | --- | --- | --- |
-| 장비 제작 미니게임·판매 | 진행 중 | `Core/Forge`에 미니게임 기반(`MiniGame`, `MiniInput`, `MiniEvent`)과 담금질 규칙(`QuenchGame`: 시드 기반 기준 시간, 정확도 계산). 수치는 `QuenchRulesData`(`03.ScriptableObjects/Balance/QuenchRules.asset`). 담금질은 `ForgeTest` 씬에서 한 명이 로컬로 해볼 수 있다. 담금질 작업대 앞(`QuenchStation`)에서 상호작용 키를 누르면 카메라가 작업대로 옮겨지고(`ForgeCameraFocus`), 같은 키로 담그고 꺼낸다. 준비 구간은 키를 눌러야 시작한다(자동 시작 없음). 기준 시간, 담근 뒤 2초까지만 보이는 `SS:cc` 시간, 결과 정확도와 시간선(기준 시간, 완벽 구간, 꺼낸 시간 마커)을 한글 폰트로 보여 주고(`QuenchView`), 칼날은 상자로 연출한다(`QuenchBladeVisual`). 하는 동안 캐릭터 이동은 잠긴다(`PlayerInputCollector.MovementLocked`). 효과음, 증기·물보라 연출, 나머지 미니게임 6종, 작업대 사용권·결과 전송, 판매는 남아 있다. |
+| 장비 제작 미니게임·판매 | 진행 중 | `Core/Forge`에 미니게임 기반(`MiniGame`, `MiniInput`, `MiniEvent`)과 담금질 규칙(`QuenchGame`: 시드 기반 기준 시간, 정확도 계산). 수치는 `QuenchRulesData`(`03.ScriptableObjects/Balance/QuenchRules.asset`). 담금질은 `ForgeTest` 씬에서 한 명이 로컬로 해볼 수 있다. 담금질 작업대 앞(`QuenchStation`)에서 상호작용 키를 누르면 카메라가 작업대로 옮겨지고(`ForgeCameraFocus`), 같은 키로 담그고 꺼낸다. 준비 구간은 키를 눌러야 시작한다(자동 시작 없음). 기준 시간, 담근 뒤 2초까지만 보이는 `SS:cc` 시간, 결과 정확도와 시간선(기준 시간, 완벽 구간, 꺼낸 시간 마커)을 한글 폰트로 보여 주고(`QuenchView`), 칼날은 상자로 연출한다(`QuenchBladeVisual`). 하는 동안 캐릭터 조작 입력은 잠긴다(`PlayerNetworkInputLock`, `docs/NETWORK_DESIGN.md` 3.1절). 효과음, 증기·물보라 연출, 나머지 미니게임 6종, 작업대 사용권·결과 전송, 판매는 남아 있다. |
 | 장비 등급 규칙 | 구현 | 미니게임 점수 평균을 5단계 등급으로 변환하는 `GradeRule`(`Core/`)과 경계값·등급 이름 데이터(`GradeThresholds`) |
 | 대장간 맵 | 진행 중 | `01.Scenes/ForgeTest`에서 `04.Prefabs/Town/ForgeRoom`을 확인한다. 외부 에셋 없이 상자만으로 만든 그레이박스다(머티리얼은 `05.Art/Materials/Greybox`). 씬을 열고 플레이하면 로비 없이 호스트로 시작해(`ForgeTestStarter`) 입구 앞에서 Player로 WASD로 걸어 다닐 수 있고, 카메라가 쿼터뷰로 따라간다(`ForgeTestCameraFollow`, 숫자 키 1~6으로 쿼터뷰 시점 6종(기본, 넓게, 높이, 낮게, 가까이, 직교)을 고르고 V 키로 1인칭과 번갈아 봄). `Game` 씬을 복제한 구성이다. 약 20m x 16m, 판매 구역(입구), 모험가 5명이 모이는 회의형 관리 구역, 제작 구역(작업대 7개와 공용 창고, 작업대마다 색을 달리함). 벽은 높이 1.6m로 통일했고 빈 틈이 문이다. 구역 사이 문 3곳은 `ForgeDoor`로 캐릭터가 다가가면 서서히 열리고 닫힌다. 벽·소품·바닥에 상자 충돌체를 달았다. 담금질 작업대에는 회색 상자 수조(`QuenchTrough`, 물 표면은 자식 `WaterSurface`)를 둔다. 쿼터뷰로 실행해 플레이어 스폰과 화면을 확인했다. 작업대별 상세(담금질 작업대는 카메라 포커스까지 있음), `Game` 씬 배치, 판매·관리 구역 기능, 실제 에셋 적용은 남아 있다. |
 | 낮·밤 사이클 | 미구현 | |
 | 던전·파견·자동 전투 | 진행 중 | `Core/Battle`에 시드 기반 자동 전투 시뮬레이션(마나 자동 스킬, 스테이지 연속 진행, 쓰러짐·사망 판정)과 던전 단계별 스테이지 선택·진행 규칙. `Battle/`에 쿼터뷰 재생, 하단 HP·마나 HUD, 결과창. 모험가 정보(`AdventurerData`)를 전투 유닛으로 바꾸는 `AdventurerSetupRules`(체력·공격력·방어력은 `AdventurerStatRules.GetCurrentStats`)와, 직업별 전투 수치(사거리, 공격 간격, 이동 속도, 마나)·전투 모델과 `SkillId` → `SkillData` 표를 담은 `AdventurerBattle` 데이터. `01.Scenes/BattleTest`에서 광장과 같은 규칙으로 생성한 모험가 파티(레벨 지정)와 테스트 던전으로 확인한다. 생성된 모험가 유닛은 오브젝트 이름이 `이름 Lv레벨 (#ID)`이고, 인스펙터의 `AdventurerUnitInfo`에서 모험가 정보와 실제 전투 능력치를 볼 수 있다. 보상·경험치: 전투 결과에 모험가별로 쓰러지기 전까지 클리어한 스테이지 수를 담고, `BattleRewardRules`가 클리어한 스테이지의 골드·재료와 모험가별 경험치·레벨업을 계산한다. 스테이지 보상은 `DungeonData`, 레벨업 필요 경험치는 `AdventurerLevel` 데이터(`AdventurerLeveling`)에 둔다. 결과창에 보상과 경험치·레벨업을 보여 주고, 테스트 씬에서는 다음 전투에 레벨과 경험치를 이어서 쓴다. 파견 창, 골드·재료와 전투 결과를 게임 상태에 반영하기, 실제 몬스터 데이터, Fusion 연동은 남아 있다. |
-| 모험가 영입·랜덤 생성 | 진행 중 | `Core/Adventurers`에 모험가 정보 원본 형식(`AdventurerData`: 이름, 직업, 레벨, 외형 번호, 기본·성장 체력·공격력·방어력, 스킬 번호, 착용 장비 번호, 몸 상태), 시드 기반 생성(`AdventurerGenerator`, 후보 1~4명), 레벨 성장 공식(`AdventurerStatRules`). 수치는 `AdventurerGeneration`·직업(`Job_Warrior`)·`AdventurerRoster` 데이터. `Plaza/`에 호스트 소유 관리 목록(`AdventurerRosterState`, 최대 8), 광장 후보 스폰·영입 처리(`PlazaRecruitment`, `RecruitCandidate`), Player 프리팹의 `PlazaPlayerActions`(E로 영입 요청 RPC), 목록 창 UI, 초상 뼈대(`AdventurerPortraitProvider`). `01.Scenes/PlazaTest`에서 로비 없이 호스트로 시작해 확인한다. 직업은 전사 1종이다. 파견 창, 전투 결과 반영(부상·사망·경험치), 외형 적용, `Game` 씬 배치는 남아 있다. |
+| 모험가 영입·랜덤 생성 | 진행 중 | `Core/Adventurers`에 모험가 정보 원본 형식(`AdventurerData`: 이름, 직업, 레벨, 외형 번호, 기본·성장 체력·공격력·방어력, 스킬 번호, 착용 장비 번호, 몸 상태), 시드 기반 생성(`AdventurerGenerator`, 후보 1~4명), 레벨 성장 공식(`AdventurerStatRules`). 수치는 `AdventurerGeneration`·직업(`Job_Warrior`)·`AdventurerRoster` 데이터. `Plaza/`에 호스트 소유 관리 목록(`AdventurerRosterState`, 최대 8), 광장 후보 스폰·영입 처리(`PlazaRecruitment`, `RecruitCandidate`), 후보에게 E로 말을 걸면 대화가 열리고 "영입하기"를 골라야 영입되는 흐름(`RecruitCandidate`가 `IDialogueChoiceHandler`로 선택 결과를 받음, 대사는 `03.ScriptableObjects/Dialogues/Recruit_Candidate`), 목록 창 UI, 초상 뼈대(`AdventurerPortraitProvider`). `01.Scenes/PlazaTest`에서 로비 없이 호스트로 시작해 확인한다. 직업은 전사 1종이다. 파견 창, 전투 결과 반영(부상·사망·경험치), 외형 적용, `Game` 씬 배치는 남아 있다. |
+| 대화 (다이얼로그) | 진행 중 | `Core/Dialogue`에 조건 평가(`DialogueCondition`: 게임 상태 값 비교. 화면 표시와 호스트 재확인이 같은 함수를 씀)와 선택지 강조 규칙(`DialogueChoiceCursor`: 강조 없이 시작, 숫자키·W/S, 끝에서 멈춤, 최대 9개). `Dialogue/`에 대사 데이터(`DialogueData`: 조건별 대사 묶음, 줄마다 화자, 선택지와 비활성 이유), 화자(`DialogueSpeaker`), 함께 보는 대화 번호표(`DialogueCatalog`), 프리팹과 씬을 잇는 `DialogueChannel`, 진행(`DialogueDirector`)과 화면(`DialogueView`, `DialogueChoiceButton`: 비활성 이유 표시, 고르려 하면 흔들림), 조건 값 공급(`GameDialogueStats`, 지금은 빈 관리 슬롯 수만), NPC 대화 점유(`DialogueSeat`), Player 프리팹의 대화 요청·선택·해제 RPC(`DialoguePlayerActions`)와 "대화 중" 말풍선(`DialogueBubbleView`), 함께 보는 대화(`SharedDialogue`: 각자 넘기고 모두 다 읽으면 닫음, NPC 대화 중이면 그 대화를 닫고 염). 대화 중에는 `PlayerNetworkInputLock`으로 캐릭터 조작 입력을 잠그고, 엔터(UI/Submit)·W/S·숫자키(UI 맵 `ChoiceUp`·`ChoiceDown`·`ChoiceNumber`)는 대화창이 직접 읽는다. 대화창 프리팹은 `04.Prefabs/UI/Dialogue`, 대사 데이터는 `03.ScriptableObjects/Dialogues`, 채널·입력 잠금 에셋은 `03.ScriptableObjects/Runtime`. `01.Scenes/PlazaTest`에 배치했고, 함께 보는 대화는 플레이 중 `SharedDialogue` 오브젝트의 `SharedDialogueTestTrigger` 컨텍스트 메뉴로 연다. 튜토리얼·컷씬 연결, 명성 등 조건 값 추가, `Game` 씬 배치는 남아 있다. |
 | 대장간 업그레이드·해금 | 미구현 | |
 | 저장/불러오기 | 미구현 | |
-| Photon Fusion 2 연동 (Host 모드) | 진행 중 | Fusion 2.1.3 SDK. `Bootstrap` → `Lobby` → `Game` 씬 흐름, 세션명으로 Host 시작·Client 참가, 세션 종료 시 로비 복귀, 호스트의 플레이어 스폰·디스폰, `NetworkInput` 기반 예측 이동(입력 구조는 `docs/NETWORK_DESIGN.md` 3절), 필드 없는 공용 `GameState`. 임시 캡슐 모델을 쓴다. 클라이언트 요청 RPC는 Player 프리팹에 영역별 행동 컴포넌트(예: `ForgePlayerActions`)로 나눠 두기로 했다. 영역별 공유 상태·RPC, 스팀·스토브 초대는 남아 있다. |
+| Photon Fusion 2 연동 (Host 모드) | 진행 중 | Fusion 2.1.3 SDK. `Bootstrap` → `Lobby` → `Game` 씬 흐름, 세션명으로 Host 시작·Client 참가, 세션 종료 시 로비 복귀, 호스트의 플레이어 스폰·디스폰, `NetworkInput` 기반 예측 이동(입력 구조는 `docs/NETWORK_DESIGN.md` 3절), 미니게임·대화 중 캐릭터 조작 입력 잠금(`PlayerNetworkInputLock`, 같은 문서 3.1절), 필드 없는 공용 `GameState`. 임시 캡슐 모델을 쓴다. 클라이언트 요청 RPC는 Player 프리팹에 영역별 행동 컴포넌트(예: `ForgePlayerActions`)로 나눠 두기로 했다. 영역별 공유 상태·RPC, 스팀·스토브 초대는 남아 있다. |
 | 방송 연동 | 미구현 | |
-| 자동화 테스트 | 일부 | `02.Scripts/Tests/EditMode`에 전투 시뮬레이션 결정성·승패·마나·쓰러짐, 스테이지 선택·진행 테스트 15개, 장비 등급 경계값·평균 테스트 14개, 담금질 규칙 테스트 15개(준비 구간 자동 시작 없음, 완벽 구간, 담그는 순간부터 시간 계산 포함), 모험가 생성 결정성·범위와 레벨 성장 테스트 12개, 모험가 → 전투 유닛 변환 테스트 5개, 모험가별 클리어 스테이지 테스트 2개, 보상·경험치·레벨업 테스트 7개 |
+| 자동화 테스트 | 일부 | `02.Scripts/Tests/EditMode`에 전투 시뮬레이션 결정성·승패·마나·쓰러짐, 스테이지 선택·진행 테스트 15개, 장비 등급 경계값·평균 테스트 14개, 담금질 규칙 테스트 15개(준비 구간 자동 시작 없음, 완벽 구간, 담그는 순간부터 시간 계산 포함), 모험가 생성 결정성·범위와 레벨 성장 테스트 12개, 모험가 → 전투 유닛 변환 테스트 5개, 모험가별 클리어 스테이지 테스트 2개, 보상·경험치·레벨업 테스트 7개, 대화 조건·선택지 강조 테스트 19개 |
 
 ## 검증 상태
 
-- 에디터 컴파일 오류 없음. EditMode 테스트 68개 통과 (`unity test --mode EditMode`).
-- `PlazaTest` 씬 플레이 모드에서 호스트 자동 시작, 영입 후보 1~4명 생성, 후보에게 다가가면 "E 영입" 표시, E 입력으로 영입해 후보가 사라지고 목록에 들어가는 것, 슬롯이 가득 차면 영입되지 않는 것, 목록 창을 연 상태에서 바로 갱신되는 것, 버튼으로 창을 열고 닫는 것을 확인했다. 콘솔 오류 없음. 빌드한 실행 파일과 에디터로 두 명이 접속해 영입, 관리 목록 동기화, 클라이언트 화면의 후보 위치를 확인했다. 이때 로비가 `PlazaTest`를 불러오도록 로컬에서만 임시로 바꿔 테스트했다.
+- 에디터 컴파일 오류 없음. EditMode 테스트 89개 통과 (`unity test --mode EditMode`).
+- `PlazaTest` 씬 플레이 모드에서 호스트 자동 시작, 영입 후보 1~4명 생성, 후보에게 다가가면 "E 영입" 표시, E 입력으로 영입해 후보가 사라지고 목록에 들어가는 것, 슬롯이 가득 차면 영입되지 않는 것, 목록 창을 연 상태에서 바로 갱신되는 것, 버튼으로 창을 열고 닫는 것을 확인했다. 콘솔 오류 없음. 빌드한 실행 파일과 에디터로 두 명이 접속해 영입, 관리 목록 동기화, 클라이언트 화면의 후보 위치를 확인했다. 이때 로비가 `PlazaTest`를 불러오도록 로컬에서만 임시로 바꿔 테스트했다. (영입이 대화로 바뀌기 전에 확인한 내용이다.)
+- 대화: `PlazaTest` 씬에서 다음을 확인했다. 콘솔 오류 없음.
+  - 후보에게 다가가면 "E 대화"가 뜨고, E로 대화가 열리며, 대화 중에는 W/S를 눌러도 캐릭터가 움직이지 않는다.
+  - 엔터로 대사를 넘긴다. 선택지는 강조 없이 뜨고 이때 엔터는 무시된다. W/S·숫자키로 강조가 옮겨 가고 끝에서 멈춘다.
+  - "영입하기"를 고르면 후보가 사라지고 목록에 들어간다. "그만두기"는 대화만 닫고 점유를 푼다.
+  - 슬롯이 가득 차면 다른 대사가 나오고, "영입하기"가 흐리게 이유와 함께 표시되며, 고르려 하면 거절 연출만 나온다.
+  - NPC 대화 도중 함께 보는 대화를 열면 NPC 대화가 닫히고 점유가 풀린 뒤 함께 보는 대화가 열리고, 다 읽으면 닫힌다.
+  - 키 입력은 에디터 창 포커스 없이 Input System 이벤트로 넣어 확인했다. 마우스 클릭은 클릭 처리 함수를 직접 불러 확인했고 실제 마우스로는 확인하지 못했다.
+  - 빌드한 실행 파일과 에디터로 두 명이 접속해 확인했다. 한 명이 후보와 대화 중이면 다른 사람 화면에 그 플레이어의 말풍선과 후보의 "대화 중"이 보이고 그 후보에게 말을 걸 수 없었다. 클라이언트가 말을 걸어 "영입하기"를 고르면 영입되고 양쪽 관리 목록이 함께 갱신됐다. 함께 보는 대화는 먼저 다 읽은 쪽에 "다른 참가자를 기다리는 중"이 뜨고 둘 다 읽으면 함께 닫혔다. 이때 로비가 `PlazaTest`를 불러오도록 로컬에서만 임시로 바꿔 테스트했다.
+- `ForgeTest`에서 담금질이 `PlayerNetworkInputLock`으로 바뀐 뒤에도 작업대에서 E로 시작하면 이동이 잠기고, 끝나면 다시 움직이는 것을 확인했다.
 - `BattleTest` 씬 플레이 모드에서 스테이지 3개 진행, 승리, 결과창 표시를 확인했다. 진행 상황에 따라 다음 스테이지부터 선택한 스테이지까지만 싸우는 것도 확인했다. 생성한 모험가 4명(1·3·5·8레벨)이 레벨에 맞는 능력치로 싸우고, 결과창에 모험가 이름이 나오는 것을 확인했다. 결과창에 골드 650·재료와 모험가별 경험치·레벨업이 표시되고, 다시 전투하면 오른 레벨과 남은 경험치로 싸우는 것을 확인했다. 콘솔 오류 없음.
 - Fusion SDK 임포트 후 에디터 컴파일 오류 없음, Fusion IL 위버 동작 확인.
 - Host 모드 뼈대: 에디터 플레이 모드에서 `Bootstrap` → `Lobby` → Host 시작 → `Game` 씬 로드, 플레이어 스폰, 키 입력에 따른 쿼터뷰 기준 이동, 세션 종료 후 로비 복귀를 확인했다. 세션명이 비었거나 인증에 실패하면 로비에 실패 문구가 뜨고 다시 시도할 수 있다. 빌드한 실행 파일과 에디터로 두 명이 접속해 이동과 동기화에 이상이 없는 것을 확인했다.
@@ -112,6 +122,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
    - 대장간: 나머지 제작 미니게임 6종 이식(정제, 단조, 연마, 판 성형, 조립, 장신구), 미니게임 입력·화면, 작업대 사용권·결과 전송(`Forge/ForgePlayerActions`), 인벤토리, 판매
    - 전투: 파견 창(광장 담당과 협의), 실제 몬스터·보스 데이터, 장비별 이펙트, Fusion 연동(시드 동기화, 결과를 `GameState`에 적용). 파견할 때는 관리 목록(`AdventurerRosterState`)의 `AdventurerData`를 `AdventurerBattle.ToSetup`으로 바꿔 쓴다. 장비·직업 보정과 직업별 공격 방식은 정해지면 `AdventurerSetupRules`와 `AdventurerBattle`에 추가한다.
    - 광장: 파견 창, 전투 결과(부상·사망, `BattleRewards`의 레벨·경험치)를 관리 목록에 반영하는 API, 외형 프리셋 적용, 낮이 시작될 때 후보 재생성, `Game` 씬에 관리 목록·광장 배치
+   - 대화: 튜토리얼·클리어 컷씬에서 `SharedDialogue` 사용, 명성 등 조건 값(`DialogueStat`, `GameDialogueStats`) 추가, `Game` 씬에 대화창·`GameDialogueStats`·`SharedDialogue` 배치. 인벤토리를 만들 때 숫자키 슬롯 선택이 대화 중(입력 잠금 중)에는 무시되게 한다 (`docs/GAME_CONCEPT.md` 13절 15번).
 4. 다른 `Core` 규칙(가격)에도 시드 결정성 EditMode 테스트를 추가한다.
 5. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 확정 전 임시 폰트다. 둘 다 SIL OFL 1.1이며 `05.Art/Fonts`에 라이선스 문서와 함께 둔다.
 6. Unity CLI 사용이 안정되면 예비로 둔 Unity MCP 연동을 정리한다.

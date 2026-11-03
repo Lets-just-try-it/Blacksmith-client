@@ -52,6 +52,7 @@ Assets/
     Forge/       # 대장간: 무기·방어구 제작, 대장간 업그레이드
     Plaza/       # 광장: 모험가 영입, 랜덤 생성, 파견
     Battle/      # 자동 전투, 몬스터, 던전
+    Dialogue/    # 영역 공통 대화: NPC 대화, 함께 보는 대화(컷씬·튜토리얼), 대화창
     UI/
     Utils/
     Editor/      # 에디터 전용 스크립트 (빌드에 포함되지 않음)
@@ -62,6 +63,8 @@ Assets/
     Adventurers/
     Monsters/
     Dungeons/
+    Dialogues/   # 대사 데이터, 화자, 함께 보는 대화 목록
+    Runtime/     # 런타임 상태를 잇는 에셋 (입력 잠금, 대화 채널 등). 밸런스 수치가 아니다
 
   04.Prefabs/
     Network/     # Player, GameState 등 NetworkObject
@@ -99,7 +102,7 @@ Assets/
 - 효과음 → `Assets/06.Audio/SFX/`
 - 공용 머티리얼 → `Assets/05.Art/Materials/`
 
-도메인 폴더(`Forge`, `Plaza`, `Battle`)에는 상태를 가진 `NetworkBehaviour`와 화면·연출을 담당하는 `MonoBehaviour`를 두고, 계산 규칙은 `Core/`에 둔다.
+도메인 폴더(`Forge`, `Plaza`, `Battle`, `Dialogue`)에는 상태를 가진 `NetworkBehaviour`와 화면·연출을 담당하는 `MonoBehaviour`를 두고, 계산 규칙은 `Core/`에 둔다.
 
 ---
 
@@ -169,6 +172,7 @@ Assets/
 6. 표시 전용 처리(UI, 이펙트)는 `Render()`나 `ChangeDetector`로 한다.
 7. 캐릭터 이동은 클라이언트 예측을 적용한다. 입력은 `NetworkInput`으로 모아 `FixedUpdateNetwork()`에서 처리한다. 기능 클래스는 입력 장치를 직접 읽지 않고 `GetInput()`으로 받는다. 구조는 `docs/NETWORK_DESIGN.md`의 "플레이어 입력 처리"를 따른다.
 8. 미니게임은 실행하는 클라이언트에서만 진행한다. 노트 표시, 입력 처리, 정확도 계산은 네트워크 틱과 관계없는 로컬 로직으로 두고, 끝나면 정확도 결과만 호스트에 보낸다. 호스트는 결과를 신뢰한다.
+9. 미니게임·대화창처럼 하는 동안 캐릭터 조작을 멈춰야 하는 기능은 `PlayerNetworkInputLock`의 `Lock(this)`/`Release(this)`를 쓴다. 입력 액션을 직접 끄거나 `PlayerInputCollector`에 잠금 속성을 추가하지 않는다. 규칙은 `docs/NETWORK_DESIGN.md`의 "캐릭터 조작 입력 잠금"을 따른다.
 
 ### 구현 원칙
 

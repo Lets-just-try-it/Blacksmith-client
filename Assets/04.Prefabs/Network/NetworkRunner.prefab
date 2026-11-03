@@ -89,6 +89,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Network.PlayerInputCollector
   _move: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _interact: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _inputLock: {fileID: 11400000, guid: 55343e3bee392d840ad4d7043c323fbc, type: 2}
 --- !u!114 &8966742343995929570
 MonoBehaviour:
   m_ObjectHideFlags: 0
