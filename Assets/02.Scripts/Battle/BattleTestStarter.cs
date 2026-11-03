@@ -11,7 +11,7 @@ namespace Blacksmith.Battle
 {
     // BattleTest 씬을 확인하기 위한 진입점이다. 로비를 거치지 않고 참가자가 없는 호스트로 시작한다.
     // NetworkBootstrap의 Game 씬 경로를 BattleTest로 지정해 둔다.
-    // 실제 흐름에서는 밤의 파견 창이 BattleState.StartBattle을 부르고, 결과창 다음에 씬을 전환한다.
+    // 실제 흐름에서는 밤의 파견 창이 BattleState.StartBattle을 부르고, 결과창 다음에 전투 씬을 내린다.
     public class BattleTestStarter : MonoBehaviour
     {
         [SerializeField] private NetworkBootstrap _bootstrap;
@@ -32,7 +32,7 @@ namespace Blacksmith.Battle
         [Tooltip("어느 스테이지까지 싸울지 (1부터 센 번호)")]
         [SerializeField, Min(1)] private int _selectedStageNumber = 3;
 
-        // 임시 연결: 관리 목록이 씬 전환 뒤에도 남게 되면 그 목록의 모험가를 쓴다.
+        // 임시 연결: 전투 씬을 낮 씬 위에 불러오게 되면 낮 씬 관리 목록의 모험가를 쓴다.
         private readonly List<AdventurerData> _party = new List<AdventurerData>();
 
         private void Awake()
@@ -145,7 +145,7 @@ namespace Blacksmith.Battle
                 _battleState.HasStateAuthority);
         }
 
-        // 호스트에서만 눌린다. 실제 흐름에서는 결과를 반영한 뒤 낮 씬으로 전환한다.
+        // 호스트에서만 눌린다. 실제 흐름에서는 결과를 반영한 뒤 전투 씬을 내린다.
         private void HandleContinueClicked()
         {
             _battleState.ConfirmResult();

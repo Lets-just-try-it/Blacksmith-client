@@ -21,7 +21,7 @@ namespace Blacksmith.Battle
         [SerializeField] private AdventurerBattleData _adventurerBattle;
         [SerializeField] private AdventurerLevelData _adventurerLevel;
 
-        // 임시 연결: 씬 전환 뒤에도 남는 관리 목록이 생기면 그쪽 조회로 바꾼다.
+        // 임시 연결: 전투 씬을 낮 씬 위에 불러오게 되면 낮 씬의 관리 목록 조회로 바꾼다.
         private Func<int, AdventurerData> _findAdventurer;
         private ChangeDetector _changes;
 
@@ -36,7 +36,7 @@ namespace Blacksmith.Battle
         [Networked] public int LastStage { get; private set; }
         [Networked] private int PartyCount { get; set; }
         [Networked, Capacity(MaxPartySize)] private NetworkArray<int> PartyIds => default;
-        // 임시 연결: 하루가 지나도 남아야 하는 진행 상황이다. 씬과 상관없이 유지되는 게임 상태가 정해지면 옮긴다.
+        // 임시 연결: 하루가 지나도 남아야 하는 진행 상황이다. 전투 씬을 내리면 사라지므로 낮 씬의 게임 상태로 옮긴다.
         [Networked, Capacity(MaxDungeons)] private NetworkDictionary<int, int> ClearedStages => default;
 
         // 호스트에서만 불린다. 스폰된 뒤 첫 전투를 시작할 수 있을 때다.
@@ -119,7 +119,7 @@ namespace Blacksmith.Battle
             return true;
         }
 
-        // 호스트 전용. 실제 흐름에서는 결과창 다음 씬 전환 직전에 부른다.
+        // 호스트 전용. 실제 흐름에서는 결과창 다음, 전투 씬을 내리기 직전에 부른다.
         public bool ConfirmResult()
         {
             if (!HasStateAuthority || !HasPendingResult)
