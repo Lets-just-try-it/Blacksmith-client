@@ -16,6 +16,8 @@ namespace Blacksmith.Forge
         private float _homeOrthoSize;
         private bool _homeOrthographic;
         private Pose _target;
+        private Pose _from;
+        private float _move = 1f;
         private float _progress;
         private bool _focusing;
         private float _shakeAmplitude;
@@ -42,7 +44,20 @@ namespace Blacksmith.Forge
             }
 
             _camera.orthographic = false;
-            _target = new Pose(position, Quaternion.LookRotation(lookAt - position));
+            var next = new Pose(position, Quaternion.LookRotation(lookAt - position));
+            if (IsActive && _focusing)
+            {
+                // 이미 포커스 중이면 지금 시점에서 새 시점으로 부드럽게 옮겨 간다.
+                _from = CurrentFocusPose();
+                _move = 0f;
+            }
+            else
+            {
+                _from = next;
+                _move = 1f;
+            }
+
+            _target = next;
             _focusing = true;
             IsActive = true;
             enabled = true;
@@ -72,9 +87,11 @@ namespace Blacksmith.Forge
             _progress = Mathf.Clamp01(_progress + (_focusing ? step : -step));
             float t = Mathf.SmoothStep(0f, 1f, _progress);
 
+            _move = Mathf.Clamp01(_move + step);
+            Pose focus = CurrentFocusPose();
             transform.SetPositionAndRotation(
-                Vector3.Lerp(_home.position, _target.position, t),
-                Quaternion.Slerp(_home.rotation, _target.rotation, t));
+                Vector3.Lerp(_home.position, focus.position, t),
+                Quaternion.Slerp(_home.rotation, focus.rotation, t));
             _camera.fieldOfView = Mathf.Lerp(_homeFov, _focusFov, t) * (1f - _punch);
             ApplyShake();
             _punch = Mathf.MoveTowards(_punch, 0f, Time.deltaTime * 0.5f);
@@ -83,6 +100,14 @@ namespace Blacksmith.Forge
             {
                 RestoreHome();
             }
+        }
+
+        private Pose CurrentFocusPose()
+        {
+            float m = Mathf.SmoothStep(0f, 1f, _move);
+            return new Pose(
+                Vector3.Lerp(_from.position, _target.position, m),
+                Quaternion.Slerp(_from.rotation, _target.rotation, m));
         }
 
         private void ApplyShake()

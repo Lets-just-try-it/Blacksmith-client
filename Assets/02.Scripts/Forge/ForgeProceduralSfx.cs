@@ -63,6 +63,52 @@ namespace Blacksmith.Forge
             });
         }
 
+        // 돌이 깨지는 둔탁한 소리
+        public static AudioClip Rock(int variant)
+        {
+            float lowPass = 0f;
+            float frequency = 95f + variant * 22f;
+            return Make("rock" + variant, 0.32f, t =>
+            {
+                lowPass += (Noise() - lowPass) * 0.28f;
+                float body = Mathf.Sin(2f * Mathf.PI * frequency * t) * Mathf.Exp(-t * 22f);
+                float crumble = lowPass * Mathf.Exp(-t * 16f) * 1.3f;
+                float click = Noise() * Mathf.Exp(-t * 400f) * 0.7f;
+                return (body * 0.9f + crumble * 0.7f + click) * 0.9f;
+            });
+        }
+
+        // 쇳물이 흘러나오는 "꿀꺽" 소리
+        public static AudioClip Gulp()
+        {
+            float lowPass = 0f;
+            return Make("gulp", 0.3f, t =>
+            {
+                lowPass += (Noise() - lowPass) * 0.18f;
+                return lowPass * Mathf.Sin(Mathf.Clamp01(t / 0.3f) * Mathf.PI) * 0.8f;
+            });
+        }
+
+        public static AudioClip Ding(float frequency)
+        {
+            return Make("ding" + Mathf.RoundToInt(frequency), 0.8f, t =>
+                Mathf.Sin(2f * Mathf.PI * frequency * t) * Mathf.Exp(-t * 5f) * 0.5f
+                + Mathf.Sin(2f * Mathf.PI * frequency * 2f * t) * Mathf.Exp(-t * 8f) * 0.2f);
+        }
+
+        public static AudioClip Chime(float frequency)
+        {
+            return Make("chime" + Mathf.RoundToInt(frequency), 1.1f, t =>
+                (Mathf.Sin(2f * Mathf.PI * frequency * t) * Mathf.Exp(-t * 3.2f) * 0.5f
+                + Mathf.Sin(2f * Mathf.PI * frequency * 2.76f * t) * Mathf.Exp(-t * 6f) * 0.22f
+                + Mathf.Sin(2f * Mathf.PI * frequency * 5.4f * t) * Mathf.Exp(-t * 11f) * 0.1f) * Mathf.Clamp01(t * 400f));
+        }
+
+        public static AudioClip Tick()
+        {
+            return Make("tick", 0.08f, t => Mathf.Sin(2f * Mathf.PI * 1400f * t) * Mathf.Exp(-t * 60f) * 0.4f);
+        }
+
         public static AudioClip Success()
         {
             float[] notes = { 523.25f, 659.25f, 783.99f };
