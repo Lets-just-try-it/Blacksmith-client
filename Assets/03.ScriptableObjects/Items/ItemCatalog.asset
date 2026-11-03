@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcdf4d5f9e6e59d4bb9a501312e935f9, type: 3}
+  m_Name: ItemCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Inventory.ItemCatalog
+  _items:
+  - {fileID: 11400000, guid: aea1a5cef7898394e83cbc803ed180ce, type: 2}
+  - {fileID: 11400000, guid: 610fbc0ce5fa3a04a8286aba074dd77a, type: 2}
+  - {fileID: 11400000, guid: c26abfa5ffa34f74ca5830bbd285d9ea, type: 2}
+  - {fileID: 11400000, guid: 91bf8f4d74e66db43b783ea36d66d75a, type: 2}
+  - {fileID: 11400000, guid: 14e07c432423bd34bb98dfe4cd9bf6d2, type: 2}
