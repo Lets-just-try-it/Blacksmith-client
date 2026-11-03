@@ -29,6 +29,8 @@ namespace Blacksmith.Inventory
         [Tooltip("아이콘이 없을 때 칸에 칠하는 임시 색")]
         [SerializeField] private Color _color = Color.white;
         [SerializeField] private ItemKind _kind;
+        [Tooltip("이 물건이 속한 재료 티어(1부터, 높을수록 귀함). 재료와 그 재료로 만드는 중간 형태·장비는 같은 티어다")]
+        [SerializeField, Min(1)] private int _tier = 1;
         [Tooltip("장비일 때만 쓴다")]
         [SerializeField] private EquipmentSlot _equipmentSlot;
 
@@ -37,6 +39,7 @@ namespace Blacksmith.Inventory
         public Sprite Icon => _icon;
         public Color Color => _color;
         public ItemKind Kind => _kind;
+        public int Tier => _tier;
         public EquipmentSlot EquipmentSlot => _kind == ItemKind.Equipment ? _equipmentSlot : EquipmentSlot.None;
         // 재료만 한 칸에 쌓는다. 장비와 중간 형태는 한 칸에 하나다.
         public bool IsStackable => _kind == ItemKind.Material;

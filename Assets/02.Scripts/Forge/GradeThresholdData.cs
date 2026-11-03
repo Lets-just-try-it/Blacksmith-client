@@ -15,6 +15,8 @@ namespace Blacksmith.Forge
 
         public int GradeCount => _lowerBounds.Length + GradeRule.MinGrade;
 
+        public IReadOnlyList<float> LowerBounds => _lowerBounds;
+
         public int Evaluate(IReadOnlyList<float> stageScores)
         {
             return GradeRule.Evaluate(stageScores, _lowerBounds);
