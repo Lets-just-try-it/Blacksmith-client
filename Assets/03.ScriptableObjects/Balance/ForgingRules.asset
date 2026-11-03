@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5850ba889966d494ca8993fb8c91a270, type: 3}
+  m_Name: ForgingRules
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgingRulesData
+  _segmentCount: 12
+  _leadIn: 2.2
+  _travelTime: 1.7
+  _heavyHold: 0.7
+  _endDelay: 0.9
+  _segmentGap: 0.2
+  _perfectQuality: 1
+  _goodQuality: 0.75
+  _weakQuality: 0.4
+  _unchargedHeavyQuality: 0.25
+  _headThickness: 0.8
+  _headSegments: 2
+  _bodyThickness: 0.55
+  _bodyJitter: 0.14
+  _tipThickness: 0.3
+  _tipSegments: 3
+  _needScale: 7
+  _minNeed: 2
+  _maxNeed: 5
+  _matchTolerance: 0.25
+  _difficulties:
+  - PerfectWindow: 0.05
+    GoodWindow: 0.1
+    WeakWindow: 0.2
+    BeatSpacing: 0.55
+    HeavyChance: 0.5
+  - PerfectWindow: 0.045
+    GoodWindow: 0.09
+    WeakWindow: 0.17
+    BeatSpacing: 0.5
+    HeavyChance: 0.55
+  - PerfectWindow: 0.04
+    GoodWindow: 0.08
+    WeakWindow: 0.15
+    BeatSpacing: 0.45
+    HeavyChance: 0.6
