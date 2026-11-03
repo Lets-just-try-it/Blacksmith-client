@@ -119,6 +119,53 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &28743537
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 28743539}
+  - component: {fileID: 28743538}
+  m_Layer: 0
+  m_Name: NetworkBootstrap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &28743538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 28743537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8444785cc92a052499bf4b55d0d181b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Network.NetworkBootstrap
+  _runnerPrefab: {fileID: 5914704923920884787, guid: 1756fbad4667fa54fbde43a22aa3621a, type: 3}
+  _gameScenePath: Assets/01.Scenes/BattleTest.unity
+  _maxPlayers: 4
+--- !u!4 &28743539
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 28743537}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &96188543
 GameObject:
   m_ObjectHideFlags: 0
@@ -184,6 +231,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d1e8b20debc19c49a5d684168155301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleTestStarter
+  _bootstrap: {fileID: 28743538}
+  _battleState: {fileID: 795122207}
   _player: {fileID: 96188544}
   _hud: {fileID: 1600078454}
   _bossHpBar: {fileID: 122689906}
@@ -191,12 +240,9 @@ MonoBehaviour:
   _rules: {fileID: 11400000, guid: 73dc434290e55f544a6b3c50e71a7a38, type: 2}
   _dungeon: {fileID: 11400000, guid: 0d85a80c6794e014ab5efbc4e87c7d2d, type: 2}
   _adventurerBattle: {fileID: 11400000, guid: b708d40e053c196478bf13506299259f, type: 2}
-  _adventurerLevel: {fileID: 11400000, guid: 1c84aa393b703ec4585dab0f30ee4dc3, type: 2}
   _adventurerGeneration: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
   _partySeed: 100
   _partyLevels: 01000000030000000500000008000000
-  _seed: 1234
-  _clearedStages: 0
   _selectedStageNumber: 3
 --- !u!1 &122689904
 GameObject:
@@ -559,6 +605,79 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 706064945}
   m_CullTransparentMesh: 1
+--- !u!1 &795122206
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 795122209}
+  - component: {fileID: 795122208}
+  - component: {fileID: 795122207}
+  m_Layer: 0
+  m_Name: BattleState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &795122207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795122206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a819af963a7ac94ea743ee3104f6163, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleState
+  _rules: {fileID: 11400000, guid: 73dc434290e55f544a6b3c50e71a7a38, type: 2}
+  _dungeons:
+  - {fileID: 11400000, guid: 0d85a80c6794e014ab5efbc4e87c7d2d, type: 2}
+  - {fileID: 11400000, guid: 695dc67ae2be88e4bba73c41d02e3981, type: 2}
+  _adventurerBattle: {fileID: 11400000, guid: b708d40e053c196478bf13506299259f, type: 2}
+  _adventurerLevel: {fileID: 11400000, guid: 1c84aa393b703ec4585dab0f30ee4dc3, type: 2}
+  _FirstStage: 0
+  _LastStage: 0
+--- !u!114 &795122208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795122206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 2003064260
+  SendPriority: 1
+  EnableInterpolation: 1
+  Flags: 262146
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 795122207}
+  ForceRemoteRenderTimeframe: 0
+--- !u!4 &795122209
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795122206}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &889525359
 GameObject:
   m_ObjectHideFlags: 0
@@ -2052,3 +2171,5 @@ SceneRoots:
   - {fileID: 979634403}
   - {fileID: 520992154}
   - {fileID: 2142154687}
+  - {fileID: 28743539}
+  - {fileID: 795122209}

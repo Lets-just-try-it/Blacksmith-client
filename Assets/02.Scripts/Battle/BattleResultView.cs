@@ -34,9 +34,11 @@ namespace Blacksmith.Battle
 
         // firstStage, lastStage는 0부터 센 번호다. 화면에는 1부터 보여 준다.
         // rewards.Adventurers는 result.Adventurers와 같은 순서다.
+        // 다음으로 넘어가는 것은 호스트만 할 수 있어 canContinue가 false면 버튼을 숨긴다.
         public void Show(BattleResult result, BattleRewards rewards, string dungeonName, int firstStage, int lastStage,
-            Func<int, string> getAdventurerName)
+            Func<int, string> getAdventurerName, bool canContinue)
         {
+            _continueButton.gameObject.SetActive(canContinue);
             ClearRows();
             _titleText.text = result.IsVictory ? "승리" : "패배";
             string range = firstStage == lastStage ? $"{lastStage + 1}" : $"{firstStage + 1}~{lastStage + 1}";
