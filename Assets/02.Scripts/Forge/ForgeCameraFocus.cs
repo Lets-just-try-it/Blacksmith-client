@@ -18,6 +18,10 @@ namespace Blacksmith.Forge
         private Pose _target;
         private float _progress;
         private bool _focusing;
+        private float _shakeAmplitude;
+        private float _shakeDuration;
+        private float _shakeLeft;
+        private float _punch;
 
         public bool IsActive { get; private set; }
 
@@ -49,6 +53,19 @@ namespace Blacksmith.Forge
             _focusing = false;
         }
 
+        // 맞는 순간 화면이 흔들린다. 진폭은 미터 단위이고 끝으로 갈수록 줄어든다.
+        public void Shake(float amplitude, float seconds)
+        {
+            _shakeAmplitude = Mathf.Max(_shakeAmplitude * (_shakeLeft / Mathf.Max(0.01f, _shakeDuration)), amplitude);
+            _shakeDuration = _shakeLeft = seconds;
+        }
+
+        // 맞는 순간 화면이 살짝 다가왔다 돌아온다. amount는 시야각이 줄어드는 비율이다.
+        public void Punch(float amount)
+        {
+            _punch = Mathf.Max(_punch, amount);
+        }
+
         private void LateUpdate()
         {
             float step = Time.deltaTime / _blendTime;
@@ -58,7 +75,9 @@ namespace Blacksmith.Forge
             transform.SetPositionAndRotation(
                 Vector3.Lerp(_home.position, _target.position, t),
                 Quaternion.Slerp(_home.rotation, _target.rotation, t));
-            _camera.fieldOfView = Mathf.Lerp(_homeFov, _focusFov, t);
+            _camera.fieldOfView = Mathf.Lerp(_homeFov, _focusFov, t) * (1f - _punch);
+            ApplyShake();
+            _punch = Mathf.MoveTowards(_punch, 0f, Time.deltaTime * 0.5f);
 
             if (!_focusing && _progress <= 0f)
             {
@@ -66,8 +85,21 @@ namespace Blacksmith.Forge
             }
         }
 
+        private void ApplyShake()
+        {
+            if (_shakeLeft <= 0f)
+            {
+                return;
+            }
+
+            _shakeLeft -= Time.deltaTime;
+            transform.position += Random.insideUnitSphere * (_shakeAmplitude * Mathf.Max(0f, _shakeLeft / _shakeDuration));
+        }
+
         private void RestoreHome()
         {
+            _shakeLeft = 0f;
+            _punch = 0f;
             transform.SetPositionAndRotation(_home.position, _home.rotation);
             _camera.orthographic = _homeOrthographic;
             _camera.fieldOfView = _homeFov;
