@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Blacksmith.Forge
 {
-    // 소리 파일 없이 코드로 만드는 임시 효과음. 쇠 부딪치는 소리, 균열, 쿵, 바람, 박자 톡, 성공·실패 음이다.
+    // 소리 파일 없이 코드로 만드는 임시 효과음. 망치로 쇠를 내려치는 소리(쇠 소리, 쿵, 균열), 바람 가르는 소리, 결과 소리(성공·실패 음)다.
     // 실제 효과음 파일이 들어오면 이 클래스를 쓰는 곳(ForgingFeedback)의 클립만 바꾸면 된다.
     // 클립은 처음 쓸 때 한 번 만들어 재사용한다.
     public static class ForgeProceduralSfx
@@ -61,11 +61,6 @@ namespace Blacksmith.Forge
                 lowPass += (Noise() - lowPass) * 0.08f;
                 return lowPass * envelope * 1.6f;
             });
-        }
-
-        public static AudioClip Tick()
-        {
-            return Make("tick", 0.08f, t => Mathf.Sin(2f * Mathf.PI * 1400f * t) * Mathf.Exp(-t * 60f) * 0.4f);
         }
 
         public static AudioClip Success()

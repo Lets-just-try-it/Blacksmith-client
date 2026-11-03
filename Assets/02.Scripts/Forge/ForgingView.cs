@@ -37,7 +37,7 @@ namespace Blacksmith.Forge
         {
             if (_flashAlpha > 0f)
             {
-                _flashAlpha = Mathf.MoveTowards(_flashAlpha, 0f, Time.deltaTime * 1.5f);
+                _flashAlpha = Mathf.MoveTowards(_flashAlpha, 0f, Time.deltaTime * 3f);
                 Color color = _flash.color;
                 color.a = _flashAlpha;
                 _flash.color = color;
@@ -108,13 +108,13 @@ namespace Blacksmith.Forge
             switch (miniEvent.Kind)
             {
                 case MiniEventKind.Perfect:
-                    text = game.Combo >= 3 ? $"{(heavy ? "강타!" : "완벽!")}  x{game.Combo}" : (heavy ? "강타!" : "완벽!");
+                    text = game.Combo >= 3 ? $"{(heavy ? "강타!" : "완벽!")}  x{game.Combo}  ({Milliseconds(miniEvent.Extra)})" : $"{(heavy ? "강타!" : "완벽!")}  ({Milliseconds(miniEvent.Extra)})";
                     break;
                 case MiniEventKind.Good:
-                    text = $"좋음 ({Direction(miniEvent.Extra)})";
+                    text = $"좋음 ({Direction(miniEvent.Extra)} {Milliseconds(miniEvent.Extra)})";
                     break;
                 case MiniEventKind.Hit:
-                    text = $"약함 ({Direction(miniEvent.Extra)})";
+                    text = $"약함 ({Direction(miniEvent.Extra)} {Milliseconds(miniEvent.Extra)})";
                     break;
                 case MiniEventKind.Miss:
                     text = miniEvent.Value < 0f ? "헛스윙" : (miniEvent.Extra < -game.WeakWindow ? "너무 일찍 뗐다" : "놓침");
@@ -127,9 +127,10 @@ namespace Blacksmith.Forge
             _feedbackTimer = FeedbackTime;
         }
 
-        public void ShowResult(float accuracy)
+        // meanOffset은 박자를 친 순간들의 평균 시간 차이(초)다. 판정 보정값을 맞출 때 참고한다.
+        public void ShowResult(float accuracy, float meanOffset)
         {
-            _hintText.text = string.Empty;
+            _hintText.text = $"평균 타이밍 {Milliseconds(meanOffset)} ({Direction(meanOffset)})";
             _feedbackText.text = string.Empty;
             _resultText.text = $"도안 일치율 {Mathf.RoundToInt(accuracy * 100f)}%";
         }
@@ -139,6 +140,12 @@ namespace Blacksmith.Forge
             _flashAlpha = 0f;
             _flash.color = Color.clear;
             _panelRoot.SetActive(false);
+        }
+
+        private static string Milliseconds(float offset)
+        {
+            int milliseconds = Mathf.RoundToInt(offset * 1000f);
+            return milliseconds >= 0 ? $"+{milliseconds}ms" : $"{milliseconds}ms";
         }
 
         private static string Direction(float offset)

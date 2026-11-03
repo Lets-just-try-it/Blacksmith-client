@@ -35,6 +35,8 @@ namespace Blacksmith.Core.Forge
         private readonly ForgingRules _rules;
         private readonly ForgingDifficulty _difficulty;
         private int _unjudged;
+        private int _timedHits;
+        private float _offsetSum;
         private float _endTimer;
 
         public IReadOnlyList<Beat> Beats => _beats;
@@ -59,6 +61,12 @@ namespace Blacksmith.Core.Forge
         public float GoodWindow => _difficulty.GoodWindow;
         public float WeakWindow => _difficulty.WeakWindow;
         public int BeatsLeft => _unjudged;
+
+        // 판정에 쓰는 시간. 입력이 도착하는 지연만큼 늦춰서 본다.
+        private float PressClock => Clock - _rules.InputOffset;
+
+        // 박자를 친 순간들의 평균 시간 차이(초). 음수면 빠르게, 양수면 느리게 친 경향이다. 친 박자가 없으면 0이다.
+        public float MeanOffset => _timedHits == 0 ? 0f : _offsetSum / _timedHits;
 
         public ForgingGame(ForgingRules rules, int seed, int difficulty)
         {
@@ -246,7 +254,7 @@ namespace Blacksmith.Core.Forge
                     continue;
                 }
 
-                if (Clock > beat.Time + _difficulty.WeakWindow)
+                if (PressClock > beat.Time + _difficulty.WeakWindow)
                 {
                     if (Holding == beat)
                     {
@@ -254,7 +262,7 @@ namespace Blacksmith.Core.Forge
                     }
                     Judge(beat, 0f, 0f);
                 }
-                else if (!beat.IsHeavy && beat.Time > Clock + _difficulty.WeakWindow)
+                else if (!beat.IsHeavy && beat.Time > PressClock + _difficulty.WeakWindow)
                 {
                     break;
                 }
@@ -292,14 +300,14 @@ namespace Blacksmith.Core.Forge
                 {
                     continue;
                 }
-                if (beat.PressTime > Clock + _difficulty.WeakWindow)
+                if (beat.PressTime > PressClock + _difficulty.WeakWindow)
                 {
                     break;
                 }
 
                 if (!beat.IsHeavy)
                 {
-                    float offset = Math.Abs(Clock - beat.Time);
+                    float offset = Math.Abs(PressClock - beat.Time);
                     if (offset <= bestOffset)
                     {
                         bestOffset = offset;
@@ -309,7 +317,7 @@ namespace Blacksmith.Core.Forge
                 }
                 else if (!beat.Started)
                 {
-                    float offset = Math.Abs(Clock - beat.PressTime);
+                    float offset = Math.Abs(PressClock - beat.PressTime);
                     if (offset <= bestOffset)
                     {
                         bestOffset = offset;
@@ -318,7 +326,7 @@ namespace Blacksmith.Core.Forge
                         continue;
                     }
 
-                    offset = Math.Abs(Clock - beat.Time);
+                    offset = Math.Abs(PressClock - beat.Time);
                     if (offset <= bestOffset)
                     {
                         bestOffset = offset;
@@ -340,7 +348,7 @@ namespace Blacksmith.Core.Forge
             if (mode == 1)
             {
                 Raise(MiniEventKind.Swing, 1f);
-                float offset = Clock - best.Time;
+                float offset = PressClock - best.Time;
                 Judge(best, offset, WindowQuality(Math.Abs(offset)));
             }
             else if (mode == 2)
@@ -348,12 +356,12 @@ namespace Blacksmith.Core.Forge
                 best.Started = true;
                 best.PressQuality = WindowQuality(bestOffset);
                 Holding = best;
-                Raise(MiniEventKind.Charge, best.Unit, best.Segment, Clock - best.PressTime);
+                Raise(MiniEventKind.Charge, best.Unit, best.Segment, PressClock - best.PressTime);
             }
             else
             {
                 Raise(MiniEventKind.Swing, 1f);
-                float offset = Clock - best.Time;
+                float offset = PressClock - best.Time;
                 Judge(best, offset, Math.Min(_rules.UnchargedHeavyQuality, WindowQuality(Math.Abs(offset))));
             }
         }
@@ -367,7 +375,7 @@ namespace Blacksmith.Core.Forge
                 return;
             }
 
-            float offset = Clock - beat.Time;
+            float offset = PressClock - beat.Time;
             Raise(MiniEventKind.Swing, 1f);
             if (offset < -_difficulty.WeakWindow)
             {
@@ -385,6 +393,11 @@ namespace Blacksmith.Core.Forge
             beat.Quality = quality;
             beat.Offset = offset;
             _unjudged--;
+            if (quality > 0f)
+            {
+                _timedHits++;
+                _offsetSum += offset;
+            }
 
             int segment = beat.Segment;
             Progress[segment] = Math.Min(Need[segment], Progress[segment] + beat.Unit * quality);

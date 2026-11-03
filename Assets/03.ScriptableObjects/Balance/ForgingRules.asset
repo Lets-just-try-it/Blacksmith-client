@@ -17,6 +17,7 @@ MonoBehaviour:
   _travelTime: 1.7
   _heavyHold: 0.7
   _endDelay: 0.9
+  _inputOffset: 0.06
   _segmentGap: 0.2
   _perfectQuality: 1
   _goodQuality: 0.75

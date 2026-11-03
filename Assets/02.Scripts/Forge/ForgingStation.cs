@@ -221,9 +221,6 @@ namespace Blacksmith.Forge
                 MiniEvent miniEvent = _game.Events.Dequeue();
                 switch (miniEvent.Kind)
                 {
-                    case MiniEventKind.Beat:
-                        _feedback.PlayBeat(miniEvent.Value);
-                        break;
                     case MiniEventKind.Charge:
                         _feedback.PlayCharge();
                         break;
@@ -239,7 +236,7 @@ namespace Blacksmith.Forge
                         ShowMiss(miniEvent);
                         break;
                     case MiniEventKind.Complete:
-                        _view.ShowResult(miniEvent.Value);
+                        _view.ShowResult(miniEvent.Value, _game.MeanOffset);
                         _feedback.PlayEnd(miniEvent.Value);
                         break;
                 }
@@ -260,7 +257,7 @@ namespace Blacksmith.Forge
 
         private void ShowMiss(MiniEvent miniEvent)
         {
-            // 허공을 친 경우는 Value가 음수다.
+            // 허공을 친 경우는 Value가 음수이고, 놓친 박자는 내려치던 동작을 멈춘다.
             if (miniEvent.Value < 0f)
             {
                 _feedback.PlayAirSwing();
@@ -268,7 +265,6 @@ namespace Blacksmith.Forge
             else
             {
                 _blade.CancelSwing();
-                _feedback.PlayMiss();
             }
             _view.ShowJudgement(miniEvent, _game);
         }

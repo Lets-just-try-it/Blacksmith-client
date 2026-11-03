@@ -21,6 +21,8 @@ namespace Blacksmith.Forge
         }
 
         [SerializeField] private RectTransform _lane;
+        // 박자 표시 크기 배율
+        [SerializeField, Min(0.5f)] private float _markScale = 1f;
         [SerializeField] private RectTransform _line;
         [SerializeField] private RectTransform _weakBand;
         [SerializeField] private RectTransform _goodBand;
@@ -93,16 +95,16 @@ namespace Blacksmith.Forge
 
         private void DrawLight(BeatMark mark, ForgingGame.Beat beat, float x)
         {
-            if (!DrawResult(mark, beat, x, 30f))
+            if (!DrawResult(mark, beat, x, 30f * _markScale))
             {
                 SetMarkVisible(mark, false, true, false);
-                Place(mark.Start, x, 30f, _lightColor);
+                Place(mark.Start, x, 30f * _markScale, _lightColor);
             }
         }
 
         private void DrawHeavy(BeatMark mark, ForgingGame.Beat beat, float startX, float endX)
         {
-            if (DrawResult(mark, beat, endX, 48f))
+            if (DrawResult(mark, beat, endX, 48f * _markScale))
             {
                 return;
             }
@@ -114,10 +116,10 @@ namespace Blacksmith.Forge
 
             RectTransform bar = mark.Bar.rectTransform;
             bar.anchoredPosition = new Vector2((barStart + endX) * 0.5f, 0f);
-            bar.sizeDelta = new Vector2(Mathf.Max(0f, endX - barStart), 24f);
+            bar.sizeDelta = new Vector2(Mathf.Max(0f, endX - barStart), 24f * _markScale);
             mark.Bar.color = new Color(_heavyColor.r, _heavyColor.g, _heavyColor.b, holding ? 0.9f : 0.35f);
-            Place(mark.Start, startX, 34f, _heavyColor);
-            Place(mark.End, endX, 48f, _heavyColor);
+            Place(mark.Start, startX, 34f * _markScale, _heavyColor);
+            Place(mark.End, endX, 48f * _markScale, _heavyColor);
         }
 
         // 판정된 박자를 결과 색으로 보여 주고 서서히 지운다. 보여 주는 중이면 true를 돌려준다.
@@ -138,7 +140,7 @@ namespace Blacksmith.Forge
             SetMarkVisible(mark, false, false, true);
             Color color = ResultColor(beat.Quality);
             color.a = 1f - age;
-            Place(mark.End, x, size + 26f * age, color);
+            Place(mark.End, x, size + 26f * _markScale * age, color);
             return true;
         }
 

@@ -11,6 +11,8 @@ namespace Blacksmith.Forge
         [SerializeField, Min(0.1f)] private float _travelTime = 1.7f;
         [SerializeField, Min(0.1f)] private float _heavyHold = 0.7f;
         [SerializeField, Min(0f)] private float _endDelay = 0.9f;
+        [Tooltip("입력·소리·화면이 도착하는 지연(초). 박자에 맞췄는데 '느림'으로 나오면 올리고, '빠름'으로 나오면 내린다. 판정 문구의 ms를 보고 맞춘다.")]
+        [SerializeField, Range(0f, 0.3f)] private float _inputOffset = 0.06f;
         [SerializeField, Min(0f)] private float _segmentGap = 0.2f;
 
         [Header("판정 점수")]
@@ -48,6 +50,7 @@ namespace Blacksmith.Forge
                 TravelTime = _travelTime,
                 HeavyHold = _heavyHold,
                 EndDelay = _endDelay,
+                InputOffset = _inputOffset,
                 SegmentGap = _segmentGap,
                 PerfectQuality = _perfectQuality,
                 GoodQuality = _goodQuality,

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Blacksmith.Forge
 {
-    // 단조의 소리와 타격감(불꽃, 충격파, 조명, 화면 흔들림·확대·번쩍임)을 맡는다.
+    // 단조의 소리(망치 내려치는 소리, 힘 모으는 소리, 허공 휘두르는 소리, 결과 소리)와 타격감(불꽃, 충격파, 조명, 화면 흔들림·확대·번쩍임)을 맡는다.
     // 규칙은 건드리지 않고 ForgingStation이 넘겨 주는 사건에 반응만 한다.
     public class ForgingFeedback : MonoBehaviour
     {
@@ -38,48 +38,31 @@ namespace Blacksmith.Forge
             return quality * (heavy ? 1.7f : 1f) * (1f + power * 0.8f);
         }
 
-        // 박자 소리(메트로놈): 큰 박자는 시작은 낮게, 끝은 중간으로 낸다.
-        public void PlayBeat(float kind)
-        {
-            if (kind >= 3f)
-            {
-                Play(ForgeProceduralSfx.Tick(), 0.35f, 0.85f);
-                return;
-            }
-
-            bool heavy = kind >= 2f;
-            Play(ForgeProceduralSfx.Tick(), heavy ? 0.55f : 0.3f, heavy ? 0.6f : 1.15f);
-        }
-
         // 꾹 누르기 시작: 힘을 모은다.
         public void PlayCharge()
         {
             Play(ForgeProceduralSfx.Whoosh(), 0.5f, 0.6f);
         }
 
+        // 박자가 없는 때 눌러서 허공을 쳤다.
         public void PlayAirSwing()
         {
             Play(ForgeProceduralSfx.Whoosh(), 0.35f, 1.5f);
         }
 
-        public void PlayMiss()
-        {
-            Play(ForgeProceduralSfx.Fail(), 0.4f, 1.3f);
-        }
-
+        // 판이 끝나고 결과가 나올 때. 정확도가 어느 정도 되면 성공 음, 아니면 실패 음이다.
         public void PlayEnd(float accuracy)
         {
             Play(accuracy >= 0.6f ? ForgeProceduralSfx.Success() : ForgeProceduralSfx.Fail(), 0.8f, 1f);
         }
 
-        // 힘을 모으는 동안 타오르는 소리가 점점 커지고 높아진다.
+        // 힘을 모으는 동안 타오르는 소리가 점점 커지고 높아지며, 화면이 아주 조금씩 다가온다.
         public void UpdateCharge(bool charging, float charge)
         {
             _chargeSound.Volume = charging ? 0.04f + 0.17f * charge : 0f;
             _chargeSound.Brightness = 0.15f + 0.7f * charge;
             if (charging && _camera != null)
             {
-                // 긴장감: 화면이 아주 조금씩 다가온다.
                 _camera.Punch(0.003f + 0.007f * charge);
             }
         }
@@ -110,7 +93,7 @@ namespace Blacksmith.Forge
             }
             if (quality >= 0.7f && _view != null)
             {
-                _view.Flash(Mathf.Clamp(0.06f + 0.12f * strength, 0f, 0.4f), new Color(1f, 0.85f, 0.55f));
+                _view.Flash(Mathf.Clamp(0.02f + 0.04f * strength, 0f, 0.12f), new Color(1f, 0.85f, 0.55f));
             }
 
             return 0.025f + 0.05f * strength;

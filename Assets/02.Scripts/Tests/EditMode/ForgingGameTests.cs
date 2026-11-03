@@ -22,6 +22,7 @@ namespace Blacksmith.Tests
                 TravelTime = 1.7f,
                 HeavyHold = 0.7f,
                 EndDelay = 0.9f,
+                InputOffset = 0f,
                 SegmentGap = 0.2f,
                 PerfectQuality = 1f,
                 GoodQuality = 0.75f,
@@ -232,6 +233,60 @@ namespace Blacksmith.Tests
             Assert.AreEqual(1f, game.Progress[0]);
             Assert.AreEqual(1f + (game.Target[0] - 1f) / game.Need[0], game.Thickness[0], 0.0001f);
             Assert.IsTrue(Drain(game).Exists(e => e.Kind == MiniEventKind.Perfect && e.Index == 0));
+        }
+
+        [Test]
+        public void InputOffset_ShiftsJudgementTimeByTheDelay()
+        {
+            var rules = CreateRules();
+            rules.InputOffset = 0.06f;
+            ForgingGame game = null;
+            for (int seed = 0; seed < 200 && game == null; seed++)
+            {
+                var candidate = new ForgingGame(rules, seed, 0);
+                if (!candidate.Beats[0].IsHeavy)
+                {
+                    game = candidate;
+                }
+            }
+            var beat = game.Beats[0];
+            AdvanceTo(game, beat.Time + 0.06f);
+
+            game.Tick(Dt, Press);
+
+            Assert.AreEqual(1f, beat.Quality);
+            Assert.AreEqual(0f, beat.Offset, 0.02f);
+            Assert.AreEqual(0f, game.MeanOffset, 0.02f);
+        }
+
+        [Test]
+        public void InputOffset_DelaysTheMissDeadlineToo()
+        {
+            var rules = CreateRules();
+            rules.InputOffset = 0.06f;
+            var game = new ForgingGame(rules, 3, 0);
+            var beat = game.Beats.First(b => !b.IsHeavy);
+            AdvanceTo(game, beat.Time + 0.2f + 0.04f);
+
+            Assert.IsFalse(beat.Judged);
+
+            AdvanceTo(game, beat.Time + 0.2f + 0.06f + Dt * 2);
+
+            Assert.IsTrue(beat.Judged);
+        }
+
+        [Test]
+        public void MeanOffset_AveragesTheOffsetsOfStruckBeats_AndIgnoresMisses()
+        {
+            ForgingGame game = CreateGameWhereFirstBeatsAreSmall(2);
+            AdvanceTo(game, game.Beats[0].Time + 0.08f);
+            game.Tick(Dt, Press);
+            AdvanceTo(game, game.Beats[1].Time + 0.04f);
+            game.Tick(Dt, Press);
+
+            Assert.AreEqual(0.06f, game.MeanOffset, 0.02f);
+            AdvanceTo(game, game.Beats[2].Time + 0.4f);
+            Assert.AreEqual(0.06f, game.MeanOffset, 0.02f);
         }
 
         [Test]

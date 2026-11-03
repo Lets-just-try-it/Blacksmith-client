@@ -13,6 +13,8 @@ namespace Blacksmith.Core.Forge
         public float TravelTime { get; set; }
         // 큰 박자에서 꾹 누르는 시간(초)
         public float HeavyHold { get; set; }
+        // 입력·소리·화면이 실제로 도착하는 지연(초). 눌렀거나 뗀 순간에서 이만큼을 빼고 판정해, 박자에 맞췄다고 느끼는 순간이 정확으로 나오게 한다.
+        public float InputOffset { get; set; }
         // 마지막 박자 뒤 결과를 보여 주는 시간(초)
         public float EndDelay { get; set; }
         // 한 부위를 마치고 다음 부위로 옮겨 가는 틈(초)
