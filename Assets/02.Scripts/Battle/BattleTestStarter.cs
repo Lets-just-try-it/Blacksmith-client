@@ -1,15 +1,21 @@
+using System;
 using System.Collections.Generic;
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
+using Blacksmith.Network;
 using Blacksmith.Plaza;
+using Fusion;
 using UnityEngine;
 
 namespace Blacksmith.Battle
 {
-    // Fusion 연동 전 전투 씬을 혼자 확인하기 위한 진입점이다.
-    // 연동 후에는 호스트가 동기화한 시드와 파티 정보로 BattlePlayer.Play를 부르는 쪽으로 바꾼다.
+    // BattleTest 씬을 확인하기 위한 진입점이다. 로비를 거치지 않고 참가자가 없는 호스트로 시작한다.
+    // NetworkBootstrap의 Game 씬 경로를 BattleTest로 지정해 둔다.
+    // 실제 흐름에서는 밤의 파견 창이 BattleState.StartBattle을 부르고, 결과창 다음에 씬을 전환한다.
     public class BattleTestStarter : MonoBehaviour
     {
+        [SerializeField] private NetworkBootstrap _bootstrap;
+        [SerializeField] private BattleState _battleState;
         [SerializeField] private BattlePlayer _player;
         [SerializeField] private BattleHud _hud;
         [SerializeField] private BattleBossHpBar _bossHpBar;
@@ -17,42 +23,54 @@ namespace Blacksmith.Battle
         [SerializeField] private BattleRulesData _rules;
         [SerializeField] private DungeonData _dungeon;
         [SerializeField] private AdventurerBattleData _adventurerBattle;
-        [SerializeField] private AdventurerLevelData _adventurerLevel;
-        [Tooltip("파티 모험가를 광장과 같은 규칙으로 생성한다. 관리 목록은 호스트 세션이 있어야 해서 여기서는 쓰지 않는다.")]
+        [Tooltip("파티 모험가를 광장과 같은 규칙으로 생성한다. 모든 참가자가 같은 값으로 생성하므로 파티가 같다.")]
         [SerializeField] private AdventurerGenerationData _adventurerGeneration;
         [Tooltip("파티 모험가의 생성 시드. 모험가마다 이 값에 순번을 더해 쓴다.")]
         [SerializeField] private int _partySeed;
         [Tooltip("파티 모험가별 레벨. 개수가 파티 인원이다.")]
         [SerializeField] private int[] _partyLevels = { 1, 1, 1, 1 };
-        [SerializeField] private int _seed;
-        [Tooltip("이 단계에서 이미 클리어한 스테이지 수. 진행 상황은 원래 호스트 게임 상태에 둔다.")]
-        [SerializeField, Min(0)] private int _clearedStages;
         [Tooltip("어느 스테이지까지 싸울지 (1부터 센 번호)")]
         [SerializeField, Min(1)] private int _selectedStageNumber = 3;
 
+        // 임시 연결: 관리 목록이 씬 전환 뒤에도 남게 되면 그 목록의 모험가를 쓴다.
         private readonly List<AdventurerData> _party = new List<AdventurerData>();
-        private BattleSetup _setup;
-        private int _firstStage;
-        private int _lastStage;
+
+        private void Awake()
+        {
+            CreateParty();
+            _battleState.SetAdventurerSource(FindAdventurer);
+        }
 
         private void OnEnable()
         {
+            _battleState.HostReady += StartBattle;
+            _battleState.Started += PlayBattle;
+            _battleState.ResultConfirmed += LogConfirmedResult;
             _player.UnitSpawned += HandleUnitSpawned;
             _player.Finished += HandleFinished;
-            _resultView.ContinueClicked += StartBattle;
+            _resultView.ContinueClicked += HandleContinueClicked;
         }
 
         private void OnDisable()
         {
+            _battleState.HostReady -= StartBattle;
+            _battleState.Started -= PlayBattle;
+            _battleState.ResultConfirmed -= LogConfirmedResult;
             _player.UnitSpawned -= HandleUnitSpawned;
             _player.Finished -= HandleFinished;
-            _resultView.ContinueClicked -= StartBattle;
+            _resultView.ContinueClicked -= HandleContinueClicked;
         }
 
-        private void Start()
+        private async void Start()
         {
-            CreateParty();
-            StartBattle();
+            // 호스트가 시작되면 이 씬을 네트워크 씬으로 다시 불러온다. 그때는 이미 러너가 있으므로 다시 시작하지 않는다.
+            if (NetworkRunner.Instances.Count > 0)
+            {
+                return;
+            }
+
+            // 같은 App ID를 쓰는 팀원과 세션이 겹치지 않게 이름을 매번 새로 만든다.
+            await _bootstrap.StartHost($"BattleTest-{Guid.NewGuid():N}");
         }
 
         private void CreateParty()
@@ -67,46 +85,46 @@ namespace Blacksmith.Battle
             }
         }
 
+        // 호스트에서만 불린다.
         private void StartBattle()
         {
-            if (DungeonProgressRules.IsTierCleared(_clearedStages, _dungeon.StageCount))
+            int clearedStages = _battleState.GetClearedStages(_dungeon.DungeonId);
+            if (DungeonProgressRules.IsTierCleared(clearedStages, _dungeon.StageCount))
             {
                 Debug.Log("테스트 던전을 모두 클리어해 진행 상황을 처음으로 되돌린다.");
-                _clearedStages = 0;
+                _battleState.ResetProgress(_dungeon.DungeonId);
+                clearedStages = 0;
             }
 
-            _firstStage = DungeonProgressRules.FirstStageToFight(_clearedStages);
-            _lastStage = Mathf.Clamp(_selectedStageNumber - 1, _firstStage, _dungeon.StageCount - 1);
-            if (!DungeonProgressRules.CanSelectStage(_clearedStages, _dungeon.StageCount, _lastStage))
+            int firstStage = DungeonProgressRules.FirstStageToFight(clearedStages);
+            int lastStage = Mathf.Clamp(_selectedStageNumber - 1, firstStage, _dungeon.StageCount - 1);
+            List<int> partyIds = _party.ConvertAll(adventurer => adventurer.AdventurerId);
+            if (!_battleState.StartBattle(UnityEngine.Random.Range(0, int.MaxValue), _dungeon.DungeonId, lastStage, partyIds))
             {
-                Debug.LogWarning($"선택할 수 없는 스테이지다: {_selectedStageNumber}");
-                return;
+                Debug.LogWarning($"전투를 시작할 수 없다: 스테이지 {_selectedStageNumber}, 파티 {partyIds.Count}명");
             }
+        }
 
-            _setup = new BattleSetup { Seed = _seed, Rules = _rules.ToRules() };
-            foreach (AdventurerData adventurer in _party)
-            {
-                _setup.Adventurers.Add(_adventurerBattle.ToSetup(adventurer));
-            }
-
-            _dungeon.AddStagesTo(_setup, _firstStage, _lastStage);
+        private void PlayBattle()
+        {
+            _resultView.Hide();
             _hud.Clear();
             _bossHpBar.Hide();
-            _player.Play(_setup, _rules.TicksPerSecond, GetPrefab);
+            _player.Play(_battleState.CurrentSetup, _rules.TicksPerSecond, GetPrefab);
         }
 
         private BattleUnitView GetPrefab(BattleUnit unit)
         {
             return unit.Team == BattleTeam.Adventurer
                 ? _adventurerBattle.GetViewPrefab(FindAdventurer(unit.SourceId).JobId)
-                : _dungeon.FindMonster(unit.SourceId).ViewPrefab;
+                : _battleState.CurrentDungeon.FindMonster(unit.SourceId).ViewPrefab;
         }
 
         private void HandleUnitSpawned(BattleUnitView view)
         {
             if (view.Unit.Team != BattleTeam.Adventurer)
             {
-                MonsterData monster = _dungeon.FindMonster(view.Unit.SourceId);
+                MonsterData monster = _battleState.CurrentDungeon.FindMonster(view.Unit.SourceId);
                 if (monster.IsBoss)
                 {
                     _bossHpBar.Show(view.Unit, monster.DisplayName);
@@ -122,24 +140,22 @@ namespace Blacksmith.Battle
 
         private void HandleFinished(BattleResult result)
         {
-            BattleRewards rewards = BattleRewardRules.Calculate(_dungeon.GetStageRewards(_firstStage, _lastStage), result,
-                FindAdventurer, _adventurerLevel.ToRules());
-            _clearedStages = DungeonProgressRules.ApplyResult(_clearedStages, result);
-            _resultView.Show(result, rewards, _dungeon.DisplayName, _firstStage, _lastStage,
-                id => FindAdventurer(id)?.Name ?? id.ToString());
-            ApplyGrowth(rewards);
+            _resultView.Show(result, _battleState.CalculateRewards(result), _battleState.CurrentDungeon.DisplayName,
+                _battleState.FirstStage, _battleState.LastStage, id => FindAdventurer(id)?.Name ?? id.ToString(),
+                _battleState.HasStateAuthority);
         }
 
-        // 다음 전투에서 성장이 보이도록 레벨과 경험치만 반영한다.
-        // 부상·사망은 반영하지 않아 테스트 파티가 줄지 않는다. 실제 반영은 호스트가 관리 목록에 한다.
-        private void ApplyGrowth(BattleRewards rewards)
+        // 호스트에서만 눌린다. 실제 흐름에서는 결과를 반영한 뒤 낮 씬으로 전환한다.
+        private void HandleContinueClicked()
         {
-            foreach (AdventurerReward reward in rewards.Adventurers)
-            {
-                AdventurerData adventurer = FindAdventurer(reward.AdventurerId);
-                adventurer.Level = reward.Progress.Level;
-                adventurer.Experience = reward.Progress.Experience;
-            }
+            _battleState.ConfirmResult();
+            StartBattle();
+        }
+
+        // 결과 반영 이벤트가 오는지 확인하기 위한 로그다. 골드·관리 목록 반영은 각 담당이 이 이벤트에 연결한다.
+        private void LogConfirmedResult(BattleResult result, BattleRewards rewards)
+        {
+            Debug.Log($"전투 결과 반영: {(result.IsVictory ? "승리" : "패배")}, 스테이지 {result.StagesCleared}개, 골드 {rewards.Gold}");
         }
 
         private AdventurerData FindAdventurer(int adventurerId)
