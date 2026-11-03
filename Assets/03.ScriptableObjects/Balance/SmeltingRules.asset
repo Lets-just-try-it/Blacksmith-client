@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1463da7ce552afb4d8e140c3af9a55af, type: 3}
+  m_Name: SmeltingRules
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.SmeltingRulesData
+  _crackLead: 1.5
+  _approach: 1
+  _perfectWindow: 0.065
+  _goodWindow: 0.13
+  _weakWindow: 0.22
+  _decoyWindow: 0.12
+  _strayPenalty: 0.015
+  _decoyPenalty: 0.12
+  _decoyStartIndex: 3
+  _splitDelay: 0.9
+  _crackFirstDistance: 0.2
+  _crackMinDistance: 0.45
+  _crackMaxDistance: 0.95
+  _crackRadiusLimit: 0.8
+  _crackMinSeparation: 0.5
+  _bellowsMax: 24
+  _cursorHalf: 0.09
+  _riseAccel: 1.9
+  _fallAccel: 2.1
+  _maxRise: 0.65
+  _maxFall: 0.8
+  _heatStart: 0.12
+  _zoneHoldMin: 1
+  _zoneHoldRange: 1.4
+  _moltenHold: 1
+  _timeoutFluidityBase: 0.45
+  _timeoutFluidityHeat: 0.3
+  _fluidityLoss: 0.055
+  _fluidityGrace: 4.5
+  _fluidityMin: 0.6
+  _pourMax: 40
+  _flowMax: 0.34
+  _tiltDead: 0.12
+  _tiltEmptyBonus: 0.3
+  _moldEdge: 0.3
+  _spoutLimit: 2.6
+  _spoutStart: 1
+  _moldMin: -2
+  _moldMax: 1
+  _reach: 2.6
+  _overflowEnd: 1.25
+  _coldLimit: 0.2
+  _heatLoss: 0.032
+  _reserveBase: 1.15
+  _reserveCrackBonus: 0.3
+  _drossBase: 0.05
+  _drossCrackPenalty: 0.13
+  _spillZero: 0.7
+  _slagZero: 0.12
+  _endDelay: 0.9
+  _crackWeight: 0.28
+  _fluidityWeight: 0.12
+  _pourWeight: 0.6
+  _difficulties:
+  - WindowScale: 1.25
+    HitRadius: 0.21
+    GapScale: 1.15
+    CrackCount: 15
+    DecoyChance: 0.2
+    DecoyGap: 3
+    FlameHalfWidth: 0.15
+    ZoneSpeed: 0.22
+    ZoneHoldDivisor: 1
+    HeatGain: 0.21
+    HeatDrain: 0.07
+    MoldHalfWidth: 0.5
+    FillLow: 0.94
+    FillHigh: 1.04
+    FillTolerance: 0.4
+    FlowScale: 1
+    HeatLossScale: 1
+  - WindowScale: 0.95
+    HitRadius: 0.18
+    GapScale: 0.88
+    CrackCount: 18
+    DecoyChance: 0.28
+    DecoyGap: 2
+    FlameHalfWidth: 0.12
+    ZoneSpeed: 0.3
+    ZoneHoldDivisor: 1.3
+    HeatGain: 0.18
+    HeatDrain: 0.09
+    MoldHalfWidth: 0.38
+    FillLow: 0.945
+    FillHigh: 1.035
+    FillTolerance: 0.34
+    FlowScale: 1.1
+    HeatLossScale: 1.15
+  - WindowScale: 0.65
+    HitRadius: 0.15
+    GapScale: 0.68
+    CrackCount: 21
+    DecoyChance: 0.36
+    DecoyGap: 1
+    FlameHalfWidth: 0.095
+    ZoneSpeed: 0.4
+    ZoneHoldDivisor: 1.6
+    HeatGain: 0.16
+    HeatDrain: 0.11
+    MoldHalfWidth: 0.28
+    FillLow: 0.95
+    FillHigh: 1.03
+    FillTolerance: 0.28
+    FlowScale: 1.2
+    HeatLossScale: 1.35
