@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7257a5b2f6fb7fb47989a4b8eebc7cb6, type: 3}
+  m_Name: PolishRules
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.PolishRulesData
+  _introTime: 0.9
+  _endDelay: 0.6
+  _segmentGoal: 0.9
+  _grindRate: 0.5
+  _hardRate: 0.55
+  _contactRadius: 0.07
+  _angleAmplitude: 0.12
+  _angleSpeedMin: 0.6
+  _angleSpeedMax: 1.1
+  _heatUp: 0.3
+  _offAngleHeat: 1.2
+  _heatCool: 0.12
+  _dipCool: 0.7
+  _burnHeat: 1
+  _resumeHeat: 0.5
+  _warnHeat: 0.7
+  _burnPenalty: 0.07
+  _burnSharpLoss: 0.25
+  _thinLossPerSecond: 0.04
+  _maxThin: 0.5
+  _initialMin: 0.05
+  _initialMax: 0.45
+  _priorThreshold: 0.5
+  _priorDrop: 0.15
+  _comboBonusPer: 0.008
+  _comboBonusMax: 0.06
+  _successScore: 0.6
+  _difficulties:
+  - AngleTolerance: 0.07
+    TimeLimit: 40
+    HeatScale: 1
+    HardChance: 0.1
+  - AngleTolerance: 0.06
+    TimeLimit: 34
+    HeatScale: 1.15
+    HardChance: 0.25
+  - AngleTolerance: 0.05
+    TimeLimit: 30
+    HeatScale: 1.3
+    HardChance: 0.4

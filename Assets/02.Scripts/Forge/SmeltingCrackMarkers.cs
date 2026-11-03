@@ -39,14 +39,14 @@ namespace Blacksmith.Forge
             public int Target = -1;
         }
 
-        private readonly SmeltingGreybox _kit;
+        private readonly ForgeGreybox _kit;
         private readonly Slot[] _slots = new Slot[SlotCount];
         private readonly MaterialPropertyBlock _block = new MaterialPropertyBlock();
         private float[] _resultAt = new float[0];
         private float[] _resultQuality = new float[0];
         private bool _active;
 
-        public SmeltingCrackMarkers(SmeltingGreybox kit, Transform stage, Material lineMaterial)
+        public SmeltingCrackMarkers(ForgeGreybox kit, Transform stage, Material lineMaterial)
         {
             _kit = kit;
             Quaternion facing = Quaternion.LookRotation(-SmeltingLayout.ArenaNormal, SmeltingLayout.ArenaUp);

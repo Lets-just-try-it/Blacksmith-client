@@ -25,7 +25,7 @@ namespace Blacksmith.Forge
         [SerializeField] private ForgeNoiseSynth _pourSound;
         [SerializeField] private Light _glow;
 
-        private SmeltingGreybox _kit;
+        private ForgeGreybox _kit;
         private SmeltingBoulderVisual _boulder;
         private SmeltingFurnaceVisual _furnace;
         private SmeltingPourVisual _pour;
@@ -42,7 +42,7 @@ namespace Blacksmith.Forge
 
         private void Awake()
         {
-            _kit = new SmeltingGreybox(_bodyMaterial, _particleMaterial);
+            _kit = new ForgeGreybox(_bodyMaterial, _particleMaterial);
             _furnace = new SmeltingFurnaceVisual(_kit, _stageRoot);
             _boulder = new SmeltingBoulderVisual(_kit, _stageRoot);
             _pour = new SmeltingPourVisual(_kit, _stageRoot, _furnace);
