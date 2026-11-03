@@ -61,6 +61,7 @@ Assets/
   03.ScriptableObjects/
     Balance/     # 미니게임, 경제 등 밸런스 수치
     Equipment/
+    Items/       # 아이템 정의(재료, 제작 중간 형태, 장비)와 아이템 번호 표
     Adventurers/
     Monsters/
     Dungeons/
