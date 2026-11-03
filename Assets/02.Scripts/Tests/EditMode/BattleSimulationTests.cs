@@ -255,5 +255,82 @@ namespace Blacksmith.Tests
 
             Assert.IsNotEmpty(fallen);
         }
+
+        // 쓰러지지 않는 모험가 한 명과 보스 한 마리만 싸운다. 보스는 UnitId 1이다.
+        private static BattleSetup CreateBossSetup(int adventurerAttack, MonsterSetup boss)
+        {
+            var setup = new BattleSetup { Seed = 11, Rules = CreateRules() };
+            setup.Adventurers.Add(new AdventurerSetup { AdventurerId = 1, Stats = Stats(100000, adventurerAttack, maxMana: 0) });
+            setup.Stages.Add(Stage(true, boss));
+            return setup;
+        }
+
+        [Test]
+        public void BossSkills_CastInPatternOrder()
+        {
+            MonsterSetup boss = Monster(20, 100000, 10);
+            boss.Skills = new[]
+            {
+                new SkillData { Kind = SkillKind.SingleDamage, PowerPercent = 200 },
+                new SkillData { Kind = SkillKind.AreaDamage, PowerPercent = 150, Radius = 300 },
+            };
+            var simulation = new BattleSimulation(CreateBossSetup(5, boss));
+            var casts = new List<int>();
+            while (!simulation.IsFinished && casts.Count < 3)
+            {
+                foreach (BattleEvent e in simulation.Step())
+                {
+                    if (e.Type == BattleEventType.SkillCast && e.SourceUnitId == 1)
+                    {
+                        casts.Add(e.Amount);
+                    }
+                }
+            }
+
+            CollectionAssert.AreEqual(
+                new[] { (int)SkillKind.SingleDamage, (int)SkillKind.AreaDamage, (int)SkillKind.SingleDamage }, casts);
+        }
+
+        [Test]
+        public void Enrage_TriggersOnceBelowThresholdAndBoostsStats()
+        {
+            MonsterSetup boss = Monster(20, 1000, 10);
+            boss.Enrage = new EnrageData { HpPercent = 50, AttackBonusPercent = 50, AttackIntervalReductionPercent = 50 };
+            var simulation = new BattleSimulation(CreateBossSetup(40, boss));
+            int enrageCount = 0;
+            while (!simulation.IsFinished)
+            {
+                foreach (BattleEvent e in simulation.Step())
+                {
+                    if (e.Type == BattleEventType.Enraged)
+                    {
+                        enrageCount++;
+                        BattleUnit unit = simulation.Units[e.SourceUnitId];
+                        Assert.AreEqual(1, unit.UnitId);
+                        Assert.LessOrEqual(unit.Hp * 100, unit.Stats.MaxHp * 50);
+                        Assert.AreEqual(15, unit.Stats.Attack);
+                        Assert.AreEqual(10, unit.Stats.AttackIntervalTicks);
+                    }
+                }
+            }
+
+            Assert.IsTrue(simulation.Result.IsVictory);
+            Assert.AreEqual(1, enrageCount);
+        }
+
+        [Test]
+        public void MonsterWithoutEnrage_NeverEnrages()
+        {
+            var simulation = new BattleSimulation(CreateBossSetup(40, Monster(20, 1000, 10)));
+            while (!simulation.IsFinished)
+            {
+                foreach (BattleEvent e in simulation.Step())
+                {
+                    Assert.AreNotEqual(BattleEventType.Enraged, e.Type);
+                }
+            }
+
+            Assert.IsFalse(simulation.Units[1].IsEnraged);
+        }
     }
 }

@@ -8,8 +8,8 @@ namespace Blacksmith.Battle
     public class BattleHudSlot : MonoBehaviour
     {
         [SerializeField] private Image _portrait;
-        [SerializeField] private Image _hpFill;
-        [SerializeField] private Image _manaFill;
+        [SerializeField] private RectTransform _hpFill;
+        [SerializeField] private RectTransform _manaFill;
         [SerializeField] private GameObject _fallenOverlay;
 
         private BattleUnit _unit;
@@ -32,8 +32,8 @@ namespace Blacksmith.Battle
                 return;
             }
 
-            _hpFill.fillAmount = (float)_unit.Hp / _unit.Stats.MaxHp;
-            _manaFill.fillAmount = _unit.Stats.MaxMana > 0 ? (float)_unit.Mana / _unit.Stats.MaxMana : 0f;
+            BarFill.SetRatio(_hpFill, (float)_unit.Hp / _unit.Stats.MaxHp);
+            BarFill.SetRatio(_manaFill, _unit.Stats.MaxMana > 0 ? (float)_unit.Mana / _unit.Stats.MaxMana : 0f);
             if (_fallenOverlay != null)
             {
                 _fallenOverlay.SetActive(_unit.IsFallen);

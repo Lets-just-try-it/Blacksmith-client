@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b6fe6e6b5a0d0b4fae35884e88db5bd, type: 3}
+  m_Name: Monster_GoblinChief
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.MonsterData
+  _monsterId: 110
+  _displayName: "\uACE0\uBE14\uB9B0 \uB300\uC7A5"
+  _isBoss: 1
+  _stats:
+    MaxHp: 1800
+    Attack: 40
+    Defense: 6
+    AttackRange: 140
+    AttackIntervalTicks: 30
+    MoveSpeed: 10
+    MaxMana: 1000
+    ManaPerTick: 10
+    ManaPerHit: 120
+  _skills:
+  - Kind: 1
+    PowerPercent: 250
+    Radius: 0
+  - Kind: 2
+    PowerPercent: 160
+    Radius: 300
+  _enrage:
+    HpPercent: 50
+    AttackBonusPercent: 30
+    AttackIntervalReductionPercent: 25
+  _viewPrefab: {fileID: 7103482918291794740, guid: 0d6e3974dab4ba1468254a457e10b2fd, type: 3}

@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe21b09a30462b14ab7087c5e202220c, type: 3}
+  m_Name: Dungeon_Tier2
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.DungeonData
+  _dungeonId: 2
+  _displayName: "\uBC84\uB824\uC9C4 \uBB18\uC9C0"
+  _stages:
+  - IsBoss: 0
+    Spawns:
+    - Monster: {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
+      SpawnOffset: 0
+    - Monster: {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
+      SpawnOffset: 150
+    - Monster: {fileID: 11400000, guid: b3175517a493bc447ade8ab00ed6e68e, type: 2}
+      SpawnOffset: 350
+    Gold: 250
+    Experience: 150
+    Materials: []
+  - IsBoss: 0
+    Spawns:
+    - Monster: {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
+      SpawnOffset: 0
+    - Monster: {fileID: 11400000, guid: a87e5bdb8cdfb044eb88ad9eb106311a, type: 2}
+      SpawnOffset: 100
+    - Monster: {fileID: 11400000, guid: a87e5bdb8cdfb044eb88ad9eb106311a, type: 2}
+      SpawnOffset: 200
+    - Monster: {fileID: 11400000, guid: b3175517a493bc447ade8ab00ed6e68e, type: 2}
+      SpawnOffset: 400
+    Gold: 300
+    Experience: 180
+    Materials: []
+  - IsBoss: 1
+    Spawns:
+    - Monster: {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
+      SpawnOffset: 0
+    - Monster: {fileID: 11400000, guid: 29f9c18c23e4a3b4bbe879fc250c0085, type: 2}
+      SpawnOffset: 100
+    - Monster: {fileID: 11400000, guid: b3175517a493bc447ade8ab00ed6e68e, type: 2}
+      SpawnOffset: 400
+    Gold: 800
+    Experience: 400
+    Materials:
+    - MaterialId: 2
+      Count: 2

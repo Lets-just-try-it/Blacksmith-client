@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b6fe6e6b5a0d0b4fae35884e88db5bd, type: 3}
+  m_Name: Monster_SkeletonSoldier
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.MonsterData
+  _monsterId: 201
+  _displayName: "\uD574\uACE8 \uBCD1\uC0AC"
+  _stats:
+    MaxHp: 320
+    Attack: 26
+    Defense: 8
+    AttackRange: 90
+    AttackIntervalTicks: 25
+    MoveSpeed: 12
+    MaxMana: 0
+    ManaPerTick: 0
+    ManaPerHit: 0
+  _skills: []
+  _enrage:
+    HpPercent: 0
+    AttackBonusPercent: 0
+    AttackIntervalReductionPercent: 0
+  _viewPrefab: {fileID: 5968609260891892229, guid: cf43aab522194ae46871639ca22c9244, type: 3}

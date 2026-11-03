@@ -216,8 +216,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 3
+  m_Sprite: {fileID: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
@@ -319,8 +319,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleHudSlot
   _portrait: {fileID: 8492745653278532433}
-  _hpFill: {fileID: 226811489853260437}
-  _manaFill: {fileID: 5744681468783326753}
+  _hpFill: {fileID: 8951532926939900562}
+  _manaFill: {fileID: 5353430315019219918}
   _fallenOverlay: {fileID: 6120358631884113946}
 --- !u!1 &5454397771377822003
 GameObject:
@@ -387,8 +387,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 3
+  m_Sprite: {fileID: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0

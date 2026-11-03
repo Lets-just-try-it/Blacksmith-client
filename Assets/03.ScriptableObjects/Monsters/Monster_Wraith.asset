@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b6fe6e6b5a0d0b4fae35884e88db5bd, type: 3}
+  m_Name: Monster_Wraith
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.MonsterData
+  _monsterId: 203
+  _displayName: "\uB9DD\uB839"
+  _stats:
+    MaxHp: 200
+    Attack: 22
+    Defense: 2
+    AttackRange: 100
+    AttackIntervalTicks: 18
+    MoveSpeed: 22
+    MaxMana: 800
+    ManaPerTick: 10
+    ManaPerHit: 120
+  _skills:
+  - Kind: 2
+    PowerPercent: 180
+    Radius: 250
+  _enrage:
+    HpPercent: 0
+    AttackBonusPercent: 0
+    AttackIntervalReductionPercent: 0
+  _viewPrefab: {fileID: 792009247102343039, guid: f2621f51d3aa1ad40b310e3f5ab1d2f6, type: 3}

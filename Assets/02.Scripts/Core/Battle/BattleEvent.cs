@@ -10,6 +10,7 @@ namespace Blacksmith.Core.Battle
         Fell,
         StageCleared,
         BattleEnded,
+        Enraged,
     }
 
     // Amount는 종류에 따라 피해량, 회복량, 스테이지 번호, 승리 여부(1/0)를 담는다.

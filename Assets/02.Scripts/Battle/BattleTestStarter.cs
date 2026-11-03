@@ -12,6 +12,7 @@ namespace Blacksmith.Battle
     {
         [SerializeField] private BattlePlayer _player;
         [SerializeField] private BattleHud _hud;
+        [SerializeField] private BattleBossHpBar _bossHpBar;
         [SerializeField] private BattleResultView _resultView;
         [SerializeField] private BattleRulesData _rules;
         [SerializeField] private DungeonData _dungeon;
@@ -90,6 +91,7 @@ namespace Blacksmith.Battle
 
             _dungeon.AddStagesTo(_setup, _firstStage, _lastStage);
             _hud.Clear();
+            _bossHpBar.Hide();
             _player.Play(_setup, _rules.TicksPerSecond, GetPrefab);
         }
 
@@ -104,6 +106,12 @@ namespace Blacksmith.Battle
         {
             if (view.Unit.Team != BattleTeam.Adventurer)
             {
+                MonsterData monster = _dungeon.FindMonster(view.Unit.SourceId);
+                if (monster.IsBoss)
+                {
+                    _bossHpBar.Show(view.Unit, monster.DisplayName);
+                }
+
                 return;
             }
 
