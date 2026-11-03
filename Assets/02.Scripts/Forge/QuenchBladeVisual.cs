@@ -23,6 +23,9 @@ namespace Blacksmith.Forge
             _block = new MaterialPropertyBlock();
         }
 
+        // 칼날이 담기는 수조 안의 자리. 김과 물소리가 나는 곳이다.
+        public Vector3 WaterPoint => _waterPose.position;
+
         public void SetVisible(bool visible)
         {
             _blade.gameObject.SetActive(visible);
