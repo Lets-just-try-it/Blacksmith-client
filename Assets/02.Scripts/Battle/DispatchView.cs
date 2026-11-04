@@ -26,6 +26,8 @@ namespace Blacksmith.Battle
         [SerializeField] private AdventurerBattleData _adventurerBattle;
         [SerializeField] private AdventurerEquipView _equipView;
         [SerializeField] private PlayerNetworkInputLock _inputLock;
+        [Tooltip("창이 열린 동안 하단 개인 슬롯을 숨기는 데 쓴다")]
+        [SerializeField] private InventoryChannel _inventoryChannel;
         [SerializeField] private GameObject _panel;
         [SerializeField] private Transform _rowRoot;
         [SerializeField] private DispatchAdventurerRow _rowPrefab;
@@ -39,6 +41,8 @@ namespace Blacksmith.Battle
         [SerializeField] private Button _nextStageButton;
         [SerializeField] private Button _dispatchButton;
         [SerializeField] private Button _closeButton;
+        [Tooltip("밤에만 보인다. 파견하지 않고 다음 날로 넘긴다")]
+        [SerializeField] private Button _skipButton;
         [Tooltip("테스트 씬에서 창을 여는 버튼. 비워 두면 낮·밤 사이클이 DispatchState.Open을 부른다")]
         [SerializeField] private Button _openButton;
         [SerializeField] private Color _rowColor = new Color(0.18f, 0.16f, 0.14f, 1f);
@@ -64,6 +68,7 @@ namespace Blacksmith.Battle
             _nextStageButton.onClick.AddListener(ShowNextStage);
             _dispatchButton.onClick.AddListener(Dispatch);
             _closeButton.onClick.AddListener(Close);
+            _skipButton.onClick.AddListener(Skip);
             if (_openButton != null)
             {
                 _openButton.onClick.AddListener(Open);
@@ -81,6 +86,7 @@ namespace Blacksmith.Battle
             _nextStageButton.onClick.RemoveListener(ShowNextStage);
             _dispatchButton.onClick.RemoveListener(Dispatch);
             _closeButton.onClick.RemoveListener(Close);
+            _skipButton.onClick.RemoveListener(Skip);
             if (_openButton != null)
             {
                 _openButton.onClick.RemoveListener(Open);
@@ -97,6 +103,11 @@ namespace Blacksmith.Battle
         private void Close()
         {
             _state.Close();
+        }
+
+        private void Skip()
+        {
+            _state.Skip();
         }
 
         private void ShowPreviousTier()
@@ -144,7 +155,7 @@ namespace Blacksmith.Battle
             ShowSelection(canEdit);
         }
 
-        // 창이 열린 동안 캐릭터 조작을 잠근다. 창이 닫히면 장비 착용 창도 닫는다.
+        // 창이 열린 동안 캐릭터 조작을 잠그고 하단 개인 슬롯을 숨긴다. 창이 닫히면 장비 착용 창도 닫는다.
         private void SetShown(bool isShown)
         {
             if (_isShown == isShown)
@@ -161,10 +172,12 @@ namespace Blacksmith.Battle
             if (isShown)
             {
                 _inputLock.Lock(this);
+                _inventoryChannel.HideHud(this);
                 return;
             }
 
             _inputLock.Release(this);
+            _inventoryChannel.ShowHud(this);
             if (_equipView != null)
             {
                 _equipView.Hide();
@@ -235,7 +248,8 @@ namespace Blacksmith.Battle
             _previousStageButton.interactable = canEdit && hasStage && _state.LastStage > firstStage;
             _nextStageButton.interactable = canEdit && hasStage && _state.LastStage < dungeon.StageCount - 1;
             _dispatchButton.interactable = _state.CanDispatch();
-            _closeButton.gameObject.SetActive(canEdit);
+            _closeButton.gameObject.SetActive(canEdit && !_state.IsNight);
+            _skipButton.gameObject.SetActive(canEdit && _state.IsNight);
         }
 
         private static string GetBossMark(DungeonData dungeon, int stage)
