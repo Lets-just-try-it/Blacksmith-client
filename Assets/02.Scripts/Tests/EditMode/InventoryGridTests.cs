@@ -325,5 +325,86 @@ namespace Blacksmith.Tests
             Assert.IsFalse(grid.TryReplaceOne(0, new ItemStack(Sword, 1, 1)));
             Assert.IsFalse(grid.TryReplaceOne(99, new ItemStack(Sword, 1, 1)));
         }
+
+        [Test]
+        public void TryMoveCount_ToEmptySlot_SplitsStack()
+        {
+            InventoryGrid grid = CreateShared();
+            grid.TryAdd(new ItemStack(Ore, 1, 7));
+
+            Assert.IsTrue(InventoryGrid.TryMoveCount(grid, 0, grid, 4, 3));
+
+            Assert.AreEqual(new ItemStack(Ore, 1, 4), grid.Get(0));
+            Assert.AreEqual(new ItemStack(Ore, 1, 3), grid.Get(4));
+        }
+
+        [Test]
+        public void TryMoveCount_ToSameItem_MovesOnlyWhatFits()
+        {
+            InventoryGrid grid = CreateShared();
+            grid.TryAdd(new ItemStack(Ore, 1, 18));
+
+            Assert.IsTrue(InventoryGrid.TryMoveCount(grid, 0, grid, 1, 5));
+
+            Assert.AreEqual(new ItemStack(Ore, 1, 8), grid.Get(0));
+            Assert.AreEqual(new ItemStack(Ore, 1, 10), grid.Get(1));
+        }
+
+        [Test]
+        public void TryMoveCount_ToDifferentItemOrTooMany_Fails()
+        {
+            InventoryGrid grid = CreateShared();
+            grid.TryAdd(new ItemStack(Ore, 1, 5));
+            grid.TryAdd(new ItemStack(Sword, 1, 1));
+
+            Assert.IsFalse(InventoryGrid.TryMoveCount(grid, 0, grid, 1, 2));
+            Assert.IsFalse(InventoryGrid.TryMoveCount(grid, 0, grid, 2, 6));
+            Assert.IsFalse(InventoryGrid.TryMoveCount(grid, 0, grid, 2, 0));
+            Assert.AreEqual(new ItemStack(Ore, 1, 5), grid.Get(0));
+        }
+
+        [Test]
+        public void TryTransfer_MergesIntoSameItemThenEmptySlot()
+        {
+            InventoryGrid shared = CreateShared();
+            InventoryGrid player = CreatePlayer();
+            player.TryAdd(new ItemStack(Ore, 1, 8));
+            shared.TryAdd(new ItemStack(Sword, 1, 1));
+            shared.TryAdd(new ItemStack(Ore, 1, 5));
+
+            Assert.IsTrue(InventoryGrid.TryTransfer(shared, 1, player));
+
+            Assert.IsTrue(shared.Get(1).IsEmpty);
+            Assert.AreEqual(new ItemStack(Ore, 1, 10), player.Get(0));
+            Assert.AreEqual(new ItemStack(Ore, 1, 3), player.Get(1));
+        }
+
+        [Test]
+        public void TryTransfer_NotEnoughRoom_MovesWhatFitsAndKeepsRest()
+        {
+            InventoryGrid shared = CreateShared();
+            InventoryGrid player = CreatePlayer();
+            player.TryAdd(new ItemStack(Ore, 1, 6));
+            Fill(player, 7);
+            shared.TryAdd(new ItemStack(Ore, 1, 9));
+
+            Assert.IsTrue(InventoryGrid.TryTransfer(shared, 0, player));
+
+            Assert.AreEqual(new ItemStack(Ore, 1, 10), player.Get(0));
+            Assert.AreEqual(new ItemStack(Ore, 1, 5), shared.Get(0));
+        }
+
+        [Test]
+        public void TryTransfer_NoRoomOrSameGrid_Fails()
+        {
+            InventoryGrid shared = CreateShared();
+            InventoryGrid player = CreatePlayer();
+            Fill(player, 8);
+            shared.TryAdd(new ItemStack(Sword, 1, 1));
+
+            Assert.IsFalse(InventoryGrid.TryTransfer(shared, 0, player));
+            Assert.IsFalse(InventoryGrid.TryTransfer(shared, 0, shared));
+            Assert.AreEqual(new ItemStack(Sword, 1, 1), shared.Get(0));
+        }
     }
 }

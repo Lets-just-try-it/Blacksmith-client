@@ -182,26 +182,9 @@ namespace Blacksmith.Core.Inventory
                 return false;
             }
 
-            if (target.IsEmpty)
+            if (target.IsEmpty || target.IsSameItem(moving))
             {
-                // 옮겨 갈 격자의 최대 쌓기 수가 더 작을 수 있으므로 넘치는 만큼은 원래 칸에 남긴다.
-                int placed = Math.Min(moving.Count, to.GetMaxStack(moving.ItemId));
-                to._slots[toSlot] = moving.WithCount(placed);
-                from._slots[fromSlot] = moving.WithCount(moving.Count - placed);
-                return true;
-            }
-
-            if (target.IsSameItem(moving))
-            {
-                int moved = Math.Min(to.GetMaxStack(target.ItemId) - target.Count, moving.Count);
-                if (moved <= 0)
-                {
-                    return false;
-                }
-
-                to._slots[toSlot] = target.WithCount(target.Count + moved);
-                from._slots[fromSlot] = moving.WithCount(moving.Count - moved);
-                return true;
+                return TryMoveCount(from, fromSlot, to, toSlot, moving.Count);
             }
 
             if (moving.Count > to.GetMaxStack(moving.ItemId) || target.Count > from.GetMaxStack(target.ItemId))
@@ -211,6 +194,55 @@ namespace Blacksmith.Core.Inventory
 
             to._slots[toSlot] = moving;
             from._slots[fromSlot] = target;
+            return true;
+        }
+
+        // 쌓인 칸에서 count개만 떼어 빈 칸이나 같은 물건이 든 칸에 놓는다(스택 나누기). 다른 물건이 든 칸에는 놓지 않는다.
+        // 놓을 칸에 다 들어가지 않으면 들어가는 만큼만 옮기고 나머지는 원래 칸에 남긴다.
+        public static bool TryMoveCount(InventoryGrid from, int fromSlot, InventoryGrid to, int toSlot, int count)
+        {
+            if (!from.IsValidSlot(fromSlot) || !to.IsValidSlot(toSlot) || (from == to && fromSlot == toSlot) || count <= 0)
+            {
+                return false;
+            }
+
+            ItemStack moving = from._slots[fromSlot];
+            ItemStack target = to._slots[toSlot];
+            if (moving.IsEmpty || count > moving.Count || (!target.IsEmpty && !target.IsSameItem(moving)))
+            {
+                return false;
+            }
+
+            // 옮겨 갈 격자의 최대 쌓기 수가 더 작을 수 있으므로 넘치는 만큼은 원래 칸에 남긴다.
+            int room = to.GetMaxStack(moving.ItemId) - (target.IsEmpty ? 0 : target.Count);
+            int moved = Math.Min(room, count);
+            if (moved <= 0)
+            {
+                return false;
+            }
+
+            to._slots[toSlot] = moving.WithCount((target.IsEmpty ? 0 : target.Count) + moved);
+            from._slots[fromSlot] = moving.WithCount(moving.Count - moved);
+            return true;
+        }
+
+        // 칸의 물건을 다른 격자로 보낸다(빠른 이동). 받는 격자의 같은 물건 칸을 먼저 채우고 남으면 빈 칸에 넣는다.
+        // 다 들어가지 않으면 들어가는 만큼만 옮기고 나머지는 원래 칸에 남긴다.
+        public static bool TryTransfer(InventoryGrid from, int fromSlot, InventoryGrid to)
+        {
+            if (from == to || !from.IsValidSlot(fromSlot))
+            {
+                return false;
+            }
+
+            ItemStack moving = from._slots[fromSlot];
+            int moved = Math.Min(moving.Count, to.GetFreeRoom(moving));
+            if (moved <= 0 || !to.TryAdd(moving.WithCount(moved)))
+            {
+                return false;
+            }
+
+            from._slots[fromSlot] = moving.WithCount(moving.Count - moved);
             return true;
         }
 

@@ -1,13 +1,16 @@
+using Blacksmith.Network;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Blacksmith.Inventory
 {
     // 숫자키 1~8로 손에 들 개인 슬롯을 고른다. 빈 슬롯을 고르면 아무것도 들지 않은 상태가 된다.
-    // 고른 슬롯은 내 PC의 InventoryChannel에만 두고, 제작을 요청할 때 슬롯 번호를 실어 호스트에 보낸다.
+    // 고른 슬롯은 내 PC의 InventoryChannel에 두고, 제작을 요청할 때 슬롯 번호를 실어 호스트에 보낸다.
+    // 대화·미니게임·공용 창고처럼 캐릭터 조작이 잠긴 동안에는 숫자키를 무시한다. 대화 중 숫자키는 선택지 고르기에 쓴다.
     public class HeldSlotSelector : MonoBehaviour
     {
         [SerializeField] private InventoryChannel _channel;
+        [SerializeField] private PlayerNetworkInputLock _inputLock;
 
         private InputAction[] _keys;
 
@@ -50,7 +53,7 @@ namespace Blacksmith.Inventory
 
         private void Update()
         {
-            if (_channel.LocalPlayerInventory == null)
+            if (_channel.LocalPlayerInventory == null || _inputLock.IsLocked)
             {
                 return;
             }
