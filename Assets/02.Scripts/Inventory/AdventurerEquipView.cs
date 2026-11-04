@@ -18,7 +18,7 @@ namespace Blacksmith.Inventory
     // 목록에서 장비 칸으로 끌어 놓거나 목록의 장비를 더블 클릭하면 입히고,
     // 장비 칸을 목록으로 끌어 놓거나 더블 클릭하면 벗겨 공용 창고로 돌려보낸다.
     // 칸에 맞지 않는 장비는 놓아도 아무것도 바뀌지 않아 원래 자리에 남고, 맞지 않는 이유를 토스트로 잠깐 띄운다.
-    // 파견 창이 생기면 그 창이 이 창을 연다.
+    // 파견 창(Battle/DispatchView)이 고른 모험가로 이 창을 연다.
     // 장비 선택은 호스트만 한다(GAME_CONCEPT 8절). 다른 참가자는 보기만 한다. 창이 열린 동안 하단 개인 슬롯은 숨긴다.
     public class AdventurerEquipView : MonoBehaviour, IInventorySlotOwner
     {
@@ -137,6 +137,27 @@ namespace Blacksmith.Inventory
             _channel.PlayerInventoriesChanged += WatchInventories;
             WatchInventories();
             _panel.SetActive(true);
+        }
+
+        // 파견 창이 고른 모험가로 연다. 이미 열려 있으면 그 모험가로 바꾼다.
+        public void Show(int adventurerId)
+        {
+            if (!_roster.IsReady)
+            {
+                return;
+            }
+
+            for (int i = 0; i < _roster.Count; i++)
+            {
+                if (_roster.Get(i).AdventurerId == adventurerId)
+                {
+                    _adventurerIndex = i;
+                    break;
+                }
+            }
+
+            Show();
+            Refresh();
         }
 
         public void Hide()

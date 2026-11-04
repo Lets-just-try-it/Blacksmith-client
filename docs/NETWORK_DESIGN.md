@@ -218,8 +218,14 @@ NPC(`DialogueSeat`)는 한 번에 한 명과만 대화한다. 작업대 사용�
 - 두 씬이 함께 떠 있으면 카메라, Screen Space UI, 실시간 조명이 서로 겹친다. 전투 씬이 떠 있는 동안 낮 씬의 카메라·UI·라이트를 끄고, 전투 씬을 활성 씬으로 둔다. 전투 공간은 낮 씬과 겹치지 않는 좌표에 둔다. EventSystem과 AudioListener는 낮 씬 것만 쓴다.
 - 결과는 전투 씬을 내리기 직전에 반영한다. 재생이 끝나는 시점은 참가자마다 다르므로, 먼저 반영하면 아직 재생 중인 참가자의 결과창(레벨업 표시 등)이 바뀐 관리 목록을 기준으로 계산된다.
 - 파티는 모험가 ID만 보내고, 각자 낮 씬의 관리 목록에서 찾는다. 전투 씬이 떠 있는 동안에는 관리 목록을 바꾸는 낮 씬 상호작용(영입, 장비 교체 등)을 잠가, 재생하는 동안 모험가 정보가 바뀌지 않게 한다.
-- 낮 씬 화면 끄기와 상호작용 잠금은 낮·밤 사이클(대장간 담당)과 광장이 맡는다. 파견 창에서 `BattleState`로 파견 정보를 넘기는 방법과 전투 씬을 불러오고 내리는 코드는 전투가 맡는다.
-- [미정] 게임을 껐다 켤 때 이어지는 상태(관리 목록, 던전 진행 상황, 골드 등)의 저장 구조. 지금은 `BattleState`가 테스트 파티 조회와 던전 진행 상황을 임시로 맡는다.
+- 지금 구현(전투 영역):
+  - 파견 창: 낮 씬의 `DispatchState`(호스트 소유)가 창 열림·파티·던전 단계·스테이지를 `[Networked]`로 동기화한다. 고르기는 호스트만 하므로 RPC 없이 호스트가 직접 값을 바꾼다. 화면은 `DispatchView`이고, 줄의 장비 버튼으로 `AdventurerEquipView.Show(adventurerId)`를 연다.
+  - 씬 잇기: 두 씬은 인스펙터로 서로를 참조할 수 없어 Runtime 에셋 `BattleChannel`을 거친다. 낮 씬은 관리 목록 조회(`SetAdventurerSource`)를 등록하고 파견 정보를 맡긴다. 전투 씬의 `BattleSceneFlow`는 파견 정보로 `StartBattle`을 부르고, 열림·닫힘과 결과(`ResultConfirmed`)를 알린다.
+  - 불러오기·내리기: 낮 씬의 `BattleSceneLoader`(호스트 소유)가 `Runner.LoadScene(…, Additive)`로 `Battle` 씬을 불러오고, 결과를 받으면 `Runner.UnloadScene`으로 내린다. 결과창 다음에는 파견 창으로 돌아가지 않고 바로 낮 씬으로 돌아간다.
+  - 화면 끄기: 낮 씬의 `DaySceneBattleCover`가 전투 씬이 열린 동안 지정한 카메라·Canvas·라이트의 컴포넌트만 끄고 캐릭터 조작을 잠근다(`PlayerNetworkInputLock`). 파견 창과 장비 착용 창은 파견할 때 닫힌다. 낮·밤 사이클이 생기면 그 화면 전환과 합친다.
+  - 던전 진행 상황: 전투 씬을 내리면 사라지므로 낮 씬의 `DungeonProgressState`(호스트 소유)에 두고, `BattleChannel.ResultConfirmed`로 반영한다. `BattleState.StartBattle`은 파견을 확정할 때의 진행 상황을 받는다.
+  - `Battle` 씬은 전투 본체만 담는다(EventSystem·AudioListener 없음). 전투 공간은 낮 씬과 겹치지 않게 x = 1000 근처에 둔다. `BattleTest`는 테스트 파티를 등록하고 `Battle`을 불러오는 테스트 전용 씬이다.
+- [미정] 게임을 껐다 켤 때 이어지는 상태(관리 목록, 던전 진행 상황, 골드 등)의 저장 구조.
 
 ## 9. 인벤토리
 

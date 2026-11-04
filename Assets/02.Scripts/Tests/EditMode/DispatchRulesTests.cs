@@ -1,0 +1,67 @@
+using Blacksmith.Core.Adventurers;
+using Blacksmith.Core.Battle;
+using NUnit.Framework;
+
+namespace Blacksmith.Tests
+{
+    public class DispatchRulesTests
+    {
+        private const int MaxPartySize = 5;
+        private const int StageCount = 3;
+
+        [Test]
+        public void OnlyHealthyAdventurer_CanBeDispatched()
+        {
+            Assert.IsTrue(DispatchRules.CanDispatch(AdventurerCondition.Healthy));
+            Assert.IsFalse(DispatchRules.CanDispatch(AdventurerCondition.Injured));
+            Assert.IsFalse(DispatchRules.CanDispatch(AdventurerCondition.Dead));
+        }
+
+        [Test]
+        public void Party_CannotExceedMaxSize()
+        {
+            Assert.IsTrue(DispatchRules.CanAddToParty(MaxPartySize - 1, MaxPartySize));
+            Assert.IsFalse(DispatchRules.CanAddToParty(MaxPartySize, MaxPartySize));
+        }
+
+        [Test]
+        public void Party_NeedsAtLeastOneAdventurer()
+        {
+            Assert.IsFalse(DispatchRules.IsValidPartySize(0, MaxPartySize));
+            Assert.IsTrue(DispatchRules.IsValidPartySize(1, MaxPartySize));
+            Assert.IsTrue(DispatchRules.IsValidPartySize(MaxPartySize, MaxPartySize));
+            Assert.IsFalse(DispatchRules.IsValidPartySize(MaxPartySize + 1, MaxPartySize));
+        }
+
+        [Test]
+        public void ClampStage_MovesClearedStageToFirstUncleared()
+        {
+            Assert.AreEqual(1, DispatchRules.ClampStage(1, StageCount, 0));
+            Assert.AreEqual(2, DispatchRules.ClampStage(1, StageCount, 2));
+            Assert.AreEqual(2, DispatchRules.ClampStage(0, StageCount, 5));
+        }
+
+        [Test]
+        public void ClampStage_ClearedTier_HasNoStage()
+        {
+            Assert.AreEqual(-1, DispatchRules.ClampStage(StageCount, StageCount, 0));
+        }
+
+        [Test]
+        public void NextTier_SelectableOnlyAfterPreviousBossCleared()
+        {
+            int[] stageCounts = { StageCount, StageCount };
+            Assert.IsTrue(DispatchRules.IsTierSelectable(0, new[] { 0, 0 }, stageCounts));
+            Assert.IsFalse(DispatchRules.IsTierSelectable(1, new[] { 2, 0 }, stageCounts));
+            Assert.IsTrue(DispatchRules.IsTierSelectable(1, new[] { StageCount, 0 }, stageCounts));
+        }
+
+        [Test]
+        public void ClearedTier_IsNotSelectable()
+        {
+            int[] stageCounts = { StageCount, StageCount };
+            Assert.IsFalse(DispatchRules.IsTierSelectable(0, new[] { StageCount, 0 }, stageCounts));
+            Assert.IsFalse(DispatchRules.IsTierSelectable(2, new[] { StageCount, StageCount }, stageCounts));
+        }
+    }
+}
