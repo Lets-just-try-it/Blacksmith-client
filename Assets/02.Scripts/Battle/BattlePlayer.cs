@@ -26,13 +26,16 @@ namespace Blacksmith.Battle
         private Func<BattleUnit, BattleUnitView> _getPrefab;
         private float _tickDuration;
         private float _elapsed;
+        private float _holdRemaining;
 
         public event Action<BattleUnitView> UnitSpawned;
+        public event Action<BattleUnitView> UnitEnraged;
         public event Action TickAdvanced;
         public event Action<BattleResult> Finished;
 
         public IReadOnlyList<BattleUnitView> Views => _views;
         public bool IsPlaying => _simulation != null && !_simulation.IsFinished;
+        public bool IsHolding => _holdRemaining > 0f;
 
         public float PlaybackSpeed
         {
@@ -49,6 +52,16 @@ namespace Blacksmith.Battle
             SpawnNewViews();
         }
 
+        // 보스 등장 연출처럼 화면을 보여 주는 동안 재생을 멈춘다. 시뮬레이션 결과는 바뀌지 않는다.
+        public void Hold(float seconds)
+        {
+            _holdRemaining = Mathf.Max(_holdRemaining, seconds);
+            foreach (BattleUnitView view in _views)
+            {
+                view.SetMoving(false);
+            }
+        }
+
         private void Update()
         {
             if (!IsPlaying)
@@ -56,8 +69,14 @@ namespace Blacksmith.Battle
                 return;
             }
 
+            if (IsHolding)
+            {
+                _holdRemaining -= Time.deltaTime;
+                return;
+            }
+
             _elapsed += Time.deltaTime * _playbackSpeed;
-            while (_elapsed >= _tickDuration && IsPlaying)
+            while (_elapsed >= _tickDuration && IsPlaying && !IsHolding)
             {
                 _elapsed -= _tickDuration;
                 StepOnce();
@@ -128,6 +147,7 @@ namespace Blacksmith.Battle
                     break;
                 case BattleEventType.Enraged:
                     _views[battleEvent.SourceUnitId].PlayEnrage();
+                    UnitEnraged?.Invoke(_views[battleEvent.SourceUnitId]);
                     break;
                 case BattleEventType.StageStarted:
                     HideFallenUnits();
@@ -153,7 +173,7 @@ namespace Blacksmith.Battle
             {
                 if (_views[i].Unit.IsAlive)
                 {
-                    _views[i].SetMoving(_views[i].Unit.Position != _previousPositions[i]);
+                    _views[i].SetMoving(!IsHolding && _views[i].Unit.Position != _previousPositions[i]);
                 }
             }
         }
@@ -183,6 +203,7 @@ namespace Blacksmith.Battle
             _views.Clear();
             _previousPositions.Clear();
             _elapsed = 0f;
+            _holdRemaining = 0f;
         }
     }
 }

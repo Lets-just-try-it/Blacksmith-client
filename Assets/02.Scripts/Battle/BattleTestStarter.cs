@@ -19,6 +19,7 @@ namespace Blacksmith.Battle
         [SerializeField] private BattlePlayer _player;
         [SerializeField] private BattleHud _hud;
         [SerializeField] private BattleBossHpBar _bossHpBar;
+        [SerializeField] private BattleBossIntro _bossIntro;
         [SerializeField] private BattleResultView _resultView;
         [SerializeField] private BattleRulesData _rules;
         [SerializeField] private DungeonData _dungeon;
@@ -110,6 +111,7 @@ namespace Blacksmith.Battle
             _resultView.Hide();
             _hud.Clear();
             _bossHpBar.Hide();
+            _bossIntro.Hide();
             _player.Play(_battleState.CurrentSetup, _rules.TicksPerSecond, GetPrefab);
         }
 
@@ -128,6 +130,7 @@ namespace Blacksmith.Battle
                 if (monster.IsBoss)
                 {
                     _bossHpBar.Show(view.Unit, monster.DisplayName);
+                    _bossIntro.Play(monster.DisplayName);
                 }
 
                 return;
