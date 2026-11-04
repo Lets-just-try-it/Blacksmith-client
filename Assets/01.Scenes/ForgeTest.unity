@@ -139,6 +139,14 @@ PrefabInstance:
       propertyPath: _storage
       value: 
       objectReference: {fileID: 2082279646}
+    - target: {fileID: 4035399393853069023, guid: 6366bed77c471fd458bf08b871d5a7ec, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4833180642282417225, guid: 6366bed77c471fd458bf08b871d5a7ec, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5712941795883535739, guid: 6366bed77c471fd458bf08b871d5a7ec, type: 3}
       propertyPath: m_Name
       value: AdventurerEquipUI
@@ -272,7 +280,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &12651166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -570,8 +578,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -30, y: -120}
-  m_SizeDelta: {x: 520, y: 61.6}
+  m_AnchoredPosition: {x: -24, y: -276}
+  m_SizeDelta: {x: 300, y: 56}
   m_Pivot: {x: 1, y: 1}
 --- !u!1001 &156785738
 PrefabInstance:
@@ -735,7 +743,10 @@ MonoBehaviour:
   EnableInterpolation: 1
   Flags: 262146
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 181058526}
+  - {fileID: 181058528}
+  - {fileID: 181058527}
   ForceRemoteRenderTimeframe: 0
 --- !u!4 &181058530
 Transform:
@@ -784,9 +795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ShopHud
   _gameState: {fileID: 156785739}
-  _day: {fileID: 0}
   _goldText: {fileID: 98491381}
-  _dayText: {fileID: 0}
 --- !u!114 &216139101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1359,6 +1368,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NightTransitionUI
       objectReference: {fileID: 0}
+    - target: {fileID: 4986230684060962670, guid: e6f74d76de27e5545a0dd893be25423f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8440269834128595352, guid: e6f74d76de27e5545a0dd893be25423f, type: 3}
       propertyPath: _gameState
       value: 
@@ -1454,6 +1467,8 @@ MonoBehaviour:
   _inventory: {fileID: 2082279646}
   _supplyItem: {fileID: 11400000, guid: aea1a5cef7898394e83cbc803ed180ce, type: 2}
   _supplyCount: 10
+  _roster: {fileID: 0}
+  _generation: {fileID: 0}
 --- !u!114 &513847051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1515,12 +1530,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ShopFlow
   _rulesData: {fileID: 11400000, guid: 8754c2ae292de6c43b646222217ccba4, type: 2}
-  _day: {fileID: 0}
   _gameState: {fileID: 156785739}
   _shelves:
   - {fileID: 494734623}
   - {fileID: 494734622}
-  _stations: []
   _customerPrefab: {fileID: 3144153555793927362, guid: 4624d34e69ac9df428194fae5b4747d5, type: 3}
   _entrance: {fileID: 494734621}
   _wanderPoints:
@@ -1792,6 +1805,10 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 1607129145919037367, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1731691893384844117, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
       value: 25
@@ -1868,6 +1885,10 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 3341145831091869831, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3343793733988759571, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: Flags
       value: 262146
@@ -1940,6 +1961,10 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 4024855855513897192, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4025273345777649616, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_TextStyleHashCode
       value: -1183493901
@@ -1975,6 +2000,10 @@ PrefabInstance:
     - target: {fileID: 4946142600602671849, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_TextStyleHashCode
       value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 4999421595531093080, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5011365341009379275, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_fontSize
@@ -2160,6 +2189,10 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 8070516944130867534, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8076705794622932087, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 2583691263
@@ -2168,9 +2201,21 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 8145171676719106405, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8188546138369368314, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8272942307749939766, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_TextStyleHashCode
       value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 8617011012096797071, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8737817297960654394, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_TextStyleHashCode
@@ -2179,6 +2224,10 @@ PrefabInstance:
     - target: {fileID: 8823209063428210877, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_TextStyleHashCode
       value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 8987167811693710024, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9069016276822901815, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_TextStyleHashCode
@@ -2422,7 +2471,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1152207234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2919,6 +2968,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3718065733447789908, guid: f4d70c902225f354caa7812fd4b99471, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6313745917170829875, guid: f4d70c902225f354caa7812fd4b99471, type: 3}
       propertyPath: m_TextStyleHashCode
       value: -1183493901
@@ -3785,7 +3838,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1671691014
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3938,6 +3991,10 @@ PrefabInstance:
     - target: {fileID: 3851590605249341722, guid: 4222f879142de1148b9495a134a92d37, type: 3}
       propertyPath: m_Name
       value: DispatchUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 8714192574101165593, guid: 4222f879142de1148b9495a134a92d37, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9059559562685475960, guid: 4222f879142de1148b9495a134a92d37, type: 3}
       propertyPath: _state
