@@ -11,6 +11,8 @@ namespace Blacksmith.Forge
         WrongItem,
         // 작업대를 찾지 못했다.
         Unavailable,
+        // 낮 영업이 끝나 새 미니게임을 시작할 수 없다.
+        Closed,
     }
 
     // 씬의 작업대와 Player 프리팹의 ForgePlayerActions를 잇는 에셋이다.
@@ -24,6 +26,15 @@ namespace Blacksmith.Forge
         public event Action<ForgeStationState, ForgeRejectReason> StartRejected;
 
         public bool HasLocalPlayer => _localActions != null;
+
+        // 새 미니게임을 시작할 수 있는지. 낮·밤 단계에 맞춰 ForgeDayCycleLink가 정한다. 연결이 없으면 늘 열려 있다.
+        // 호스트는 시작 요청을 받을 때 이 값을 확인한다.
+        public bool IsOpen { get; private set; } = true;
+
+        public void SetOpen(bool isOpen)
+        {
+            IsOpen = isOpen;
+        }
 
         public void Register(ForgePlayerActions actions)
         {

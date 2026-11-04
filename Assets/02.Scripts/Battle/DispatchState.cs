@@ -21,6 +21,8 @@ namespace Blacksmith.Battle
         private ChangeDetector _changes;
 
         [Networked] public NetworkBool IsOpen { get; private set; }
+        // 밤에 열린 창은 닫을 수 없고, 파견하거나 파견하지 않고 다음 날로 넘겨야 한다.
+        [Networked] public NetworkBool IsNight { get; private set; }
         [Networked] public int TierIndex { get; private set; }
         // 0부터 센 번호. 고를 스테이지가 없으면 -1이다.
         [Networked] public int LastStage { get; private set; }
@@ -29,6 +31,8 @@ namespace Blacksmith.Battle
 
         // 스폰 직후와 고른 내용이 바뀔 때 모든 참가자에게 불린다.
         public event Action Changed;
+        // 호스트에서만 불린다. 밤에 파견하지 않고 다음 날로 넘기기로 했을 때다.
+        public event Action Skipped;
 
         public bool IsReady => Object != null && Object.IsValid;
         public bool CanEdit => IsReady && HasStateAuthority;
@@ -89,21 +93,34 @@ namespace Blacksmith.Battle
             return _progress.GetClearedStages(SelectedDungeon.DungeonId);
         }
 
-        // 호스트 전용. 실제 흐름에서는 밤이 되면 낮·밤 사이클이 부른다.
+        // 호스트 전용. 테스트 씬의 버튼이 낮에 연다. 낮에 연 창은 닫을 수 있다.
         public void Open()
         {
-            if (CanEdit)
-            {
-                IsOpen = true;
-                ClampSelection();
-            }
+            Open(false);
+        }
+
+        // 호스트 전용. 밤이 되면 NightDispatchLink가 연다.
+        public void OpenForNight()
+        {
+            Open(true);
         }
 
         public void Close()
         {
-            if (CanEdit)
+            if (CanEdit && !IsNight)
             {
                 IsOpen = false;
+            }
+        }
+
+        // 호스트 전용. 밤에 파견하지 않고 다음 날로 넘긴다.
+        public void Skip()
+        {
+            if (CanEdit && IsOpen && IsNight)
+            {
+                IsOpen = false;
+                IsNight = false;
+                Skipped?.Invoke();
             }
         }
 
@@ -191,9 +208,21 @@ namespace Blacksmith.Battle
             if (isDispatched)
             {
                 IsOpen = false;
+                IsNight = false;
             }
 
             return isDispatched;
+        }
+
+        private void Open(bool isNight)
+        {
+            if (CanEdit)
+            {
+                // 밤에 열린 창을 낮용으로 다시 열어도 밤 창(닫을 수 없음)으로 남긴다.
+                IsNight = isNight || (IsOpen && IsNight);
+                IsOpen = true;
+                ClampSelection();
+            }
         }
 
         private int IndexOfParty(int adventurerId)

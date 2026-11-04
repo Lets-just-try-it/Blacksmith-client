@@ -28,6 +28,7 @@
 | 함께 보는 대화 | 호스트 → 모든 클라이언트 | 호스트가 재생 RPC를 보내고, 모두 다 읽으면 함께 닫음 |
 | 자동 전투 재생 | 호스트 → 모든 클라이언트 | 호스트가 파견 정보(시드, 던전, 스테이지, 모험가 ID)를 동기화하고, 각자 같은 전투를 재생 |
 | 전투 결과 반영 | 호스트 | 시작할 때 계산해 둔 결과를 전투 씬을 내리기 직전에 반영 |
+| 낮·밤 단계 | 호스트 → 모든 클라이언트 | `GameState`가 날짜·단계·낮 타이머(`TickTimer`)를 `FixedUpdateNetwork`에서 넘기고 동기화 |
 
 ## 3. 플레이어 입력 처리
 
@@ -92,7 +93,7 @@
 ### 4.2 사용 요청 처리
 
 1. 클라이언트가 호스트에 작업대 사용을 요청한다.
-2. 호스트는 작업대가 `Available` 상태인지 확인한다.
+2. 호스트는 낮인지(`ForgeChannel.IsOpen`, 낮·밤 단계에 맞춰 `ForgeDayCycleLink`가 정함)와 작업대가 `Available` 상태인지 확인한다. 낮이 아니면 "영업 끝"(`ForgeRejectReason.Closed`)으로 거절한다.
 3. 사용 가능하면 요청한 플레이어를 `CurrentUser`로 설정하고 새 `SessionId`를 발급한다.
 4. 작업대 상태를 `InProgress`로 바꾼다.
 5. 호스트가 해당 클라이언트에 사용 승인과 `SessionId`를 전달한다.
@@ -225,6 +226,7 @@ NPC(`DialogueSeat`)는 한 번에 한 명과만 대화한다. 작업대 사용�
   - 화면 끄기: 낮 씬의 `DaySceneBattleCover`가 전투 씬이 열린 동안 지정한 카메라·Canvas·라이트의 컴포넌트만 끄고 캐릭터 조작을 잠근다(`PlayerNetworkInputLock`). 파견 창과 장비 착용 창은 파견할 때 닫힌다. 낮·밤 사이클이 생기면 그 화면 전환과 합친다.
   - 던전 진행 상황: 전투 씬을 내리면 사라지므로 낮 씬의 `DungeonProgressState`(호스트 소유)에 두고, `BattleChannel.ResultConfirmed`로 반영한다. `BattleState.StartBattle`은 파견을 확정할 때의 진행 상황을 받는다.
   - `Battle` 씬은 전투 본체만 담는다(EventSystem·AudioListener 없음). 전투 공간은 낮 씬과 겹치지 않게 x = 1000 근처에 둔다. `BattleTest`는 테스트 파티를 등록하고 `Battle`을 불러오는 테스트 전용 씬이다.
+- 낮·밤 연결: 낮 씬의 `GameState`가 날짜·단계를 동기화한다. 밤이 되면 `NightDispatchLink`(호스트)가 `DispatchState.OpenForNight`로 파견 창을 열고, `BattleChannel.ResultConfirmed`나 파견 건너뛰기(`DispatchState.Skipped`)를 받으면 `GameState.StartNextDay`를 부른다.
 - [미정] 게임을 껐다 켤 때 이어지는 상태(관리 목록, 던전 진행 상황, 골드 등)의 저장 구조.
 
 ## 9. 인벤토리

@@ -65,3 +65,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d1dbb158fd67264789750ae9738eb70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Network.GameState
+  _dayCycle: {fileID: 11400000, guid: b974413c9091ad24aa7ac20056c664f7, type: 2}
+  _Day: 0
+  _Phase: 0
