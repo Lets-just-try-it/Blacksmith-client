@@ -127,6 +127,32 @@ namespace Blacksmith.Core.Inventory
             return true;
         }
 
+        // 칸의 물건 하나를 결과물로 바꾼다. 그 칸에 하나뿐이면 같은 칸에 결과물을 두고, 여럿이면 하나만 줄이고
+        // 결과물을 다른 칸에 넣는다. 결과물을 둘 곳이 없으면 아무것도 바꾸지 않는다.
+        public bool TryReplaceOne(int slot, ItemStack result)
+        {
+            if (!IsValidSlot(slot) || _slots[slot].IsEmpty || result.IsEmpty)
+            {
+                return false;
+            }
+
+            ItemStack source = _slots[slot];
+            if (source.Count == 1 && result.Count <= GetMaxStack(result.ItemId))
+            {
+                _slots[slot] = Normalize(result);
+                return true;
+            }
+
+            _slots[slot] = source.WithCount(source.Count - 1);
+            if (TryAdd(result))
+            {
+                return true;
+            }
+
+            _slots[slot] = source;
+            return false;
+        }
+
         // 조건에 맞는 물건이 든 칸 번호를 앞에서부터 results에 담는다.
         public void FindSlots(Predicate<ItemStack> match, List<int> results)
         {

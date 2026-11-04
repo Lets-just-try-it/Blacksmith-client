@@ -13,19 +13,22 @@ namespace Blacksmith.Forge
     public class QuenchStation : MonoBehaviour
     {
         [SerializeField] private QuenchRulesData _rulesData;
-        [SerializeField, Min(0)] private int _difficulty;
         [SerializeField] private InputActionReference _interact;
         [SerializeField] private Transform _cameraAnchor;
         [SerializeField] private Transform _focusPoint;
         [SerializeField] private QuenchView _view;
         [SerializeField] private QuenchBladeVisual _blade;
+        [SerializeField] private QuenchFeedback _feedback;
         [SerializeField] private PlayerNetworkInputLock _inputLock;
+        [SerializeField] private ForgeStationLink _link;
 
         private BoxCollider _range;
         private QuenchRules _rules;
         private QuenchGame _game;
         private NetworkPlayer _localPlayer;
         private ForgeCameraFocus _cameraFocus;
+        private bool _hasSplashed;
+        private Renderer[] _hiddenRenderers = Array.Empty<Renderer>();
 
         public event Action<float> Completed;
 
@@ -38,11 +41,13 @@ namespace Blacksmith.Forge
 
         private void OnEnable()
         {
+            _link.Approved += Begin;
             _interact.action.Enable();
         }
 
         private void OnDisable()
         {
+            _link.Approved -= Begin;
             if (_game != null)
             {
                 End();
@@ -84,7 +89,7 @@ namespace Blacksmith.Forge
 
                 if (_localPlayer != null && _interact.action.WasPressedThisFrame())
                 {
-                    Begin();
+                    _link.RequestStart();
                 }
                 return;
             }
@@ -97,6 +102,7 @@ namespace Blacksmith.Forge
             {
                 float accuracy = _game.Accuracy;
                 End();
+                _link.SubmitResult(accuracy);
                 Completed?.Invoke(accuracy);
             }
         }
@@ -116,8 +122,9 @@ namespace Blacksmith.Forge
 
         private void Begin()
         {
-            _game = new QuenchGame(_rules, Environment.TickCount, _difficulty);
+            _game = new QuenchGame(_rules, Environment.TickCount, _link.Difficulty);
             _inputLock.Lock(this);
+            HidePlayer();
 
             _cameraFocus = Camera.main.GetComponent<ForgeCameraFocus>();
             if (_cameraFocus != null)
@@ -126,6 +133,8 @@ namespace Blacksmith.Forge
             }
 
             _blade.SetVisible(true);
+            _hasSplashed = false;
+            _feedback.Begin(_cameraFocus, _blade.WaterPoint);
             _view.ShowPrompt(false);
             _view.ShowReady(_game.Target);
             _blade.Apply(_game, _rules.CarryTime);
@@ -142,9 +151,33 @@ namespace Blacksmith.Forge
                 _cameraFocus = null;
             }
 
+            _feedback.End();
+            ShowPlayer();
             _blade.SetVisible(false);
             _view.HidePanel();
             _view.ShowPrompt(_localPlayer != null);
+        }
+
+        // 내 캐릭터가 카메라 앞을 가리지 않도록, 하는 동안 내 화면에서만 숨긴다. 다른 플레이어의 화면에는 그대로 보인다.
+        private void HidePlayer()
+        {
+            _hiddenRenderers = _localPlayer.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in _hiddenRenderers)
+            {
+                renderer.enabled = false;
+            }
+        }
+
+        private void ShowPlayer()
+        {
+            foreach (Renderer renderer in _hiddenRenderers)
+            {
+                if (renderer != null)
+                {
+                    renderer.enabled = true;
+                }
+            }
+            _hiddenRenderers = Array.Empty<Renderer>();
         }
 
         private MiniInput ReadInput()
@@ -152,9 +185,9 @@ namespace Blacksmith.Forge
             InputAction action = _interact.action;
             return new MiniInput
             {
-                ActionPressed = action.WasPressedThisFrame(),
-                ActionHeld = action.IsPressed(),
-                ActionReleased = action.WasReleasedThisFrame(),
+                ActionPressed = MinigameActionKey.WasPressed(action),
+                ActionHeld = MinigameActionKey.IsHeld(action),
+                ActionReleased = MinigameActionKey.WasReleased(action),
             };
         }
 
@@ -166,10 +199,17 @@ namespace Blacksmith.Forge
                 if (miniEvent.Kind == MiniEventKind.PhaseChanged && miniEvent.Index == (int)QuenchGame.PhaseKind.Dunk)
                 {
                     _view.ShowDunk();
+                    _feedback.PlayCarry();
+                }
+                else if (miniEvent.Kind == MiniEventKind.SecondTick)
+                {
+                    _feedback.PlaySecond((int)miniEvent.Value);
                 }
                 else if (miniEvent.Kind == MiniEventKind.Pull)
                 {
                     _view.ShowResult(_game);
+                    _feedback.PlayPull(_game.TimedOut);
+                    _feedback.PlayResult(_game.Accuracy, !_game.TimedOut && _game.Accuracy >= _rules.PerfectEventAccuracy, _game.TimedOut);
                 }
                 else if (miniEvent.Kind == MiniEventKind.Perfect)
                 {
@@ -183,6 +223,13 @@ namespace Blacksmith.Forge
             if (_game.Phase == QuenchGame.PhaseKind.Dunk)
             {
                 _view.ShowTime(_game.Elapsed, _game.IsCountVisible);
+
+                // 칼날이 수조까지 옮겨져 물에 닿는 순간
+                if (!_hasSplashed && _game.PhaseClock >= _rules.CarryTime)
+                {
+                    _hasSplashed = true;
+                    _feedback.PlaySplash();
+                }
             }
             _blade.Apply(_game, _rules.CarryTime);
         }

@@ -186,13 +186,13 @@ namespace Blacksmith.Forge
             switch (act)
             {
                 case SmeltingGame.ActKind.Crack:
-                    _hintText.text = "고리가 균열에 닿는 순간 클릭. 보라색 저주 균열은 누르지 말 것";
+                    _hintText.text = "원석을 쪼개자!\n• 고리가 균열에 맞는 순간 마우스 클릭\n• 보라색 저주 균열은 누르지 않기";
                     break;
                 case SmeltingGame.ActKind.Bellows:
-                    _hintText.text = "행동 키를 눌러 지시선을 올리고, 떼서 내려 불꽃 띠 안에 붙들자";
+                    _hintText.text = "쇳물을 달구자!\n• E 또는 스페이스바를 누르면 지시선이 올라가고, 떼면 내려감\n• 지시선을 불꽃 띠 안에 붙들기";
                     break;
                 case SmeltingGame.ActKind.Pour:
-                    _hintText.text = "마우스로 도가니를 좌우로 옮기고, 클릭한 채 위로 올리면 세게 쏟는다. 틀 눈금까지만!  (행동 키: 다 부었다)";
+                    _hintText.text = "쇳물을 틀에 붓자!\n• 마우스로 도가니를 좌우로 옮기기\n• 클릭한 채 위로 올리면 기울어 쏟음\n• 틀 눈금까지만 채우기\n• 다 부었으면 E 또는 스페이스바";
                     break;
             }
         }

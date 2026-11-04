@@ -57,7 +57,7 @@ namespace Blacksmith.Forge
             _showingResult = false;
             _targetText.text = $"기준 시간 {target:0.0}초";
             _timeText.text = "00:00";
-            _hintText.text = "행동 키로 담그기";
+            _hintText.text = "기준 시간에 맞춰 꺼내자!\n• E 또는 스페이스바로 칼날을 물에 담그기";
             _resultText.text = string.Empty;
             _noteText.text = string.Empty;
             _timelineRoot.SetActive(false);
@@ -65,7 +65,7 @@ namespace Blacksmith.Forge
 
         public void ShowDunk()
         {
-            _hintText.text = "기준 시간이 되면 행동 키로 꺼내기";
+            _hintText.text = "기준 시간에 맞춰 꺼내자!\n• 기준 시간이 되었다 싶을 때 E 또는 스페이스바로 꺼내기\n• 초는 처음 2초만 보임";
         }
 
         // 담근 뒤 처음 몇 초까지만 시간을 보여 주고 그 뒤는 가린다.

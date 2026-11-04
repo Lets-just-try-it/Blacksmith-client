@@ -107,6 +107,24 @@ namespace Blacksmith.Inventory
             return true;
         }
 
+        // 호스트 전용. 칸의 물건 하나를 결과물로 바꾼다(제작). 결과물을 둘 곳이 없으면 아무것도 바꾸지 않는다.
+        public bool TryReplaceOne(int slot, ItemStack result)
+        {
+            if (!HasStateAuthority)
+            {
+                return false;
+            }
+
+            LoadGrid();
+            if (!_grid.TryReplaceOne(slot, result))
+            {
+                return false;
+            }
+
+            SaveGrid();
+            return true;
+        }
+
         // 호스트 전용. from과 to는 같은 인벤토리일 수도, 다른 인벤토리일 수도 있다.
         public static bool TryMove(NetworkInventory from, int fromSlot, NetworkInventory to, int toSlot)
         {

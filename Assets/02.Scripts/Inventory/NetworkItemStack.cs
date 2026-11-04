@@ -9,17 +9,18 @@ namespace Blacksmith.Inventory
         public int ItemId;
         public int Grade;
         public int Count;
+        public int Accuracy;
 
         public static NetworkItemStack FromStack(ItemStack stack)
         {
             return stack.IsEmpty
                 ? default
-                : new NetworkItemStack { ItemId = stack.ItemId, Grade = stack.Grade, Count = stack.Count };
+                : new NetworkItemStack { ItemId = stack.ItemId, Grade = stack.Grade, Count = stack.Count, Accuracy = stack.Accuracy };
         }
 
         public ItemStack ToStack()
         {
-            return new ItemStack(ItemId, Grade, Count);
+            return new ItemStack(ItemId, Grade, Count, Accuracy);
         }
     }
 }

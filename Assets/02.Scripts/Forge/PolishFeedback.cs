@@ -97,7 +97,7 @@ namespace Blacksmith.Forge
         public void PlayPhase()
         {
             Play(ForgeProceduralSfx.Tick(), 0.5f, 0.9f);
-            Popup("숫돌이 돈다! 초록 띠에 맞춰 갈고, 뜨거워지면 E로 식히자", new Color(1f, 0.85f, 0.5f), new Vector2(0f, 128f));
+            Popup("숫돌이 돈다! 초록 띠에 맞춰 갈고, 뜨거워지면 E 또는 스페이스바로 식히자", new Color(1f, 0.85f, 0.5f), new Vector2(0f, 128f));
         }
 
         // 칸 하나를 다 갈았다.
@@ -143,7 +143,7 @@ namespace Blacksmith.Forge
         public void PlayWarn()
         {
             Play(ForgeProceduralSfx.Tick(), 0.6f, 1.6f);
-            Popup("뜨겁다! E로 식히자", new Color(1f, 0.6f, 0.35f), new Vector2(0f, 100f));
+            Popup("뜨겁다! E·Space로 식히자", new Color(1f, 0.6f, 0.35f), new Vector2(0f, 100f));
         }
 
         // 날이 탔다.

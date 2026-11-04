@@ -222,7 +222,7 @@ namespace Blacksmith.Forge
                     _objectiveText.text = "연마 끝!";
                     break;
                 default:
-                    _objectiveText.text = "누른 채 초록 띠에 맞춰 밀어 갈자 · 아래 칸이 하얗게 가득 차면 완성 · 뜨거우면 E로 식히기";
+                    _objectiveText.text = "날 끝을 갈아 세우자!\n• 마우스 버튼을 누른 채 초록 띠 안에서 좌우로 밀기\n• 뜨거워지면 E 또는 스페이스바로 식히기\n• 아래 칸이 하얗게 가득 차면 완성";
                     break;
             }
         }
@@ -243,7 +243,7 @@ namespace Blacksmith.Forge
             }
             else if (game.Locked)
             {
-                message = "탔다! E로 식히자";
+                message = "탔다! E·Space로 식히자";
                 color = new Color(1f, 0.4f, 0.35f);
             }
             else if (game.Dipping)
@@ -253,7 +253,7 @@ namespace Blacksmith.Forge
             }
             else if (game.Heat >= game.WarnHeat)
             {
-                message = "뜨겁다! E로 식히자";
+                message = "뜨겁다! E·Space로 식히자";
                 color = new Color(1f, 0.55f, 0.35f);
             }
             else if (game.Grinding && game.Quality >= 0.99f)
@@ -308,7 +308,7 @@ namespace Blacksmith.Forge
             _directionBox.color = good ? new Color(0.15f, 0.3f, 0.18f) : new Color(0.12f, 0.12f, 0.16f);
             _directionText.text = !known ? "각도" : (good ? "각도 좋음" : (difference > 0f ? "▲ 올려" : "▼ 내려"));
             _directionText.color = good ? new Color(0.7f, 1f, 0.8f) : new Color(1f, 1f, 1f, 0.85f);
-            _directionSub.text = "E 누르는 동안 식힘";
+            _directionSub.text = "E·Space 누르는 동안 식힘";
         }
 
         private void RefreshScore(PolishGame game)

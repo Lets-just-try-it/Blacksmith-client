@@ -110,6 +110,7 @@ GameObject:
   - component: {fileID: 6403827467851014423}
   - component: {fileID: 2638555871625525284}
   - component: {fileID: 6428275539069939239}
+  - component: {fileID: 8816945040071722879}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -216,6 +217,7 @@ MonoBehaviour:
   - {fileID: 6403827467851014423}
   - {fileID: 2638555871625525284}
   - {fileID: 6428275539069939239}
+  - {fileID: 8816945040071722879}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &928977346244656201
 CharacterController:
@@ -345,6 +347,21 @@ MonoBehaviour:
   _rules: {fileID: 11400000, guid: 9df51048a5b39c34c8fc6117087c1cf7, type: 2}
   _catalog: {fileID: 11400000, guid: 3d2a0086023e1c546b12a3cb2047b43e, type: 2}
   _channel: {fileID: 11400000, guid: d53e5088c12c8ab43a7f138202ce37f3, type: 2}
+--- !u!114 &8816945040071722879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6939742712899349512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1598318368c07744af5b406def37b1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgePlayerActions
+  _channel: {fileID: 11400000, guid: d26ad886b27a9294bb323e81b803fb34, type: 2}
+  _inventory: {fileID: 6428275539069939239}
+  _grades: {fileID: 11400000, guid: 12b1db5cf68f4cc439394520aa675613, type: 2}
 --- !u!1 &9110488598716451685
 GameObject:
   m_ObjectHideFlags: 0

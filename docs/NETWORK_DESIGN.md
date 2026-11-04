@@ -128,6 +128,16 @@
 
 정확도를 등급으로 바꾸는 계산은 `Core/`의 순수 C# 함수로 둔다. 아이템 교체 규칙은 `docs/GAME_CONCEPT.md`의 "단계별 아이템 교체"를 따른다.
 
+### 5.1 구현
+
+- 작업대마다 씬 네트워크 오브젝트인 `ForgeStationState`가 `Status`, `CurrentUser`, `SessionId`, `LastProcessedSession`, 사용자가 쓰는 슬롯을 `[Networked]`로 둔다. 사용권을 줄 때 `SessionId`를 1씩 늘려 발급하고, 사용자가 나가면(`IPlayerLeft`) 사용권을 푼다.
+- 요청과 결과 RPC는 Player 프리팹의 `ForgePlayerActions`에 둔다. 작업대 화면은 `ForgeChannel` 에셋으로 내 플레이어를 몰라도 요청한다.
+  1. 클라이언트: `RpcRequestStart(작업대, 손에 든 슬롯)` (`InputAuthority` → `StateAuthority`)
+  2. 호스트: 그 슬롯의 물건이 이 작업대가 받는 재료인지(`CraftingRecipeData.TryFindStep`)와 작업대가 비었는지 확인하고, 사용권을 주면 `RpcStartApproved(작업대, SessionId)`, 아니면 `RpcStartRejected(작업대, 이유)`를 해당 클라이언트에 보낸다.
+  3. 클라이언트: 승인을 받으면 미니게임을 시작하고(`ForgeStationLink.Approved`), 끝나면 `RpcSubmitResult(작업대, SessionId, Accuracy)`를 보낸다.
+  4. 호스트: `ForgeStationState.TryFinish`가 사용자, 세션, 중복 여부를 확인하고 사용권을 풀면, `Core/Forge/CraftingRules`로 결과물을 만들어 `PlayerInventoryState.TryReplaceOne`으로 바꾼다.
+- 호스트가 자기 요청을 보낼 때는 RPC가 바로 실행되어 승인이 요청 호출 안에서 돌아온다. 그래서 요청 쪽(`ForgeStationLink`)은 보내기 전에 기다림 상태로 바꿔 둔다.
+
 ## 6. 예외 상황 처리
 
 ### 6.1 미니게임 도중 클라이언트 연결이 끊어진 경우
