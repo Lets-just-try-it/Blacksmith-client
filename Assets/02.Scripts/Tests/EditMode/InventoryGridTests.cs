@@ -36,6 +36,35 @@ namespace Blacksmith.Tests
         }
 
         [Test]
+        public void SameItemWithDifferentAccuracy_IsNotSameItem()
+        {
+            var a = new ItemStack(Ore, 0, 1, 70);
+            var b = new ItemStack(Ore, 0, 1, 80);
+
+            Assert.IsFalse(a.IsSameItem(b));
+            Assert.IsFalse(a.Equals(b));
+            Assert.IsTrue(a.IsSameItem(new ItemStack(Ore, 0, 3, 70)));
+        }
+
+        [Test]
+        public void TryAdd_DoesNotMergeStacksWithDifferentAccuracy()
+        {
+            InventoryGrid grid = CreateShared();
+            grid.TryAdd(new ItemStack(Ore, 0, 2, 70));
+
+            Assert.IsTrue(grid.TryAdd(new ItemStack(Ore, 0, 2, 80)));
+
+            Assert.AreEqual(new ItemStack(Ore, 0, 2, 70), grid.Get(0));
+            Assert.AreEqual(new ItemStack(Ore, 0, 2, 80), grid.Get(1));
+        }
+
+        [Test]
+        public void WithCount_KeepsAccuracy()
+        {
+            Assert.AreEqual(70, new ItemStack(Ore, 0, 5, 70).WithCount(2).Accuracy);
+        }
+
+        [Test]
         public void TryAdd_PutsItemInFirstEmptySlot()
         {
             InventoryGrid grid = CreateShared();

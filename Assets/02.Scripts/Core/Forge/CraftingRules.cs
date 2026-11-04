@@ -13,13 +13,13 @@ namespace Blacksmith.Core.Forge
     }
 
     // 미니게임 하나가 끝났을 때 재료가 다음 형태로 바뀌는 규칙이다. 네트워크와 Unity에 의존하지 않는다.
-    // 중간 형태(주괴, 단조품 등)는 쌓이지 않으므로, ItemStack의 Grade 칸에 지금까지의 정확도 평균을 0~100 퍼센트로 담는다.
-    // 마지막 단계에서 그 평균을 등급(1~5)으로 바꿔 장비의 Grade로 쓴다.
+    // 중간 형태(주괴, 단조품 등)는 ItemStack의 Accuracy 칸에 지금까지의 정확도 평균을 0~100 퍼센트로 담는다.
+    // 마지막 단계에서 그 평균을 등급(1~5)으로 바꿔 장비의 Grade로 쓰고, 완성 장비의 Accuracy는 0으로 둔다.
     public static class CraftingRules
     {
         public const int MaxPercent = 100;
 
-        // stagesDone: 이번 단계 전에 끝낸 단계 수. 첫 단계(0)면 재료의 Grade는 점수가 아니므로 무시한다.
+        // stagesDone: 이번 단계 전에 끝낸 단계 수. 첫 단계(0)면 재료에는 점수가 없으므로 이전 값을 무시한다.
         public static int AccumulatePercent(int previousPercent, int stagesDone, float accuracy)
         {
             float current = Clamp01(accuracy) * MaxPercent;
@@ -36,8 +36,12 @@ namespace Blacksmith.Core.Forge
         public static ItemStack MakeOutput(int outputItemId, int stagesDone, bool isFinalStage, int previousPercent, float accuracy, IReadOnlyList<float> gradeLowerBounds)
         {
             int percent = AccumulatePercent(previousPercent, stagesDone, accuracy);
-            int grade = isFinalStage ? GradeRule.FromAccuracy(percent / (float)MaxPercent, gradeLowerBounds) : percent;
-            return new ItemStack(outputItemId, grade, 1);
+            if (isFinalStage)
+            {
+                return new ItemStack(outputItemId, GradeRule.FromAccuracy(percent / (float)MaxPercent, gradeLowerBounds), 1);
+            }
+
+            return new ItemStack(outputItemId, 0, 1, percent);
         }
 
         private static float Clamp01(float value)

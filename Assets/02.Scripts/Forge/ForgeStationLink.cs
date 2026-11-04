@@ -101,7 +101,7 @@ namespace Blacksmith.Forge
             ItemStack held = inventory != null ? inventory.Get(slot) : ItemStack.Empty;
             ItemData item = held.IsEmpty ? null : inventory.Catalog.Find(held.ItemId);
             Difficulty = _tiers.DifficultyIndex(item != null ? item.Tier : 1);
-            PriorAccuracy = item != null && item.Kind == ItemKind.Intermediate ? Mathf.Clamp01(held.Grade / (float)CraftingRules.MaxPercent) : 1f;
+            PriorAccuracy = item != null && item.Kind == ItemKind.Intermediate ? Mathf.Clamp01(held.Accuracy / (float)CraftingRules.MaxPercent) : 1f;
         }
 
         private void OnApproved(ForgeStationState station, int sessionId)

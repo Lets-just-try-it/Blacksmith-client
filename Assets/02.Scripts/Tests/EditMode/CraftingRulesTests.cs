@@ -10,7 +10,7 @@ namespace Blacksmith.Tests
         private static readonly float[] LowerBounds = { 0.40f, 0.60f, 0.75f, 0.90f };
 
         [Test]
-        public void FirstStage_UsesAccuracyAndIgnoresMaterialGrade()
+        public void FirstStage_UsesAccuracyAndIgnoresPreviousValue()
         {
             Assert.AreEqual(83, CraftingRules.AccumulatePercent(99, 0, 0.83f));
         }
@@ -34,11 +34,12 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void IntermediateOutput_CarriesPercentInGrade()
+        public void IntermediateOutput_CarriesPercentInAccuracy()
         {
             ItemStack output = CraftingRules.MakeOutput(7, 1, false, 80, 0.60f, LowerBounds);
             Assert.AreEqual(7, output.ItemId);
-            Assert.AreEqual(70, output.Grade);
+            Assert.AreEqual(70, output.Accuracy);
+            Assert.AreEqual(0, output.Grade);
             Assert.AreEqual(1, output.Count);
         }
 
@@ -54,6 +55,7 @@ namespace Blacksmith.Tests
             ItemStack output = CraftingRules.MakeOutput(3, 3, true, previous, average, LowerBounds);
             Assert.AreEqual(3, output.ItemId);
             Assert.AreEqual(expectedGrade, output.Grade);
+            Assert.AreEqual(0, output.Accuracy);
         }
 
         [Test]
@@ -66,7 +68,7 @@ namespace Blacksmith.Tests
             {
                 bool isFinal = stage == scores.Length - 1;
                 item = CraftingRules.MakeOutput(10 + stage, stage, isFinal, percent, scores[stage], LowerBounds);
-                percent = item.Grade;
+                percent = item.Accuracy;
             }
 
             // 평균 0.75이므로 상급(4등급)

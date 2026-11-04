@@ -112,7 +112,7 @@ namespace Blacksmith.Forge
             }
 
             CraftingRecipeData.Step step = station.Recipe.GetStep(stepIndex);
-            ItemStack output = CraftingRules.MakeOutput(step.Output.ItemId, stepIndex, station.Recipe.IsFinalStep(stepIndex), held.Grade, accuracy, _grades.LowerBounds);
+            ItemStack output = CraftingRules.MakeOutput(step.Output.ItemId, stepIndex, station.Recipe.IsFinalStep(stepIndex), held.Accuracy, accuracy, _grades.LowerBounds);
             _inventory.TryReplaceOne(slot, output);
         }
 
