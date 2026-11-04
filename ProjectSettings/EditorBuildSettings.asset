@@ -29,6 +29,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/01.Scenes/InventoryTest.unity
     guid: 44ce59dec5f791348860daed6fe17fb8
+  - enabled: 1
+    path: Assets/01.Scenes/Battle.unity
+    guid: 4194508b4c90a5a4396cd7fe819ec65b
+  - enabled: 1
+    path: Assets/01.Scenes/DispatchTest.unity
+    guid: 49badb9160663ab4ebce29bb9cfda83a
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
