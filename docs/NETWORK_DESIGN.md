@@ -237,6 +237,14 @@ NPC(`DialogueSeat`)는 한 번에 한 명과만 대화한다. 작업대 사용�
 - 고를 때마다 `InventoryPlayerActions.RpcSetHeldSlot`으로 호스트에 알리고, 호스트는 `PlayerInventoryState.HeldSlot`(`[Networked]`)에 둔다. 다른 참가자 화면은 이 값으로 그 캐릭터가 든 물건을 그린다(`HeldItemView`, `Render()`).
 - 제작 요청은 지금처럼 슬롯 번호를 요청에 실어 보낸다. 호스트의 `HeldSlot`은 표시용이며 제작 판정에 쓰지 않는다.
 
+모험가 장비 착용:
+
+- 장비 착용 창은 각 PC가 로컬로 연다. 공용 장비 목록은 공용 창고와, `InventoryChannel`에 등록된 모든 플레이어의 `PlayerInventoryState`에서 완성 장비만 모아 보여 준다.
+- 입히기는 `InventoryPlayerActions.RpcEquip(출발 인벤토리, 출발 칸, 출발 칸에 보이던 물건, 관리 목록, 모험가 번호, 장비 칸, 공용 창고)`, 벗기기는 `RpcUnequip(관리 목록, 모험가 번호, 장비 칸, 공용 창고)`로 호스트에 요청한다.
+- 호스트는 출발 칸의 물건을 확인한 뒤, 창이 보여 줄 때 쓴 것과 같은 규칙(`EquipmentRules.CanEquip`)으로 다시 확인하고 `AdventurerEquipping`으로 인벤토리와 관리 목록(`AdventurerRosterState.TrySetEquipment`)을 함께 바꾼다. 원래 입고 있던 장비는 공용 창고로 돌려보내고, 자리가 없으면 아무것도 바꾸지 않는다.
+- 장비 선택은 호스트만 하므로 창은 호스트에서만 끌기·놓기를 받는다.
+- 모험가 모습 미리보기와 능력치 변화 표시는 각 PC에서 복제된 관리 목록 값으로 그린다. 장신구도 같은 방식으로 `AdventurerData`·`NetworkAdventurer`에 번호와 등급을 둔다.
+
 - 제작 결과, 전투 보상, 파견 창은 상자가 아니라 `SharedInventoryState`를 직접 참조해 호스트에서 `TryAdd`, `TryRemove`, `FindSlots`를 부른다.
 - `[Networked]` 배열 크기는 컴파일할 때 정해야 하므로, 공용 창고는 최대 크기(가로 5칸 × 40줄, 200칸)를, 플레이어 슬롯은 8칸을 상수로 둔다.
 - 플레이어 슬롯은 플레이어 오브젝트에 있으므로 연결이 끊기면 함께 사라진다. 재접속한 플레이어에게 슬롯을 이어 주는 일은 6.4절의 플레이어 식별 방식이 정해진 뒤 추가한다.

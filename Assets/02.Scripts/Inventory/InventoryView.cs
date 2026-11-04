@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Blacksmith.Core;
 using Blacksmith.Core.Inventory;
 using Blacksmith.Forge;
 using TMPro;
@@ -14,7 +13,7 @@ namespace Blacksmith.Inventory
     // 화면은 호스트가 바꾼 값이 복제되어 Changed가 오면 다시 그린다.
     // Ctrl을 누른 채 놓으면 개수를 물어 나누고, Shift+클릭이나 더블 클릭은 내 슬롯과 열린 공용 창고 사이로 빠르게 옮긴다.
     // 내 슬롯을 보여 줄 때는 손에 든 칸을 강조한다.
-    public class InventoryView : MonoBehaviour
+    public class InventoryView : MonoBehaviour, IInventorySlotOwner
     {
         [SerializeField] private InventoryChannel _channel;
         [Tooltip("등급 이름을 찾는 데 쓴다")]
@@ -32,22 +31,13 @@ namespace Blacksmith.Inventory
 
         private readonly List<InventorySlotView> _slots = new List<InventorySlotView>();
         private NetworkInventory _inventory;
-        private RectTransform _dragRect;
-        private Canvas _dragCanvas;
+        private InventoryDragIcon _drag;
         private InputAction _quickMoveKey;
         private InputAction _splitKey;
 
         private void Awake()
         {
-            _dragRect = (RectTransform)_dragIcon.transform;
-            // 끄는 그림은 이 창 안에 있어서, 나중에 그려지는 다른 창(예: 하단 슬롯과 공용 창고) 뒤로 숨을 수 있다.
-            // 자기 캔버스를 두고 정렬 순서를 덮어써 항상 맨 위에 그린다.
-            if (!_dragIcon.TryGetComponent(out _dragCanvas))
-            {
-                _dragCanvas = _dragIcon.gameObject.AddComponent<Canvas>();
-            }
-
-            _dragIcon.gameObject.SetActive(false);
+            _drag = new InventoryDragIcon(_dragIcon, _dragSortingOrder);
             _panel.SetActive(false);
 
             // 입력 에셋 대신 코드로 정의한다. 클릭·놓기 순간에 눌려 있는지만 본다.
@@ -95,12 +85,13 @@ namespace Blacksmith.Inventory
             }
 
             _channel.EndDrag();
-            // 씬을 내릴 때는 이 창의 자식이 먼저 파괴된 뒤 다른 오브젝트(예: 상자)의 OnDisable에서 불릴 수 있다.
-            if (_dragIcon != null)
+            // 다른 컴포넌트의 OnEnable에서 이 창의 Awake보다 먼저 불릴 수 있다.
+            if (_drag != null)
             {
-                _dragIcon.gameObject.SetActive(false);
+                _drag.Hide();
             }
 
+            // 씬을 내릴 때는 이 창의 자식이 먼저 파괴된 뒤 다른 오브젝트(예: 상자)의 OnDisable에서 불릴 수 있다.
             if (_panel != null)
             {
                 _panel.SetActive(false);
@@ -126,7 +117,7 @@ namespace Blacksmith.Inventory
             {
                 ItemStack stack = _inventory.Get(i);
                 ItemData item = stack.IsEmpty ? null : _inventory.Catalog.Find(stack.ItemId);
-                _slots[i].Show(stack, item, GetLabel(stack, item));
+                _slots[i].Show(stack, item, ItemLabels.Get(stack, item, _grades));
                 _slots[i].SetHeld(i == heldSlot);
             }
         }
@@ -146,19 +137,6 @@ namespace Blacksmith.Inventory
             }
         }
 
-        private string GetLabel(ItemStack stack, ItemData item)
-        {
-            if (stack.IsEmpty)
-            {
-                return "";
-            }
-
-            string name = item != null ? item.DisplayName : $"#{stack.ItemId}";
-            // 등급이 없는 물건(예: 재료)은 등급을 0으로 둔다.
-            bool hasGrade = _grades != null && stack.Grade >= GradeRule.MinGrade && stack.Grade < _grades.GradeCount + GradeRule.MinGrade;
-            return hasGrade ? $"{name}\n{_grades.GetGradeName(stack.Grade)}" : name;
-        }
-
         public void BeginDrag(InventorySlotView slot, PointerEventData eventData)
         {
             if (_inventory == null)
@@ -167,30 +145,19 @@ namespace Blacksmith.Inventory
             }
 
             ItemStack stack = _inventory.Get(slot.Slot);
-            InventorySlotView.ApplyIcon(_dragIcon, _inventory.Catalog.Find(stack.ItemId));
-            _dragIcon.gameObject.SetActive(true);
-            // 캔버스가 켜진 뒤에 덮어써야 적용된다.
-            _dragCanvas.overrideSorting = true;
-            _dragCanvas.sortingOrder = _dragSortingOrder;
-            _dragIcon.transform.SetAsLastSibling();
-            MoveDrag(eventData);
+            _drag.Show(_inventory.Catalog.Find(stack.ItemId), eventData);
             _channel.BeginDrag(_inventory, slot.Slot);
         }
 
         public void MoveDrag(PointerEventData eventData)
         {
-            RectTransform parent = (RectTransform)_dragRect.parent;
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position,
-                    eventData.pressEventCamera, out Vector2 localPoint))
-            {
-                _dragRect.localPosition = localPoint;
-            }
+            _drag.Move(eventData);
         }
 
         // 놓기(OnDrop)가 끌기 끝(OnEndDrag)보다 먼저 불리므로, 여기서는 그림만 치우고 남은 드래그를 비운다.
         public void EndDrag()
         {
-            _dragIcon.gameObject.SetActive(false);
+            _drag.Hide();
             _channel.EndDrag();
         }
 

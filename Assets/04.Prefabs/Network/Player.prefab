@@ -641,6 +641,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Inventory.InventoryPlayerActions
   _channel: {fileID: 11400000, guid: d53e5088c12c8ab43a7f138202ce37f3, type: 2}
   _playerInventory: {fileID: 6428275539069939239}
+  _jobs: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
 --- !u!114 &6428275539069939239
 MonoBehaviour:
   m_ObjectHideFlags: 0

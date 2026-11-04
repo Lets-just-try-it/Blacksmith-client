@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Blacksmith.Inventory
 {
-    // 인벤토리 칸 하나의 화면이다. 끌기·놓기·클릭은 자기를 만든 InventoryView에 넘긴다.
+    // 인벤토리 칸 하나의 화면이다. 끌기·놓기·클릭은 자기를 만든 창(IInventorySlotOwner)에 넘긴다.
     public class InventorySlotView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerClickHandler
     {
         [SerializeField] private Image _icon;
@@ -15,12 +15,12 @@ namespace Blacksmith.Inventory
         [Tooltip("손에 든 칸일 때 켜는 테두리. 레이캐스트를 받지 않아야 한다")]
         [SerializeField] private GameObject _heldFrame;
 
-        private InventoryView _owner;
+        private IInventorySlotOwner _owner;
 
         public int Slot { get; private set; }
         public bool IsEmpty { get; private set; } = true;
 
-        public void Bind(InventoryView owner, int slot)
+        public void Bind(IInventorySlotOwner owner, int slot)
         {
             _owner = owner;
             Slot = slot;
