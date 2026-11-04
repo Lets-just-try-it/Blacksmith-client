@@ -1,0 +1,24 @@
+using Blacksmith.Core;
+using Blacksmith.Core.Inventory;
+using Blacksmith.Forge;
+
+namespace Blacksmith.Inventory
+{
+    // 칸에 보이는 아이템 이름과 등급 문구다. 인벤토리 창과 장비 착용 창이 같은 문구를 쓴다.
+    public static class ItemLabels
+    {
+        // grades: 등급 이름을 찾는 데 쓴다. 비워 두면 등급을 표시하지 않는다.
+        public static string Get(ItemStack stack, ItemData item, GradeThresholdData grades)
+        {
+            if (stack.IsEmpty)
+            {
+                return "";
+            }
+
+            string name = item != null ? item.DisplayName : $"#{stack.ItemId}";
+            // 등급이 없는 물건(예: 재료)은 등급을 0으로 둔다.
+            bool hasGrade = grades != null && stack.Grade >= GradeRule.MinGrade && stack.Grade < grades.GradeCount + GradeRule.MinGrade;
+            return hasGrade ? $"{name}\n{grades.GetGradeName(stack.Grade)}" : name;
+        }
+    }
+}
