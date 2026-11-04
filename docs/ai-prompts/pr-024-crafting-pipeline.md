@@ -13,7 +13,7 @@
 
 1. 무기 제작의 코어 루프를 완성한다.
 2. 범위는 제작 파이프라인으로 하고, 손에 든 물건 기능을 함께 만든다.
-3. 중간 아이템의 등급 칸에는 누적 평균 퍼센트를 저장한다.
+3. 중간 아이템의 누적 평균 퍼센트를 저장한다(처음에는 등급 칸에 담았고, 이후 별도 정확도 칸으로 분리했다).
 4. 공용 창고에 임시 재고를 지급해 시험한다.
 5. 창고 상호작용, 인벤토리와 미니게임 UI 겹침, 아이템 선택키와 카메라 선택키 충돌을 정리한다.
 6. 담금질 카메라에서 플레이어를 가리고, 미니게임의 E 조작을 스페이스바로도 되게 한다.
@@ -38,7 +38,9 @@
 
 ## 주요 결정
 
-- 중간 아이템의 등급 칸에는 누적 평균 정확도(%)를 저장하고, 마지막 단계에서 등급 1~5로 바꾼다.
+- 중간 아이템의 누적 평균 정확도(%)는 `ItemStack.Accuracy` 칸에 저장하고, 마지막 단계에서 등급 1~5로 바꿔 `Grade`에 쓴다. 처음에는 `Grade` 칸을 겸용했으나 한 칸이 두 뜻을 갖는 문제가 있어 칸을 분리했다.
+- 정확도가 다른 물건은 같은 물건으로 보지 않아 쌓이지 않는다.
+- 인벤토리 영역 변경(`ItemStack`, `NetworkItemStack`)은 인벤토리 담당자 확인을 병합 조건으로 한다.
 - 재료는 던전 보상이 기본이고, 이후 별도 상점을 둔다. 대장간에서 팔지 않는다.
 - 판매가 수치와 티어별 난이도는 [추정]으로 데이터에 둔다.
 - 기획 변경: `GAME_CONCEPT.md`에 판매가 공식, 티어 대응, 미니게임 화면 규칙을 반영했다.
@@ -47,7 +49,8 @@
 
 - `Assets/02.Scripts/Core/Crafting/`, `Assets/02.Scripts/Forge/TierRulesData.cs`
 - `Assets/02.Scripts/Forge/ForgeChannel.cs`, `ForgePlayerActions.cs`
-- `Assets/02.Scripts/Inventory/HeldSlotSelector.cs`
+- `Assets/02.Scripts/Inventory/HeldSlotSelector.cs`, `NetworkItemStack.cs`
+- `Assets/02.Scripts/Core/Inventory/ItemStack.cs`
 - `Assets/04.Prefabs/Town/ForgeRoom.prefab`, `Assets/04.Prefabs/Network/Player.prefab`
 - `docs/GAME_CONCEPT.md`, `docs/NETWORK_DESIGN.md`, `docs/PROJECT_PROGRESS.md`
 
