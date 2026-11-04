@@ -52,6 +52,17 @@ namespace Blacksmith.Forge
         [SerializeField] private TMP_Text _moltenText;
         [SerializeField] private TMP_Text _limitText;
 
+        [Header("③ 붓기")]
+        [SerializeField] private GameObject _pourRoot;
+        [SerializeField] private RectTransform _pourBand;
+        [SerializeField] private RectTransform _pourFill;
+        [SerializeField] private Image _pourFillImage;
+        [SerializeField] private TMP_Text _pourFillText;
+        [SerializeField] private TMP_Text _pourInfoText;
+        [SerializeField] private TMP_Text _pourWarnText;
+        [SerializeField] private TMP_Text _pourAccuracyText;
+        [SerializeField] private TMP_Text _pourTargetText;
+
         [Header("결과·효과")]
         [SerializeField] private TMP_Text _resultText;
         [SerializeField] private GameObject _resultBack;
@@ -68,6 +79,9 @@ namespace Blacksmith.Forge
         private int _shownJudged = -1;
         private int _shownHeat = -1;
         private int _shownLimit = -1;
+        private int _shownPourFill = -1;
+        private int _shownPourInfo = -1;
+        private int _shownPourAccuracy = -1;
 
         private void Awake()
         {
@@ -106,7 +120,7 @@ namespace Blacksmith.Forge
             _resultText.text = string.Empty;
             _resultBack.SetActive(false);
             _shownAct = (SmeltingGame.ActKind)(-1);
-            _shownYield = _shownCombo = _shownJudged = _shownHeat = _shownLimit = -1;
+            _shownYield = _shownCombo = _shownJudged = _shownHeat = _shownLimit = _shownPourFill = _shownPourInfo = _shownPourAccuracy = -1;
             foreach (TMP_Text text in _popupTexts)
             {
                 text.gameObject.SetActive(false);
@@ -136,6 +150,9 @@ namespace Blacksmith.Forge
                     break;
                 case SmeltingGame.ActKind.Bellows:
                     RefreshBellows(game);
+                    break;
+                case SmeltingGame.ActKind.Pour:
+                    RefreshPour(game);
                     break;
             }
         }
@@ -173,6 +190,7 @@ namespace Blacksmith.Forge
         {
             _crackRoot.SetActive(act == SmeltingGame.ActKind.Crack);
             _bellowsRoot.SetActive(act == SmeltingGame.ActKind.Bellows);
+            _pourRoot.SetActive(act == SmeltingGame.ActKind.Pour);
 
             int current = act == SmeltingGame.ActKind.Crack ? 0 : (act == SmeltingGame.ActKind.Bellows ? 1 : 2);
             for (int i = 0; i < _stripBoxes.Length; i++)
@@ -259,6 +277,62 @@ namespace Blacksmith.Forge
                 _limitText.text = $"제한 {limit / 10f:0.0}초";
                 _limitText.color = limit < 30 ? new Color(1f, 0.5f, 0.4f) : new Color(1f, 1f, 1f, 0.7f);
             }
+        }
+
+        // 틀에 찬 양을 눈금(0 ~ FillMax)에 보여 준다. 초록 띠가 목표 구간이고, 지금 끝냈을 때의 정확도도 같이 보여 준다.
+        private void RefreshPour(SmeltingGame game)
+        {
+            float max = Mathf.Max(0.01f, game.FillMax);
+            _pourBand.anchorMin = new Vector2(game.FillLow / max, 0f);
+            _pourBand.anchorMax = new Vector2(Mathf.Min(1f, game.FillHigh / max), 1f);
+
+            float fill = Mathf.Clamp01(game.Fill / max);
+            _pourFill.anchorMax = new Vector2(fill, 1f);
+            bool low = game.Fill < game.FillLow;
+            bool high = game.Fill > game.FillHigh;
+            _pourFillImage.color = high ? new Color(1f, 0.4f, 0.3f, 0.95f) : (low ? new Color(1f, 0.78f, 0.3f, 0.95f) : new Color(0.45f, 0.95f, 0.5f, 0.95f));
+
+            int fillPercent = Mathf.RoundToInt(game.Fill * 100f);
+            if (fillPercent != _shownPourFill)
+            {
+                _shownPourFill = fillPercent;
+                string state = high ? "넘침" : (low ? "부족" : "딱 좋아요");
+                _pourFillText.text = $"채움 {fillPercent}%  <size=70%>{state}</size>";
+                _pourFillText.color = high ? new Color(1f, 0.5f, 0.4f) : (low ? new Color(1f, 0.85f, 0.4f) : new Color(0.55f, 1f, 0.6f));
+                _pourTargetText.text = $"목표 {Mathf.RoundToInt(game.FillLow * 100f)}~{Mathf.RoundToInt(game.FillHigh * 100f)}%";
+            }
+
+            int reserve = Mathf.RoundToInt(Mathf.Clamp01(game.Reserve / Mathf.Max(0.01f, game.ReserveStart)) * 100f);
+            int info = reserve * 1000 + Mathf.RoundToInt(game.Spilled * 100f) * 10 + Mathf.RoundToInt(game.PreviewPurity * 10f);
+            if (info != _shownPourInfo)
+            {
+                _shownPourInfo = info;
+                _pourInfoText.text = $"도가니 남음 {reserve}%    흘린 양 {Mathf.RoundToInt(game.Spilled * 100f)}%    순도 {Mathf.RoundToInt(game.PreviewPurity * 100f)}%";
+            }
+
+            int accuracy = Mathf.RoundToInt(game.PreviewAccuracy * 100f);
+            if (accuracy != _shownPourAccuracy)
+            {
+                _shownPourAccuracy = accuracy;
+                _pourAccuracyText.text = $"지금 끝내면 정제 {accuracy}%";
+                _pourAccuracyText.color = GradeColor(game.PreviewAccuracy);
+            }
+
+            string warn = string.Empty;
+            if (game.Fill > 0f && !game.LandsInMold && game.Flow > 0.01f)
+            {
+                warn = "틀 밖에 붓는 중!";
+            }
+            else if (game.Clogged)
+            {
+                warn = "쇳물이 굳어 막혔다!";
+            }
+            else if (game.Fill >= game.FillHigh)
+            {
+                warn = "그만! 도가니를 내려요";
+            }
+
+            _pourWarnText.text = warn;
         }
 
         private static Color GradeColor(float value)
