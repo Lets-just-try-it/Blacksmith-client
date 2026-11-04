@@ -41,12 +41,8 @@ MonoBehaviour:
     Materials: []
   - IsBoss: 1
     Spawns:
-    - Monster: {fileID: 11400000, guid: 29bb8bb99433a6549acd6103f531efa2, type: 2}
-      SpawnOffset: 0
     - Monster: {fileID: 11400000, guid: 2f983ef24e7a1e748aa520cde1e5bda1, type: 2}
-      SpawnOffset: 100
-    - Monster: {fileID: 11400000, guid: 3f874b70188f8774395a9e0f02752622, type: 2}
-      SpawnOffset: 400
+      SpawnOffset: 0
     Gold: 400
     Experience: 200
     Materials:
