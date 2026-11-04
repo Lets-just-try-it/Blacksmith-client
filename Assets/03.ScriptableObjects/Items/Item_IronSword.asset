@@ -17,4 +17,10 @@ MonoBehaviour:
   _icon: {fileID: 0}
   _color: {r: 0.85, g: 0.35, b: 0.3, a: 1}
   _kind: 2
+  _tier: 1
   _equipmentSlot: 1
+  _weaponType: 1
+  _statBonus:
+    MaxHp: 0
+    Attack: 10
+    Defense: 0

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Inventory;
 using Blacksmith.Network;
+using Blacksmith.Plaza;
 using Fusion;
 using UnityEngine;
 
@@ -9,6 +11,7 @@ namespace Blacksmith.Inventory
 {
     // InventoryTest 씬을 혼자 확인하기 위한 진입점이다. 로비를 거치지 않고 참가자가 없는 호스트로 시작하고,
     // 공용 창고에 시험용 물건을 넣는다. NetworkBootstrap의 Game 씬 경로를 InventoryTest로 지정해 둔다.
+    // 장비 착용 창을 확인하도록 관리 목록에 직업마다 모험가를 한 명씩 넣는다.
     public class InventoryTestStarter : MonoBehaviour
     {
         [Serializable]
@@ -23,8 +26,12 @@ namespace Blacksmith.Inventory
         [SerializeField] private NetworkBootstrap _bootstrap;
         [SerializeField] private SharedInventoryState _inventory;
         [SerializeField] private List<TestItem> _testItems = new List<TestItem>();
+        [Tooltip("비워 두면 모험가를 넣지 않는다")]
+        [SerializeField] private AdventurerRosterState _roster;
+        [SerializeField] private AdventurerGenerationData _generation;
 
         private bool _hasFilled;
+        private bool _hasRecruited;
 
         private async void Start()
         {
@@ -38,8 +45,14 @@ namespace Blacksmith.Inventory
             await _bootstrap.StartHost($"InventoryTest-{Guid.NewGuid():N}");
         }
 
-        // 공용 창고가 스폰된 뒤 한 번만 채운다. 시험용이라 스폰 이벤트를 따로 두지 않고 확인한다.
+        // 공용 창고와 관리 목록이 스폰된 뒤 한 번만 채운다. 시험용이라 스폰 이벤트를 따로 두지 않고 확인한다.
         private void Update()
+        {
+            FillInventory();
+            Recruit();
+        }
+
+        private void FillInventory()
         {
             if (_hasFilled || !_inventory.IsReady || !_inventory.HasStateAuthority)
             {
@@ -53,6 +66,23 @@ namespace Blacksmith.Inventory
                 {
                     _inventory.TryAdd(new ItemStack(testItem.Item.ItemId, testItem.Grade, testItem.Count));
                 }
+            }
+        }
+
+        private void Recruit()
+        {
+            if (_hasRecruited || _roster == null || !_roster.IsReady || !_roster.HasStateAuthority)
+            {
+                return;
+            }
+
+            _hasRecruited = true;
+            AdventurerGenerationRules rules = _generation.ToRules();
+            IReadOnlyList<AdventurerJobRules> jobs = rules.Jobs;
+            for (int i = 0; i < jobs.Count; i++)
+            {
+                rules.Jobs = new List<AdventurerJobRules> { jobs[i] };
+                _roster.TryAdd(AdventurerGenerator.Generate(i + 1, rules));
             }
         }
     }

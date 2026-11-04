@@ -27,6 +27,8 @@ MonoBehaviour:
   - "\uD1A0\uB974"
   _jobs:
   - {fileID: 11400000, guid: b3228c9e9b5379f49b42857e03559a21, type: 2}
+  - {fileID: 11400000, guid: 9074120ac5b88d443b0982717cc6c7b6, type: 2}
+  - {fileID: 11400000, guid: 7ca790a0083a428428639679c2db7c5d, type: 2}
   _startLevel: 1
   _hairPresetCount: 5
   _eyePresetCount: 5

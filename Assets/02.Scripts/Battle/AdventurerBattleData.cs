@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
+using Blacksmith.Inventory;
 using UnityEngine;
 
 namespace Blacksmith.Battle
@@ -29,6 +30,8 @@ namespace Blacksmith.Battle
 
         [SerializeField] private List<JobEntry> _jobs = new List<JobEntry>();
         [SerializeField] private List<SkillEntry> _skills = new List<SkillEntry>();
+        [Tooltip("입은 장비의 능력치 보정. 장비 착용 창과 같은 데이터를 쓴다. 비워 두면 장비 보정을 넣지 않는다")]
+        [SerializeField] private EquipmentStatData _equipment;
 
         public AdventurerSetup ToSetup(AdventurerData adventurer)
         {
@@ -38,7 +41,8 @@ namespace Blacksmith.Battle
                 throw new ArgumentException($"전투 수치가 없는 직업이다: {adventurer.JobId}", nameof(adventurer));
             }
 
-            return AdventurerSetupRules.Create(adventurer, job.Stats, FindSkill(adventurer.SkillId));
+            AdventurerStats equipmentBonus = _equipment != null ? _equipment.GetEquipmentBonus(adventurer) : default;
+            return AdventurerSetupRules.Create(adventurer, job.Stats, FindSkill(adventurer.SkillId), equipmentBonus);
         }
 
         public BattleUnitView GetViewPrefab(int jobId)
