@@ -20,5 +20,15 @@ namespace Blacksmith.Core.Adventurers
         {
             return GetStatsAtLevel(adventurer.BaseStats, adventurer.GrowthStats, adventurer.Level);
         }
+
+        public static AdventurerStats Add(AdventurerStats a, AdventurerStats b)
+        {
+            return new AdventurerStats
+            {
+                MaxHp = a.MaxHp + b.MaxHp,
+                Attack = a.Attack + b.Attack,
+                Defense = a.Defense + b.Defense,
+            };
+        }
     }
 }

@@ -17,11 +17,17 @@ namespace Blacksmith.Core.Battle
 
     public static class AdventurerSetupRules
     {
-        // 체력·공격력·방어력은 관리 목록 화면과 같은 AdventurerStatRules로 구한다.
-        // [미정] 장비와 직업이 전투 능력치에 주는 보정은 아직 넣지 않는다 (docs/GAME_CONCEPT.md 6.4).
         public static AdventurerSetup Create(AdventurerData adventurer, JobBattleStats jobStats, SkillData skill)
         {
-            AdventurerStats stats = AdventurerStatRules.GetCurrentStats(adventurer);
+            return Create(adventurer, jobStats, skill, default);
+        }
+
+        // 체력·공격력·방어력은 관리 목록 화면과 같은 AdventurerStatRules에 장비 보정을 더해 구한다.
+        // equipmentBonus는 장비 착용 창과 같은 EquipmentStatRules로 구한 값이다.
+        // [미정] 직업이 전투 능력치에 주는 보정은 아직 넣지 않는다 (docs/GAME_CONCEPT.md 6.4).
+        public static AdventurerSetup Create(AdventurerData adventurer, JobBattleStats jobStats, SkillData skill, AdventurerStats equipmentBonus)
+        {
+            AdventurerStats stats = AdventurerStatRules.Add(AdventurerStatRules.GetCurrentStats(adventurer), equipmentBonus);
             return new AdventurerSetup
             {
                 AdventurerId = adventurer.AdventurerId,
