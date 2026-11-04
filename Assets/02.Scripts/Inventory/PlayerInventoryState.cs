@@ -32,6 +32,7 @@ namespace Blacksmith.Inventory
         public override void Spawned()
         {
             base.Spawned();
+            _channel.AddPlayerInventory(this);
             if (HasInputAuthority)
             {
                 _channel.Register(this);
@@ -41,6 +42,7 @@ namespace Blacksmith.Inventory
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             _channel.Unregister(this);
+            _channel.RemovePlayerInventory(this);
         }
 
         // 호스트 전용.

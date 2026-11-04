@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Blacksmith.Core.Inventory;
+using Blacksmith.Plaza;
 using UnityEngine;
 
 namespace Blacksmith.Inventory
@@ -20,6 +22,20 @@ namespace Blacksmith.Inventory
         public PlayerInventoryState LocalPlayerInventory { get; private set; }
 
         public event Action LocalPlayerInventoryChanged;
+
+        // 세션에 있는 모든 플레이어의 개인 슬롯. 공용 장비 목록이 모든 플레이어의 장비를 모을 때 쓴다.
+        private readonly List<PlayerInventoryState> _playerInventories = new List<PlayerInventoryState>();
+
+        public IReadOnlyList<PlayerInventoryState> PlayerInventories => _playerInventories;
+
+        public event Action PlayerInventoriesChanged;
+
+        // 하단 개인 슬롯을 가리는 창(예: 장비 착용 창). 하나라도 열려 있으면 하단 슬롯을 숨긴다.
+        private readonly HashSet<object> _hudHiders = new HashSet<object>();
+
+        public bool IsHudHidden => _hudHiders.Count > 0;
+
+        public event Action HudVisibilityChanged;
 
         // 지금 내 화면에 열려 있는 공용 창고. 빠른 이동으로 내 슬롯의 물건을 보낼 곳이다. 닫혀 있으면 null이다.
         public NetworkInventory OpenStorage { get; private set; }
@@ -79,6 +95,40 @@ namespace Blacksmith.Inventory
             }
         }
 
+        public void HideHud(object owner)
+        {
+            if (_hudHiders.Add(owner))
+            {
+                HudVisibilityChanged?.Invoke();
+            }
+        }
+
+        // 숨기지 않은 쪽이 불러도 안전하다.
+        public void ShowHud(object owner)
+        {
+            if (_hudHiders.Remove(owner))
+            {
+                HudVisibilityChanged?.Invoke();
+            }
+        }
+
+        public void AddPlayerInventory(PlayerInventoryState inventory)
+        {
+            if (!_playerInventories.Contains(inventory))
+            {
+                _playerInventories.Add(inventory);
+                PlayerInventoriesChanged?.Invoke();
+            }
+        }
+
+        public void RemovePlayerInventory(PlayerInventoryState inventory)
+        {
+            if (_playerInventories.Remove(inventory))
+            {
+                PlayerInventoriesChanged?.Invoke();
+            }
+        }
+
         public void Register(PlayerInventoryState inventory)
         {
             LocalPlayerInventory = inventory;
@@ -133,6 +183,25 @@ namespace Blacksmith.Inventory
             if (target != null && _localActions != null)
             {
                 _localActions.RequestTransfer(source, slot, target);
+            }
+        }
+
+        // 드래그 중인 칸의 장비를 모험가의 장비 칸에 입힌다. 칸에 맞는지는 장비 창이 먼저 확인한다.
+        public void EquipDragged(AdventurerRosterState roster, int adventurerId, EquipmentSlot slot, NetworkInventory storage)
+        {
+            if (DragSource != null && _localActions != null)
+            {
+                _localActions.RequestEquip(DragSource, DragSlot, roster, adventurerId, slot, storage);
+            }
+
+            EndDrag();
+        }
+
+        public void Unequip(AdventurerRosterState roster, int adventurerId, EquipmentSlot slot, NetworkInventory storage)
+        {
+            if (_localActions != null)
+            {
+                _localActions.RequestUnequip(roster, adventurerId, slot, storage);
             }
         }
 

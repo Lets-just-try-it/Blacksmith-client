@@ -70,6 +70,13 @@ namespace Blacksmith.Inventory
             _grid.FindSlots(match, results);
         }
 
+        // 다 들어갈 자리가 있는지. 줄이 늘어날 자리도 센다.
+        public bool CanAdd(ItemStack item)
+        {
+            LoadGrid();
+            return !item.IsEmpty && _grid.GetFreeRoom(item) >= item.Count;
+        }
+
         // 호스트 전용. 다 들어가지 않으면 아무것도 넣지 않는다.
         public bool TryAdd(ItemStack item)
         {
