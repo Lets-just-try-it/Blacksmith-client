@@ -7,7 +7,7 @@ namespace Blacksmith.Network
 {
     // 모든 영역이 공유하는 게임 상태를 둔다. 호스트만 값을 바꾸고, 클라이언트는 복제된 값을 읽기만 한다.
     // [Networked] 필드는 각 영역이 필요할 때 추가한다.
-    // 낮 씬 오브젝트로 둔다(GameState 프리팹을 씬에 배치). 지금은 낮·밤 단계와 날짜를 맡는다.
+    // 낮 씬 오브젝트로 둔다(GameState 프리팹을 씬에 배치). 지금은 낮·밤 단계, 날짜, 골드를 맡는다.
     public class GameState : NetworkBehaviour
     {
         [SerializeField] private DayCycleData _dayCycle;
@@ -21,8 +21,14 @@ namespace Blacksmith.Network
         // 낮에는 낮 시간, 밤 전환 연출(Dusk) 중에는 연출 시간을 잰다.
         [Networked] private TickTimer PhaseTimer { get; set; }
 
+        // 모두가 같이 쓰는 골드. 판매 수익과 전투 보상이 늘리고, 대장간 업그레이드 등이 쓴다.
+        [Networked] public int Gold { get; private set; }
+
         // 스폰 직후와 날짜·단계가 바뀔 때 모든 참가자에게 불린다.
         public event Action PhaseChanged;
+
+        // 스폰 직후와 골드가 바뀔 때 모든 참가자에게 불린다.
+        public event Action<int> GoldChanged;
 
         public bool IsReady => Object != null && Object.IsValid;
 
@@ -58,6 +64,7 @@ namespace Blacksmith.Network
             }
 
             PhaseChanged?.Invoke();
+            GoldChanged?.Invoke(Gold);
         }
 
         public override void FixedUpdateNetwork()
@@ -88,9 +95,24 @@ namespace Blacksmith.Network
                 if (change == nameof(Phase) || change == nameof(Day))
                 {
                     PhaseChanged?.Invoke();
-                    return;
+                }
+                else if (change == nameof(Gold))
+                {
+                    GoldChanged?.Invoke(Gold);
                 }
             }
+        }
+
+        // 호스트 전용. 골드는 0 아래로 내려가지 않는다. 모자라서 못 쓰면 false다.
+        public bool TryAddGold(int amount)
+        {
+            if (!HasStateAuthority || Gold + amount < 0)
+            {
+                return false;
+            }
+
+            Gold += amount;
+            return true;
         }
 
         // 호스트 전용. 밤에 파견 결과를 반영했거나 파견을 건너뛰었을 때 부른다.
