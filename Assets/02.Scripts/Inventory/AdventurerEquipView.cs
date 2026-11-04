@@ -237,7 +237,8 @@ namespace Blacksmith.Inventory
 
         private void Refresh()
         {
-            if (!_isOpen)
+            // 세션을 끝낼 때는 관리 목록이 먼저 디스폰된 뒤 다른 인벤토리의 디스폰 알림이 올 수 있다.
+            if (!_isOpen || !_roster.IsReady)
             {
                 return;
             }

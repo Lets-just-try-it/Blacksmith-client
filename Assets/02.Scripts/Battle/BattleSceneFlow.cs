@@ -1,5 +1,6 @@
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
+using Blacksmith.Inventory;
 using Blacksmith.Plaza;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -22,6 +23,8 @@ namespace Blacksmith.Battle
         [SerializeField] private AdventurerBattleData _adventurerBattle;
         [Tooltip("직업 이름을 찾는 데 쓴다")]
         [SerializeField] private AdventurerGenerationData _adventurerGeneration;
+        [Tooltip("입은 장비의 색을 찾는 데 쓴다. 장비 착용 창 미리보기와 같은 표를 쓴다")]
+        [SerializeField] private ItemCatalog _itemCatalog;
 
         private void Awake()
         {
@@ -109,6 +112,10 @@ namespace Blacksmith.Battle
             AdventurerData adventurer = _channel.FindAdventurer(view.Unit.SourceId);
             string jobName = AdventurerLabels.GetJobName(_adventurerGeneration, adventurer.JobId);
             view.gameObject.AddComponent<AdventurerUnitInfo>().Bind(adventurer, jobName, view.Unit);
+            if (view.TryGetComponent(out AdventurerEquipmentLook look))
+            {
+                look.Show(adventurer, _itemCatalog);
+            }
         }
 
         private void HandleFinished(BattleResult result)

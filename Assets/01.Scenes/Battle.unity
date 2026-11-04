@@ -194,6 +194,7 @@ MonoBehaviour:
   _rules: {fileID: 11400000, guid: 73dc434290e55f544a6b3c50e71a7a38, type: 2}
   _adventurerBattle: {fileID: 11400000, guid: b708d40e053c196478bf13506299259f, type: 2}
   _adventurerGeneration: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
+  _itemCatalog: {fileID: 11400000, guid: 3d2a0086023e1c546b12a3cb2047b43e, type: 2}
 --- !u!1 &122689904
 GameObject:
   m_ObjectHideFlags: 0

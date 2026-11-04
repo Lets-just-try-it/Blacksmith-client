@@ -1,17 +1,14 @@
 using Blacksmith.Battle;
 using Blacksmith.Core.Adventurers;
-using Blacksmith.Core.Inventory;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Blacksmith.Inventory
 {
     // 장비 착용 창에 고른 모험가의 모습을 보여 준다. 화면 밖에 둔 무대에서 직업의 전투 모델을 전용 카메라로 찍어 RawImage에 그린다.
-    // 입은 장비는 아이템 색을 칠한 상자로 머리·몸·손·목 위치에 붙인다. 장비 모델이 생기면 바꾼다.
+    // 입은 장비는 전투 모델의 AdventurerEquipmentLook으로 보여 주므로 전투에서도 같은 모습이다.
     public class AdventurerPreview : MonoBehaviour
     {
-        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-
         [Tooltip("직업별 전투 모델을 찾는 데 쓴다")]
         [SerializeField] private AdventurerBattleData _battle;
         [SerializeField] private ItemCatalog _catalog;
@@ -19,21 +16,15 @@ namespace Blacksmith.Inventory
         [Tooltip("모델과 장비 상자의 부모. 천천히 돌린다")]
         [SerializeField] private Transform _modelRoot;
         [SerializeField] private RawImage _target;
-        [SerializeField] private Renderer _helmet;
-        [SerializeField] private Renderer _armor;
-        [SerializeField] private Renderer _weapon;
-        [SerializeField] private Renderer _accessory;
         [Tooltip("초당 도는 각도")]
         [SerializeField] private float _turnSpeed = 30f;
 
         private RenderTexture _texture;
-        private MaterialPropertyBlock _properties;
         private BattleUnitView _model;
         private int _modelJobId;
 
         private void Awake()
         {
-            _properties = new MaterialPropertyBlock();
             _camera.enabled = false;
         }
 
@@ -58,10 +49,10 @@ namespace Blacksmith.Inventory
             EnsureTexture();
             _camera.enabled = true;
             SetModel(adventurer != null ? adventurer.JobId : 0);
-            SetEquipment(_helmet, adventurer, EquipmentSlot.Helmet);
-            SetEquipment(_armor, adventurer, EquipmentSlot.Armor);
-            SetEquipment(_weapon, adventurer, EquipmentSlot.Weapon);
-            SetEquipment(_accessory, adventurer, EquipmentSlot.Accessory);
+            if (_model != null && _model.TryGetComponent(out AdventurerEquipmentLook look))
+            {
+                look.Show(adventurer, _catalog);
+            }
         }
 
         public void Hide()
@@ -104,19 +95,6 @@ namespace Blacksmith.Inventory
                 _model = Instantiate(prefab, _modelRoot);
                 _model.transform.localPosition = Vector3.zero;
                 _model.transform.localRotation = Quaternion.identity;
-            }
-        }
-
-        private void SetEquipment(Renderer target, AdventurerData adventurer, EquipmentSlot slot)
-        {
-            ItemStack equipped = adventurer != null ? EquipmentRules.GetEquipped(adventurer, slot) : ItemStack.Empty;
-            ItemData item = equipped.IsEmpty ? null : _catalog.Find(equipped.ItemId);
-            target.gameObject.SetActive(item != null);
-            if (item != null)
-            {
-                target.GetPropertyBlock(_properties);
-                _properties.SetColor(BaseColorId, item.Color);
-                target.SetPropertyBlock(_properties);
             }
         }
     }
