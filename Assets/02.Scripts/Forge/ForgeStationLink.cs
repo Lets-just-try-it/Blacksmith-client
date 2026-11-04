@@ -124,7 +124,20 @@ namespace Blacksmith.Forge
             }
 
             _waiting = false;
-            _notice.Show(reason == ForgeRejectReason.Busy ? "다른 사람이 쓰고 있다" : GetNeedMessage());
+            _notice.Show(GetRejectMessage(reason));
+        }
+
+        private string GetRejectMessage(ForgeRejectReason reason)
+        {
+            switch (reason)
+            {
+                case ForgeRejectReason.Busy:
+                    return "다른 사람이 쓰고 있다";
+                case ForgeRejectReason.Closed:
+                    return "오늘 영업이 끝났다";
+                default:
+                    return GetNeedMessage();
+            }
         }
 
         private string GetNeedMessage()

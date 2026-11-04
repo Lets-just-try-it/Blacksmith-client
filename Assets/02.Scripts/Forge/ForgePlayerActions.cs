@@ -53,6 +53,12 @@ namespace Blacksmith.Forge
                 return;
             }
 
+            if (!_channel.IsOpen)
+            {
+                RpcStartRejected(stationId, (int)ForgeRejectReason.Closed);
+                return;
+            }
+
             // 손에 든 물건이 이 작업대가 받는 재료인지 확인한다. 상태 정합성만 보고 정확도는 따지지 않는다.
             ItemStack held = _inventory.Get(slot);
             if (held.IsEmpty || station.Recipe == null || !station.Recipe.TryFindStep(station.Kind, held.ItemId, out _))
