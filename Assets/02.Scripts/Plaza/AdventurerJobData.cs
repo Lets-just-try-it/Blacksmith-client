@@ -1,4 +1,5 @@
 using Blacksmith.Core.Adventurers;
+using Blacksmith.Core.Inventory;
 using UnityEngine;
 
 namespace Blacksmith.Plaza
@@ -17,9 +18,12 @@ namespace Blacksmith.Plaza
         [SerializeField] private AdventurerStatRange _growthStats;
         [Tooltip("생성할 때 하나를 고르는 스킬 번호 후보. 비우면 스킬 없음")]
         [SerializeField] private int[] _skillIds = new int[0];
+        [Tooltip("이 직업이 무기 칸에 착용할 수 있는 무기 종류")]
+        [SerializeField] private WeaponType _weaponType;
 
         public int JobId => _jobId;
         public string DisplayName => _displayName;
+        public WeaponType WeaponType => _weaponType;
 
         public AdventurerJobRules ToRules()
         {

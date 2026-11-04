@@ -26,8 +26,13 @@ namespace Blacksmith.Plaza
         public int GrowthDefense;
         public int SkillId;
         public int WeaponId;
+        public int WeaponGrade;
         public int HelmetId;
+        public int HelmetGrade;
         public int ArmorId;
+        public int ArmorGrade;
+        public int AccessoryId;
+        public int AccessoryGrade;
         public AdventurerCondition Condition;
 
         public static NetworkAdventurer FromData(AdventurerData data)
@@ -52,8 +57,13 @@ namespace Blacksmith.Plaza
                 GrowthDefense = data.GrowthStats.Defense,
                 SkillId = data.SkillId,
                 WeaponId = data.WeaponId,
+                WeaponGrade = data.WeaponGrade,
                 HelmetId = data.HelmetId,
+                HelmetGrade = data.HelmetGrade,
                 ArmorId = data.ArmorId,
+                ArmorGrade = data.ArmorGrade,
+                AccessoryId = data.AccessoryId,
+                AccessoryGrade = data.AccessoryGrade,
                 Condition = data.Condition,
             };
         }
@@ -79,8 +89,13 @@ namespace Blacksmith.Plaza
                 GrowthStats = new AdventurerStats { MaxHp = GrowthMaxHp, Attack = GrowthAttack, Defense = GrowthDefense },
                 SkillId = SkillId,
                 WeaponId = WeaponId,
+                WeaponGrade = WeaponGrade,
                 HelmetId = HelmetId,
+                HelmetGrade = HelmetGrade,
                 ArmorId = ArmorId,
+                ArmorGrade = ArmorGrade,
+                AccessoryId = AccessoryId,
+                AccessoryGrade = AccessoryGrade,
                 Condition = Condition,
             };
         }

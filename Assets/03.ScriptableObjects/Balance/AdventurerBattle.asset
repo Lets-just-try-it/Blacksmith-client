@@ -22,9 +22,28 @@ MonoBehaviour:
       ManaPerTick: 10
       ManaPerHit: 150
     ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
+  - JobId: 2
+    Stats:
+      AttackRange: 120
+      AttackIntervalTicks: 20
+      MoveSpeed: 18
+      MaxMana: 1000
+      ManaPerTick: 10
+      ManaPerHit: 150
+    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
+  - JobId: 3
+    Stats:
+      AttackRange: 120
+      AttackIntervalTicks: 20
+      MoveSpeed: 18
+      MaxMana: 1000
+      ManaPerTick: 10
+      ManaPerHit: 150
+    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
   _skills:
   - SkillId: 1
     Skill:
       Kind: 2
       PowerPercent: 220
       Radius: 250
+  _equipment: {fileID: 11400000, guid: 4e565ef83f5cb174c8dc4a0158958416, type: 2}
