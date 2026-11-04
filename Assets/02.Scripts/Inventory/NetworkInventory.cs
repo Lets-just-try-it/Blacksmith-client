@@ -128,6 +128,23 @@ namespace Blacksmith.Inventory
         // 호스트 전용. from과 to는 같은 인벤토리일 수도, 다른 인벤토리일 수도 있다.
         public static bool TryMove(NetworkInventory from, int fromSlot, NetworkInventory to, int toSlot)
         {
+            return Apply(from, to, (fromGrid, toGrid) => InventoryGrid.TryMove(fromGrid, fromSlot, toGrid, toSlot));
+        }
+
+        // 호스트 전용. 쌓인 칸에서 count개만 떼어 옮긴다.
+        public static bool TryMoveCount(NetworkInventory from, int fromSlot, NetworkInventory to, int toSlot, int count)
+        {
+            return Apply(from, to, (fromGrid, toGrid) => InventoryGrid.TryMoveCount(fromGrid, fromSlot, toGrid, toSlot, count));
+        }
+
+        // 호스트 전용. 칸의 물건을 다른 인벤토리의 알맞은 칸으로 보낸다.
+        public static bool TryTransfer(NetworkInventory from, int fromSlot, NetworkInventory to)
+        {
+            return Apply(from, to, (fromGrid, toGrid) => InventoryGrid.TryTransfer(fromGrid, fromSlot, toGrid));
+        }
+
+        private static bool Apply(NetworkInventory from, NetworkInventory to, Func<InventoryGrid, InventoryGrid, bool> rule)
+        {
             if (!from.HasStateAuthority || !to.HasStateAuthority)
             {
                 return false;
@@ -139,7 +156,7 @@ namespace Blacksmith.Inventory
                 to.LoadGrid();
             }
 
-            if (!InventoryGrid.TryMove(from._grid, fromSlot, to._grid, toSlot))
+            if (!rule(from._grid, to._grid))
             {
                 return false;
             }

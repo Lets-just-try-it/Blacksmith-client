@@ -14,6 +14,12 @@ namespace Blacksmith.Inventory
 
         [Networked, Capacity(MaxSlotCount)] private NetworkArray<NetworkItemStack> Slots => default;
         [Networked] private int SlotRows { get; set; }
+        // 손에 든 슬롯 번호 + 1. 0이면 아무것도 들지 않았다. 기본값 0이 '들지 않음'이 되도록 한 칸 밀어 둔다.
+        [Networked] private int HeldSlotNumber { get; set; }
+
+        // 손에 든 슬롯 번호. 아무것도 들지 않았으면 -1이다. 다른 참가자 화면에 손에 든 물건을 보일 때 쓴다.
+        // 내 화면은 지연 없이 보이도록 InventoryChannel.HeldSlot을 쓴다.
+        public int HeldSlot => HeldSlotNumber - 1;
 
         protected override int MaxCapacity => MaxSlotCount;
 
@@ -35,6 +41,15 @@ namespace Blacksmith.Inventory
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             _channel.Unregister(this);
+        }
+
+        // 호스트 전용.
+        public void SetHeldSlot(int slot)
+        {
+            if (HasStateAuthority && slot >= -1 && slot < MaxSlotCount)
+            {
+                HeldSlotNumber = slot + 1;
+            }
         }
 
         protected override NetworkItemStack GetState(int slot)

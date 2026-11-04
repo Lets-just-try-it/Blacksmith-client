@@ -6,12 +6,14 @@ using UnityEngine.UI;
 
 namespace Blacksmith.Inventory
 {
-    // 인벤토리 칸 하나의 화면이다. 끌기와 놓기는 자기를 만든 InventoryView에 넘긴다.
-    public class InventorySlotView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
+    // 인벤토리 칸 하나의 화면이다. 끌기·놓기·클릭은 자기를 만든 InventoryView에 넘긴다.
+    public class InventorySlotView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerClickHandler
     {
         [SerializeField] private Image _icon;
         [SerializeField] private TMP_Text _nameText;
         [SerializeField] private TMP_Text _countText;
+        [Tooltip("손에 든 칸일 때 켜는 테두리. 레이캐스트를 받지 않아야 한다")]
+        [SerializeField] private GameObject _heldFrame;
 
         private InventoryView _owner;
 
@@ -35,6 +37,11 @@ namespace Blacksmith.Inventory
             {
                 ApplyIcon(_icon, item);
             }
+        }
+
+        public void SetHeld(bool held)
+        {
+            _heldFrame.SetActive(held);
         }
 
         public static void ApplyIcon(Image image, ItemData item)
@@ -68,6 +75,14 @@ namespace Blacksmith.Inventory
         public void OnDrop(PointerEventData eventData)
         {
             _owner.DropOn(this);
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left && !IsEmpty)
+            {
+                _owner.Click(this, eventData.clickCount);
+            }
         }
     }
 }

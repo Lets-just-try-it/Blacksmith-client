@@ -11,6 +11,8 @@ namespace Blacksmith.Inventory
     {
         [SerializeField] private SharedInventoryState _inventory;
         [SerializeField] private InventoryView _view;
+        [Tooltip("연 동안 빠른 이동으로 내 슬롯의 물건을 이 창고로 보낼 수 있게 알린다")]
+        [SerializeField] private InventoryChannel _channel;
         [SerializeField] private InputActionReference _interact;
         [SerializeField] private InputActionReference _cancel;
         [SerializeField] private PlayerNetworkInputLock _inputLock;
@@ -92,11 +94,13 @@ namespace Blacksmith.Inventory
             _prompt.SetActive(false);
             _inputLock.Lock(this);
             _view.Show(_inventory);
+            _channel.SetOpenStorage(_inventory);
         }
 
         private void Close()
         {
             _isOpen = false;
+            _channel.ClearOpenStorage(_inventory);
             // 씬을 내릴 때는 창이 먼저 파괴되었을 수 있다.
             if (_view != null)
             {
