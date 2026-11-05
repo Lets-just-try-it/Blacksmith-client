@@ -16,7 +16,7 @@ namespace Blacksmith.Core.Battle
         public int MeleeRangeMax { get; set; }
         // 한 줄에 서는 최대 인원이다. 넘으면 같은 종류끼리 다음 줄을 만든다.
         public int MaxRowSize { get; set; }
-        public int StageSpawnDistance { get; set; }
+        public int WaveSpawnDistance { get; set; }
         public int DamageVariancePercent { get; set; }
         public int DeathChancePercent { get; set; }
     }
@@ -83,7 +83,7 @@ namespace Blacksmith.Core.Battle
         public int SpawnOffset { get; set; }
     }
 
-    public sealed class StageSetup
+    public sealed class WaveSetup
     {
         public bool IsBoss { get; set; }
         public List<MonsterSetup> Monsters { get; } = new List<MonsterSetup>();
@@ -95,6 +95,6 @@ namespace Blacksmith.Core.Battle
         public int Seed { get; set; }
         public BattleRules Rules { get; set; }
         public List<AdventurerSetup> Adventurers { get; } = new List<AdventurerSetup>();
-        public List<StageSetup> Stages { get; } = new List<StageSetup>();
+        public List<WaveSetup> Waves { get; } = new List<WaveSetup>();
     }
 }

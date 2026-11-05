@@ -27,11 +27,14 @@ namespace Blacksmith.Battle
         private float _tickDuration;
         private float _elapsed;
         private float _holdRemaining;
+        private int _waveCount;
 
         public event Action<BattleUnitView> UnitSpawned;
         public event Action<BattleUnitView> UnitEnraged;
         public event Action<BattleUnitView> UnitFell;
         public event Action TickAdvanced;
+        // 웨이브 번호(0부터)와 이 전투의 웨이브 수
+        public event Action<int, int> WaveStarted;
         public event Action<BattleResult> Finished;
 
         public IReadOnlyList<BattleUnitView> Views => _views;
@@ -50,6 +53,7 @@ namespace Blacksmith.Battle
             _simulation = new BattleSimulation(setup);
             _getPrefab = getPrefab;
             _tickDuration = 1f / ticksPerSecond;
+            _waveCount = setup.Waves.Count;
             SpawnNewViews();
         }
 
@@ -151,13 +155,14 @@ namespace Blacksmith.Battle
                     _views[battleEvent.SourceUnitId].PlayEnrage();
                     UnitEnraged?.Invoke(_views[battleEvent.SourceUnitId]);
                     break;
-                case BattleEventType.StageStarted:
+                case BattleEventType.WaveStarted:
                     HideFallenUnits();
+                    WaveStarted?.Invoke(battleEvent.Amount, _waveCount);
                     break;
             }
         }
 
-        // 쓰러진 유닛은 그 스테이지가 끝날 때까지 쓰러진 채로 보이고, 다음 스테이지에는 나오지 않는다.
+        // 쓰러진 유닛은 그 웨이브가 끝날 때까지 쓰러진 채로 보이고, 다음 웨이브에는 나오지 않는다.
         private void HideFallenUnits()
         {
             foreach (BattleUnitView view in _views)

@@ -14,14 +14,20 @@ namespace Blacksmith.Tests
             RequiredExperiencePerLevel = 50,
         };
 
-        private static List<StageReward> Stages()
+        // 웨이브 골드·경험치는 그 웨이브 몬스터의 합이다: 100/40, 150/60, 300/120
+        private static List<WaveReward> Waves()
         {
-            return new List<StageReward>
+            return new List<WaveReward>
             {
-                new StageReward { Gold = 100, Experience = 40, Materials = new[] { Material(1, 1) } },
-                new StageReward { Gold = 150, Experience = 60 },
-                new StageReward { Gold = 300, Experience = 120, Materials = new[] { Material(1, 2), Material(2, 1) } },
+                Wave(new MonsterReward { Gold = 100, Experience = 40, Materials = { Material(1, 1) } }),
+                Wave(new MonsterReward { Gold = 75, Experience = 30 }, new MonsterReward { Gold = 75, Experience = 30 }),
+                Wave(new MonsterReward { Gold = 300, Experience = 120, Materials = { Material(1, 2), Material(2, 1) } }),
             };
+        }
+
+        private static WaveReward Wave(params MonsterReward[] monsters)
+        {
+            return new WaveReward(monsters);
         }
 
         private static MaterialReward Material(int id, int count)
@@ -42,7 +48,7 @@ namespace Blacksmith.Tests
             AccessoryEffect accessory2 = default)
         {
             Dictionary<int, AdventurerData> party = Party();
-            return BattleRewardRules.Calculate(Setup(accessory1, accessory2), Stages(), result, id => party[id], LevelRules);
+            return BattleRewardRules.Calculate(Setup(accessory1, accessory2), Waves(), result, id => party[id], LevelRules);
         }
 
         private static BattleSetup Setup(AccessoryEffect accessory1, AccessoryEffect accessory2)
@@ -77,18 +83,18 @@ namespace Blacksmith.Tests
             return count;
         }
 
-        private static BattleResult Result(bool isVictory, int stagesCleared, params AdventurerBattleResult[] adventurers)
+        private static BattleResult Result(bool isVictory, int wavesCleared, params AdventurerBattleResult[] adventurers)
         {
-            return new BattleResult(isVictory, stagesCleared, 100, adventurers);
+            return new BattleResult(isVictory, wavesCleared, 100, adventurers);
         }
 
-        private static AdventurerBattleResult Adventurer(int id, int stagesCleared, bool isInjured = false, bool isDead = false)
+        private static AdventurerBattleResult Adventurer(int id, int wavesCleared, bool isInjured = false, bool isDead = false)
         {
-            return new AdventurerBattleResult(id, isInjured, isDead, 0, stagesCleared);
+            return new AdventurerBattleResult(id, isInjured, isDead, 0, wavesCleared);
         }
 
         [Test]
-        public void Victory_GivesAllStageGoldAndMergedMaterials()
+        public void Victory_GivesAllWaveGoldAndMergedMaterials()
         {
             BattleRewards rewards = Calculate(Result(true, 3, Adventurer(1, 3), Adventurer(2, 3)));
 
@@ -99,7 +105,7 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Defeat_GivesRewardsOnlyForClearedStages()
+        public void Defeat_GivesRewardsOnlyForClearedWaves()
         {
             BattleRewards rewards = Calculate(Result(false, 1, Adventurer(1, 1, true), Adventurer(2, 0, true)));
 
@@ -109,7 +115,7 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Experience_CountsStagesClearedBeforeFalling()
+        public void Experience_CountsWavesClearedBeforeFalling()
         {
             BattleRewards rewards = Calculate(Result(true, 3, Adventurer(1, 3), Adventurer(2, 1, true)));
 
@@ -163,17 +169,13 @@ namespace Blacksmith.Tests
         [Test]
         public void MaterialAccessory_BoostsOreButNotGems()
         {
-            var stages = new List<StageReward>
+            var waves = new List<WaveReward>
             {
-                new StageReward
-                {
-                    Materials = new[] { Material(13, 10) },
-                    GemDrops = new[] { Drop(3, 100, 18) },
-                },
+                Wave(new MonsterReward { Materials = { Material(13, 10) }, GemDrops = { Drop(3, 100, 18) } }),
             };
             Dictionary<int, AdventurerData> party = Party();
             BattleRewards rewards = BattleRewardRules.Calculate(Setup(Effect(AccessoryEffectKind.MaterialBonus, 2), default),
-                stages, Result(true, 1, Adventurer(1, 1), Adventurer(2, 1)), id => party[id], LevelRules);
+                waves, Result(true, 1, Adventurer(1, 1), Adventurer(2, 1)), id => party[id], LevelRules);
 
             Assert.AreEqual(11, CountOf(rewards.Materials, 13));
             Assert.AreEqual(1, CountOf(rewards.BonusMaterials, 13));
@@ -193,41 +195,65 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Defeat_KeepsLootOfClearedStagesOnly()
+        public void Defeat_KeepsLootOfClearedWavesOnly()
         {
             BattleRewards rewards = Calculate(Result(false, 1, Adventurer(1, 1, true), Adventurer(2, 1, true)));
 
-            Assert.AreEqual(1, rewards.StageLoots.Count);
+            Assert.AreEqual(1, rewards.WaveLoots.Count);
+        }
+
+        [Test]
+        public void DropRoll_GivesOneLootPerMonster()
+        {
+            IReadOnlyList<WaveLoot> loots = BattleDropRules.Roll(Waves(), 3);
+
+            Assert.AreEqual(3, loots.Count);
+            Assert.AreEqual(1, loots[0].Monsters.Count);
+            Assert.AreEqual(2, loots[1].Monsters.Count);
+            Assert.AreEqual(1, CountOf(loots[0].Monsters[0].Materials, 1));
+        }
+
+        [Test]
+        public void DropRoll_MoreMonstersRollMoreTimes()
+        {
+            var monster = new MonsterReward { ChanceDrops = { Drop(1, 100, 15) } };
+            var waves = new List<WaveReward> { Wave(monster, monster), Wave(monster, monster, monster) };
+            Dictionary<int, AdventurerData> party = Party();
+
+            BattleRewards rewards = BattleRewardRules.Calculate(Setup(default, default), waves,
+                Result(true, 2, Adventurer(1, 2), Adventurer(2, 2)), id => party[id], LevelRules);
+
+            Assert.AreEqual(5, CountOf(rewards.Materials, 15));
         }
 
         [Test]
         public void DropRoll_SameSeedGivesSameLoot()
         {
-            var stages = new List<StageReward>
-            {
-                new StageReward { ChanceDrops = new[] { Drop(2, 50, 15), Drop(2, 50, 16) }, GemDrops = new[] { Drop(2, 30, 18, 19, 20, 21) } },
-                new StageReward { ChanceDrops = new[] { Drop(2, 50, 15), Drop(2, 50, 16) }, GemDrops = new[] { Drop(2, 30, 18, 19, 20, 21) } },
-            };
+            var monster = new MonsterReward { ChanceDrops = { Drop(2, 50, 15), Drop(2, 50, 16) }, GemDrops = { Drop(2, 30, 18, 19, 20, 21) } };
+            var waves = new List<WaveReward> { Wave(monster, monster), Wave(monster) };
 
-            IReadOnlyList<StageLoot> first = BattleDropRules.Roll(stages, 42);
-            IReadOnlyList<StageLoot> second = BattleDropRules.Roll(stages, 42);
+            IReadOnlyList<WaveLoot> first = BattleDropRules.Roll(waves, 42);
+            IReadOnlyList<WaveLoot> second = BattleDropRules.Roll(waves, 42);
 
-            for (int i = 0; i < stages.Count; i++)
+            for (int i = 0; i < waves.Count; i++)
             {
-                CollectionAssert.AreEqual(first[i].Materials, second[i].Materials);
-                CollectionAssert.AreEqual(first[i].Gems, second[i].Gems);
+                for (int j = 0; j < waves[i].Monsters.Count; j++)
+                {
+                    CollectionAssert.AreEqual(first[i].Monsters[j].Materials, second[i].Monsters[j].Materials);
+                    CollectionAssert.AreEqual(first[i].Monsters[j].Gems, second[i].Monsters[j].Gems);
+                }
             }
         }
 
         [Test]
         public void DropRoll_ChanceBoundsAreRespected()
         {
-            var stages = new List<StageReward>
+            var waves = new List<WaveReward>
             {
-                new StageReward { ChanceDrops = new[] { Drop(4, 100, 15), Drop(4, 0, 16) }, GemDrops = new[] { Drop(2, 100, 18, 19) } },
+                Wave(new MonsterReward { ChanceDrops = { Drop(4, 100, 15), Drop(4, 0, 16) }, GemDrops = { Drop(2, 100, 18, 19) } }),
             };
 
-            StageLoot loot = BattleDropRules.Roll(stages, 1)[0];
+            MonsterLoot loot = BattleDropRules.Roll(waves, 1)[0].Monsters[0];
 
             Assert.AreEqual(4, CountOf(loot.Materials, 15));
             Assert.AreEqual(0, CountOf(loot.Materials, 16));

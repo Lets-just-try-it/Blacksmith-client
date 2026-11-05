@@ -32,8 +32,7 @@ namespace Blacksmith.Battle
         [Networked] private int BattleId { get; set; }
         [Networked] private int Seed { get; set; }
         [Networked] public int DungeonId { get; private set; }
-        [Networked] public int FirstStage { get; private set; }
-        [Networked] public int LastStage { get; private set; }
+        [Networked] public int Stage { get; private set; }
         [Networked] private int PartyCount { get; set; }
         [Networked, Capacity(MaxPartySize)] private NetworkArray<int> PartyIds => default;
 
@@ -84,8 +83,7 @@ namespace Blacksmith.Battle
         }
 
         // 호스트 전용. 이전 전투의 결과를 반영하기 전에는 새 전투를 시작하지 않는다.
-        // clearedStages는 파견을 확정할 때의 진행 상황이다. 고른 stage 하나를 싸운다.
-        // FirstStage·LastStage는 스테이지 안의 웨이브가 생기기 전까지 같은 값이다.
+        // clearedStages는 파견을 확정할 때의 진행 상황이다. 고른 stage 하나의 웨이브를 모두 싸운다.
         public bool StartBattle(int seed, int dungeonId, int clearedStages, int stage, IReadOnlyList<int> partyIds)
         {
             DungeonData dungeon = FindDungeon(dungeonId);
@@ -98,8 +96,7 @@ namespace Blacksmith.Battle
 
             Seed = seed;
             DungeonId = dungeonId;
-            FirstStage = stage;
-            LastStage = stage;
+            Stage = stage;
             PartyCount = partyIds.Count;
             for (int i = 0; i < partyIds.Count; i++)
             {
@@ -140,7 +137,7 @@ namespace Blacksmith.Battle
 
         private BattleRewards CalculateRewards(BattleSetup setup, BattleResult result, DungeonData dungeon)
         {
-            return BattleRewardRules.Calculate(setup, dungeon.GetStageRewards(FirstStage, LastStage), result,
+            return BattleRewardRules.Calculate(setup, dungeon.GetWaveRewards(Stage, setup.Seed), result,
                 _findAdventurer, _adventurerLevel.ToRules());
         }
 
@@ -159,7 +156,7 @@ namespace Blacksmith.Battle
                 setup.Adventurers.Add(_adventurerBattle.ToSetup(_findAdventurer(PartyIds[i])));
             }
 
-            dungeon.AddStagesTo(setup, FirstStage, LastStage);
+            dungeon.AddWavesTo(setup, Stage);
             return setup;
         }
     }
