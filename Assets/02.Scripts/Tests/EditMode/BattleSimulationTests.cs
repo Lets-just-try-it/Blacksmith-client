@@ -122,9 +122,9 @@ namespace Blacksmith.Tests
         {
             BattleSimulation simulation = CreateFormation(450, 120, 400, 120);
 
-            AssertSpot(simulation, 1, 0, 0);
+            AssertSpot(simulation, 1, -1, 0);
             AssertSpot(simulation, 3, 1, 0);
-            AssertSpot(simulation, 2, 0, -100);
+            AssertSpot(simulation, 2, -1, -100);
             AssertSpot(simulation, 0, 1, -100);
         }
 
@@ -133,19 +133,19 @@ namespace Blacksmith.Tests
         {
             BattleSimulation simulation = CreateFormation(450, 400, 450);
 
-            AssertSpot(simulation, 1, 0, 0);
-            AssertSpot(simulation, 0, 1, 0);
+            AssertSpot(simulation, 1, -2, 0);
+            AssertSpot(simulation, 0, 0, 0);
             AssertSpot(simulation, 2, 2, 0);
         }
 
         [Test]
-        public void Formation_CentersShorterRowOnWiderRow()
+        public void Formation_CentersEachRowOnPath()
         {
             BattleSimulation simulation = CreateFormation(450, 450, 120, 400);
 
-            AssertSpot(simulation, 2, 1, 0);
-            AssertSpot(simulation, 3, 0, -100);
-            AssertSpot(simulation, 0, 1, -100);
+            AssertSpot(simulation, 2, 0, 0);
+            AssertSpot(simulation, 3, -2, -100);
+            AssertSpot(simulation, 0, 0, -100);
             AssertSpot(simulation, 1, 2, -100);
         }
 
@@ -154,9 +154,9 @@ namespace Blacksmith.Tests
         {
             BattleSimulation simulation = CreateFormation(120, 120, 120, 120, 450);
 
-            AssertSpot(simulation, 0, 0, 0);
+            AssertSpot(simulation, 0, -1, 0);
             AssertSpot(simulation, 1, 1, 0);
-            AssertSpot(simulation, 2, 0, -100);
+            AssertSpot(simulation, 2, -1, -100);
             AssertSpot(simulation, 3, 1, -100);
             AssertSpot(simulation, 4, 0, -200);
         }
@@ -167,9 +167,9 @@ namespace Blacksmith.Tests
             BattleSimulation simulation = CreateFormation(450, 120, 400, 450, 450);
 
             AssertSpot(simulation, 1, 0, 0);
-            AssertSpot(simulation, 2, 0, -100);
+            AssertSpot(simulation, 2, -1, -100);
             AssertSpot(simulation, 0, 1, -100);
-            AssertSpot(simulation, 3, 0, -200);
+            AssertSpot(simulation, 3, -1, -200);
             AssertSpot(simulation, 4, 1, -200);
         }
 
@@ -178,10 +178,10 @@ namespace Blacksmith.Tests
         {
             BattleSimulation simulation = CreateFormation(450, 120, 400, 120, 450);
 
-            AssertSpot(simulation, 1, 0, 0);
+            AssertSpot(simulation, 1, -1, 0);
             AssertSpot(simulation, 3, 1, 0);
-            AssertSpot(simulation, 2, 0, -100);
-            AssertSpot(simulation, 0, 1, -100);
+            AssertSpot(simulation, 2, -2, -100);
+            AssertSpot(simulation, 0, 0, -100);
             AssertSpot(simulation, 4, 2, -100);
         }
 
@@ -190,10 +190,10 @@ namespace Blacksmith.Tests
         {
             BattleSimulation simulation = CreateFormation(120, 450, 120, 400, 120);
 
-            AssertSpot(simulation, 0, 0, 0);
-            AssertSpot(simulation, 2, 1, 0);
+            AssertSpot(simulation, 0, -2, 0);
+            AssertSpot(simulation, 2, 0, 0);
             AssertSpot(simulation, 4, 2, 0);
-            AssertSpot(simulation, 3, 0, -100);
+            AssertSpot(simulation, 3, -1, -100);
             AssertSpot(simulation, 1, 1, -100);
         }
 

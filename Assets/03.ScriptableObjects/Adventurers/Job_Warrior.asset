@@ -34,7 +34,7 @@ MonoBehaviour:
     Defense:
       Min: 1
       Max: 2
-  _skillIds: 01000000
+  _skillIds: 0100000004000000
   _weaponType: 1
   _defaultWeapon: {fileID: 11400000, guid: b28fccf3ae0b14a4d8807d1c86966839, type: 2}
   _defaultWeaponGrade: 1

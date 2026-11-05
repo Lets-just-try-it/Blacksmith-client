@@ -15,7 +15,7 @@ namespace Blacksmith.Battle
         [SerializeField] private Camera _camera;
         [Tooltip("시뮬레이션 위치 1이 이동하는 월드 거리와 방향 (쿼터뷰 길 방향)")]
         [SerializeField] private Vector3 _pathStep = new Vector3(0.01f, 0f, 0.005f);
-        [Tooltip("라인 번호 1당 옆으로 벌어지는 월드 거리")]
+        [Tooltip("옆자리 한 칸당 벌어지는 월드 거리 (BattleUnit.Lane은 반 칸 단위)")]
         [SerializeField] private Vector3 _laneStep = new Vector3(-0.3f, 0f, 0.6f);
         [SerializeField, Min(0.1f)] private float _playbackSpeed = 1f;
 
@@ -203,9 +203,10 @@ namespace Blacksmith.Battle
             return Quaternion.LookRotation(forward, Vector3.up);
         }
 
+        // BattleUnit.Lane은 반 칸 단위라 절반을 곱한다.
         private Vector3 ToWorld(float position, int lane)
         {
-            return _pathOrigin.position + _pathStep * position + _laneStep * lane;
+            return _pathOrigin.position + _pathStep * position + _laneStep * (lane * 0.5f);
         }
 
         private void Clear()

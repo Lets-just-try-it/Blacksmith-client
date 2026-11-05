@@ -44,7 +44,32 @@ MonoBehaviour:
   - SkillId: 1
     Skill:
       Kind: 2
-      PowerPercent: 220
+      PowerPercent: 200
+      Radius: 150
+  - SkillId: 2
+    Skill:
+      Kind: 1
+      PowerPercent: 350
+      Radius: 0
+  - SkillId: 3
+    Skill:
+      Kind: 2
+      PowerPercent: 180
+      Radius: 350
+  - SkillId: 4
+    Skill:
+      Kind: 1
+      PowerPercent: 300
+      Radius: 0
+  - SkillId: 5
+    Skill:
+      Kind: 2
+      PowerPercent: 150
       Radius: 250
+  - SkillId: 6
+    Skill:
+      Kind: 1
+      PowerPercent: 400
+      Radius: 0
   _equipment: {fileID: 11400000, guid: 4e565ef83f5cb174c8dc4a0158958416, type: 2}
   _accessoryEffects: {fileID: 11400000, guid: cd16235d87534b747a9a2d6f70d833db, type: 2}
