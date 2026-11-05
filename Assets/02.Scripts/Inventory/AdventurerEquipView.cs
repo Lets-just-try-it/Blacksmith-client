@@ -246,7 +246,7 @@ namespace Blacksmith.Inventory
             AdventurerData adventurer = GetAdventurer();
             _adventurerText.text = adventurer != null ? GetAdventurerLabel(adventurer) : "관리 중인 모험가가 없다";
             _hintText.text = CanEdit
-                ? "목록에서 장비 칸으로 끌어 놓아 입히기 · 장비 칸을 목록에 놓거나 더블 클릭해 벗기기"
+                ? "목록에서 장비 칸으로 끌어 놓아 입히기 · 무기 외 장비 칸을 목록에 놓거나 더블 클릭해 벗기기"
                 : "장비는 호스트만 바꿀 수 있다";
             ShowEquipped(_helmetSlot, adventurer, EquipmentSlot.Helmet);
             ShowEquipped(_armorSlot, adventurer, EquipmentSlot.Armor);
@@ -434,7 +434,7 @@ namespace Blacksmith.Inventory
             }
             else if (_draggingEquipment != EquipmentSlot.None)
             {
-                _channel.Unequip(_roster, adventurer.AdventurerId, _draggingEquipment, _storage);
+                TryUnequip(adventurer, _draggingEquipment);
             }
         }
 
@@ -458,7 +458,20 @@ namespace Blacksmith.Inventory
             _toast.Show(wrongWeapon ? "맞지 않는 무기입니다" : "이 칸에 맞지 않는 장비입니다");
         }
 
-        // 장비 칸을 더블 클릭하면 벗기고, 목록의 장비를 더블 클릭하면 맞는 칸에 입힌다.
+        // 무기는 벗길 수 없어 요청하지 않고 이유를 토스트로 띄운다. 호스트도 같은 규칙으로 막는다.
+        private void TryUnequip(AdventurerData adventurer, EquipmentSlot slot)
+        {
+            if (EquipmentRules.CanUnequip(slot))
+            {
+                _channel.Unequip(_roster, adventurer.AdventurerId, slot, _storage);
+            }
+            else if (slot == EquipmentSlot.Weapon)
+            {
+                _toast.Show("무기는 벗길 수 없습니다. 다른 무기로 바꿔 주세요");
+            }
+        }
+
+        // 장비 칸을 더블 클릭하면 벗기고(무기 제외), 목록의 장비를 더블 클릭하면 맞는 칸에 입힌다.
         public void Click(InventorySlotView slot, int clickCount)
         {
             AdventurerData adventurer = GetAdventurer();
@@ -469,7 +482,7 @@ namespace Blacksmith.Inventory
 
             if (IsEquipmentSlot(slot))
             {
-                _channel.Unequip(_roster, adventurer.AdventurerId, ToEquipmentSlot(slot), _storage);
+                TryUnequip(adventurer, ToEquipmentSlot(slot));
             }
             else if (slot.Slot < _entries.Count)
             {

@@ -27,6 +27,16 @@ namespace Blacksmith.Tests
         }
 
         [Test]
+        public void Weapon_CannotBeUnequipped_OtherSlotsCan()
+        {
+            Assert.IsFalse(EquipmentRules.CanUnequip(EquipmentSlot.Weapon));
+            Assert.IsFalse(EquipmentRules.CanUnequip(EquipmentSlot.None));
+            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Helmet));
+            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Armor));
+            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Accessory));
+        }
+
+        [Test]
         public void Armor_InWeaponSlot_CannotEquip()
         {
             Assert.IsFalse(EquipmentRules.CanEquip(EquipmentSlot.Weapon, EquipmentSlot.Armor, WeaponType.None, WeaponType.GreatSword));
