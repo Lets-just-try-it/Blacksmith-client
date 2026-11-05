@@ -116,7 +116,7 @@ namespace Blacksmith.Battle
             for (int i = _views.Count; i < units.Count; i++)
             {
                 BattleUnit unit = units[i];
-                BattleUnitView view = Instantiate(_getPrefab(unit), ToWorld(unit.Position, unit.Lane), Quaternion.identity, _unitRoot);
+                BattleUnitView view = Instantiate(_getPrefab(unit), ToWorld(unit.Position, unit.Lane), GetSpawnRotation(unit), _unitRoot);
                 view.Bind(unit, _camera.transform.rotation);
                 _views.Add(view);
                 _previousPositions.Add(unit.Position);
@@ -188,6 +188,19 @@ namespace Blacksmith.Battle
                 float position = Mathf.Lerp(_previousPositions[i], unit.Position, alpha);
                 _views[i].transform.position = ToWorld(position, unit.Lane);
             }
+        }
+
+        // 인간형 모델의 정면은 +Z라, 모험가는 진행 방향(위치가 늘어나는 _pathStep 쪽)을 보게 돌려 생성한다.
+        // 몬스터 프리팹은 지금 방향 그대로 둔다.
+        private Quaternion GetSpawnRotation(BattleUnit unit)
+        {
+            Vector3 forward = Vector3.ProjectOnPlane(_pathStep, Vector3.up);
+            if (unit.Team != BattleTeam.Adventurer || forward.sqrMagnitude < Mathf.Epsilon)
+            {
+                return Quaternion.identity;
+            }
+
+            return Quaternion.LookRotation(forward, Vector3.up);
         }
 
         private Vector3 ToWorld(float position, int lane)
