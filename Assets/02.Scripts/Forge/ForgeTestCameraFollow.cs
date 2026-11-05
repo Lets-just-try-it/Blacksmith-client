@@ -32,6 +32,8 @@ namespace Blacksmith.Forge
         };
         [SerializeField] private float _quarterYaw = 45f;
         [SerializeField, Min(0f)] private float _smoothTime = 0.2f;
+        [Tooltip("대상이 이 거리보다 멀리 떨어지면(구역 이동 등 순간이동) 따라가지 않고 바로 옮긴다.")]
+        [SerializeField, Min(0f)] private float _snapDistance = 15f;
         [SerializeField, Min(0.1f)] private float _searchInterval = 0.5f;
         [SerializeField] private bool _startFirstPerson;
         [SerializeField] private float _eyeHeight = 0.7f;
@@ -126,7 +128,7 @@ namespace Blacksmith.Forge
             }
             else
             {
-                transform.position = Vector3.SmoothDamp(transform.position, _target.position + QuarterOffset(), ref _velocity, _smoothTime);
+                FollowQuarterView();
             }
         }
 
@@ -192,6 +194,19 @@ namespace Blacksmith.Forge
             {
                 _camera.fieldOfView = preset.Fov;
             }
+        }
+
+        private void FollowQuarterView()
+        {
+            Vector3 goal = _target.position + QuarterOffset();
+            if ((goal - transform.position).sqrMagnitude > _snapDistance * _snapDistance)
+            {
+                transform.position = goal;
+                _velocity = Vector3.zero;
+                return;
+            }
+
+            transform.position = Vector3.SmoothDamp(transform.position, goal, ref _velocity, _smoothTime);
         }
 
         private Vector3 QuarterOffset()

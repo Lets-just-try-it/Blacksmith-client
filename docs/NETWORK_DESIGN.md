@@ -73,6 +73,19 @@
 - 잠금 중에도 `NetworkInput`으로 무언가를 보내야 하는 기능(예: 미니게임 도중 캐릭터가 실제로 움직여야 하는 경우)이 생기면 이 장치와 충돌한다. 그때 잠글 범위를 나누는 방식으로 확장한다.
 - 세션이 시작될 때(`PlayerInputCollector`가 켜질 때) 남은 잠금을 비운다. 에디터에서 도메인 리로드 없이 플레이를 다시 시작하는 경우를 위한 처리다.
 
+### 3.2 구역 이동
+
+대장간과 광장은 같은 `Game` 씬 안의 떨어진 구역이다(광장은 x = 500 근처). 구역 사이는 포털(`AreaPortal`, 이동 큐브)에 닿으면 화면이 어두워진 사이에 순간이동한다. 이동은 플레이어마다 따로 하며, 페이드도 이동하는 본인 화면에만 보인다.
+
+1. 포털 트리거에 내 플레이어(입력 권한)가 닿으면, 그 클라이언트에서 Player 프리팹의 `PlayerAreaTravel`이 캐릭터 조작을 잠그고 화면을 어둡게 한다.
+2. 화면이 완전히 어두워지면 도착 위치와 방향을 `RpcRequestTravel`로 호스트에 보낸다. 포털 판정은 클라이언트가 하고 호스트는 신뢰한다.
+3. 호스트는 다음 틱의 `FixedUpdateNetwork`에서 `NetworkCharacterController.Teleport`로 옮기고 속도를 0으로 만든 뒤, `[Networked] TravelCount`를 1 늘린다. 속도를 남기면 도착한 뒤 미끄러져 반대편 포털에 다시 닿는다.
+4. 요청한 클라이언트는 `TravelCount`가 바뀐 것을 `ChangeDetector`로 받으면 잠금을 풀고 화면을 밝힌다. 카메라(`ForgeTestCameraFollow`)는 대상이 일정 거리 이상 떨어지면 따라가지 않고 바로 옮긴다.
+
+- 도착 지점은 반대편 포털의 트리거 바깥에 캐릭터 반지름 이상 떨어뜨려 둔다.
+- 화면 페이드는 씬마다 하나 두는 `ScreenFader`(`UI/`, 프리팹 `04.Prefabs/UI/ScreenFader`)가 하고, Player 프리팹이나 Additive 씬처럼 인스펙터로 참조할 수 없는 쪽도 Runtime 에셋 `ScreenFadeChannel`로 요청한다. 페이더가 없는 테스트 씬에서는 요청이 바로 끝난다.
+- 로비에서 세션을 시작하면 화면을 어둡게 한 채 `Game` 씬으로 넘어가고, `Game`의 페이더는 검은 화면으로 시작해 내 플레이어가 스폰되면(`NetworkPlayer.Spawned`) 밝아진다.
+
 ## 4. 작업대 사용권 관리
 
 작업대는 한 번에 한 명의 플레이어만 사용할 수 있다. 사용권 부여와 해제는 호스트가 관리한다.
@@ -229,6 +242,7 @@ NPC(`DialogueSeat`)는 한 번에 한 명과만 대화한다. 작업대 사용�
   - 파견 창: 낮 씬의 `DispatchState`(호스트 소유)가 창 열림·보이는 창(던전 지도 또는 파견 창)·파티·던전 단계·스테이지를 `[Networked]`로 동기화한다. 고르기는 호스트만 하므로 RPC 없이 호스트가 직접 값을 바꾼다. 화면은 `DispatchView`이고, 줄의 장비 버튼으로 `AdventurerEquipView.Show(adventurerId)`를 연다.
   - 씬 잇기: 두 씬은 인스펙터로 서로를 참조할 수 없어 Runtime 에셋 `BattleChannel`을 거친다. 낮 씬은 관리 목록 조회(`SetAdventurerSource`)를 등록하고 파견 정보를 맡긴다. 전투 씬의 `BattleSceneFlow`는 파견 정보로 `StartBattle`을 부르고, 열림·닫힘과 결과(`ResultConfirmed`)를 알린다.
   - 불러오기·내리기: 낮 씬의 `BattleSceneLoader`(호스트 소유)가 `Runner.LoadScene(…, Additive)`로 `Battle` 씬을 불러오고, 결과를 받으면 `Runner.UnloadScene`으로 내린다. 결과창 다음에는 파견 창으로 돌아가지 않고 바로 낮 씬으로 돌아간다.
+  - 화면 전환 페이드: `BattleSceneLoader`는 불러오기·내리기 전에 `[Networked] FadeOutCount`를 늘려 모든 참가자의 화면을 어둡게 하고, 호스트 화면이 다 어두워지면 씬을 바꾼다. 다시 밝히는 것은 각 참가자의 `DaySceneBattleCover`가 전투 씬 열림·닫힘을 받았을 때 한다. 페이드 시간은 모두 같은 `ScreenFader` 프리팹을 쓰므로 같다.
   - 화면 끄기: 낮 씬의 `DaySceneBattleCover`가 전투 씬이 열린 동안 지정한 카메라·Canvas·라이트의 컴포넌트만 끄고 캐릭터 조작을 잠근다(`PlayerNetworkInputLock`). 파견 창과 장비 착용 창은 파견할 때 닫힌다. 낮·밤 사이클이 생기면 그 화면 전환과 합친다.
   - 던전 진행 상황: 전투 씬을 내리면 사라지므로 낮 씬의 `DungeonProgressState`(호스트 소유)에 두고, `BattleChannel.ResultConfirmed`로 반영한다. `BattleState.StartBattle`은 파견을 확정할 때의 진행 상황을 받는다.
   - `Battle` 씬은 전투 본체만 담는다(EventSystem·AudioListener 없음). 전투 공간은 낮 씬과 겹치지 않게 x = 1000 근처에 둔다. `BattleTest`는 테스트 파티를 등록하고 `Battle`을 불러오는 테스트 전용 씬이다.
@@ -313,6 +327,7 @@ NPC(`DialogueSeat`)는 한 번에 한 명과만 대화한다. 작업대 사용�
 
 - 이동 반응성: 클라이언트 예측으로 입력에 즉각 반응한다.
 - 공유 상태의 정합성: 작업대 사용권, NPC 대화 점유와 게임 상태는 호스트가 관리한다.
+- 구역 이동: 포털 판정과 페이드는 이동하는 클라이언트가 하고, 순간이동은 호스트가 틱 안에서 한다.
 - 캐릭터 조작 잠금: 미니게임·대화 중에는 `PlayerNetworkInputLock`으로 호스트에 가는 이동·버튼 입력만 잠그고, 키 입력과 RPC는 막지 않는다.
 - 간결한 미니게임 처리: 정확도 계산은 클라이언트에서 하고, 호스트는 결과를 신뢰한다.
 - 중복 처리 방지: 세션 식별자와 처리 여부를 확인해 결과의 중복 반영을 막는다.

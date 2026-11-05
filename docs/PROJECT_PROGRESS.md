@@ -130,7 +130,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 - `01.Scenes/ForgeTest`에서 `04.Prefabs/Town/ForgeRoom`을 확인한다.
 - 외부 에셋 없이 상자만으로 만든 그레이박스다(머티리얼은 `05.Art/Materials/Greybox`).
 - 씬을 열고 플레이하면 로비 없이 호스트로 시작해(`ForgeTestStarter`) 입구 앞에서 Player로 WASD로 걸어 다닐 수 있고, 카메라가 쿼터뷰로 따라간다(`ForgeTestCameraFollow`, F1~F6 키로 쿼터뷰 시점 6종(기본, 넓게, 높이, 낮게, 가까이, 직교)을 고르고 V 키로 1인칭과 번갈아 봄).
-- `Game` 씬에 같은 구성(대장간, 공용 창고, 낮·밤, 밤 파견, 판매)이 들어가 로비를 거쳐 들어온다. 로비 없이 바로 시작하는 `ForgeTest`는 시험용으로 남는다. `Game`의 `StartSupply`(`ForgeTestStarter`에서 호스트 시작을 뺀 것)가 시험용 재료와 모험가만 넣는다.
+- `Game` 씬에 같은 구성(대장간, 공용 창고, 낮·밤, 밤 파견, 판매)과 광장이 들어가 로비를 거쳐 들어온다. 로비 없이 바로 시작하는 `ForgeTest`는 시험용으로 남는다. `Game`의 `StartSupply`(`ForgeTestStarter`에서 호스트 시작을 뺀 것)가 시험용 재료와 모험가만 넣는다.
 - 약 20m x 16m, 판매 구역(입구), 모험가 5명이 모이는 회의형 관리 구역, 제작 구역(작업대 7개와 공용 창고, 작업대마다 색을 달리함).
 - 벽은 높이 1.6m로 통일했고 빈 틈이 문이다.
 - 구역 사이 문 3곳은 `ForgeDoor`로 캐릭터가 다가가면 서서히 열리고 닫힌다.
@@ -213,6 +213,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 
 - `Core/Adventurers`에 모험가 정보 원본 형식(`AdventurerData`: 이름, 직업, 레벨, 외형 번호, 기본·성장 체력·공격력·방어력, 스킬 번호, 착용 장비 번호, 몸 상태), 시드 기반 생성(`AdventurerGenerator`, 후보 1~4명), 레벨 성장 공식(`AdventurerStatRules`).
 - 수치는 `AdventurerGeneration`·직업(`Job_Warrior`)·`AdventurerRoster` 데이터. `Plaza/`에 호스트 소유 관리 목록(`AdventurerRosterState`, 최대 8), 광장 후보 스폰·영입 처리(`PlazaRecruitment`, `RecruitCandidate`), 후보에게 E로 말을 걸면 대화가 열리고 "영입하기"를 골라야 영입되는 흐름(`RecruitCandidate`가 `IDialogueChoiceHandler`로 선택 결과를 받음, 대사는 `03.ScriptableObjects/Dialogues/Recruit_Candidate`), 목록 창 UI, 초상 뼈대(`AdventurerPortraitProvider`).
+- `Game` 씬의 x = 500 근처에 광장(바닥, 영입 후보 자리 4곳, `PlazaRecruitment`)을 두었다. 관리 목록은 대장간과 같은 `AdventurerRoster`를 쓰고, PlazaTest의 목록 창 UI(`RosterPanel`)는 옮기지 않았다.
 - `01.Scenes/PlazaTest`에서 로비 없이 호스트로 시작해 확인한다.
 - 직업은 전사 1종이다.
 - 파견 창은 전투 영역에서 만들었다(`Battle/DispatchView`).
@@ -243,8 +244,15 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 - `Core/Dialogue`에 조건 평가(`DialogueCondition`: 게임 상태 값 비교. 화면 표시와 호스트 재확인이 같은 함수를 씀)와 선택지 강조 규칙(`DialogueChoiceCursor`: 강조 없이 시작, 숫자키·W/S, 끝에서 멈춤, 최대 9개).
 - `Dialogue/`에 대사 데이터(`DialogueData`: 조건별 대사 묶음, 줄마다 화자, 선택지와 비활성 이유), 화자(`DialogueSpeaker`), 함께 보는 대화 번호표(`DialogueCatalog`), 프리팹과 씬을 잇는 `DialogueChannel`, 진행(`DialogueDirector`)과 화면(`DialogueView`, `DialogueChoiceButton`: 비활성 이유 표시, 고르려 하면 흔들림), 조건 값 공급(`GameDialogueStats`, 지금은 빈 관리 슬롯 수만), NPC 대화 점유(`DialogueSeat`), Player 프리팹의 대화 요청·선택·해제 RPC(`DialoguePlayerActions`)와 "대화 중" 말풍선(`DialogueBubbleView`), 함께 보는 대화(`SharedDialogue`: 각자 넘기고 모두 다 읽으면 닫음, NPC 대화 중이면 그 대화를 닫고 염).
 - 대화 중에는 `PlayerNetworkInputLock`으로 캐릭터 조작 입력을 잠그고, 엔터(UI/Submit)·W/S·숫자키(UI 맵 `ChoiceUp`·`ChoiceDown`·`ChoiceNumber`)는 대화창이 직접 읽는다.
-- 대화창 프리팹은 `04.Prefabs/UI/Dialogue`, 대사 데이터는 `03.ScriptableObjects/Dialogues`, 채널·입력 잠금 에셋은 `03.ScriptableObjects/Runtime`. `01.Scenes/PlazaTest`에 배치했고, 함께 보는 대화는 플레이 중 `SharedDialogue` 오브젝트의 `SharedDialogueTestTrigger` 컨텍스트 메뉴로 연다.
-- 튜토리얼·컷씬 연결, 명성 등 조건 값 추가, `Game` 씬 배치는 남아 있다.
+- 대화창 프리팹은 `04.Prefabs/UI/Dialogue`, 대사 데이터는 `03.ScriptableObjects/Dialogues`, 채널·입력 잠금 에셋은 `03.ScriptableObjects/Runtime`. `01.Scenes/PlazaTest`와 `Game`에 배치했고, 함께 보는 대화는 `PlazaTest`에서 플레이 중 `SharedDialogue` 오브젝트의 `SharedDialogueTestTrigger` 컨텍스트 메뉴로 연다(`Game`에는 테스트 트리거를 두지 않았다).
+- 튜토리얼·컷씬 연결, 명성 등 조건 값 추가는 남아 있다.
+
+### 구역 이동·화면 페이드 (구현)
+
+- 대장간 입구(`ForgeRoom`의 `Entrance_Block` 자리)와 광장의 대장간 입구 큐브에 이동 큐브(`04.Prefabs/Town/AreaPortal`)를 두었다. 닿으면 화면이 어두워진 사이 반대편 도착 지점(`ForgeArrival`, `PlazaArrival`)으로 옮겨진다. `ForgeRoom` 프리팹은 고치지 않고 `Game` 씬의 `ForgePlazaLink`에 두었다.
+- 화면 페이드(`ScreenFader`, `ScreenFadeChannel`)는 구역 이동, 로비 → 게임, 게임 → 전투, 전투 → 게임 전환에 쓴다. 구조는 `docs/NETWORK_DESIGN.md` 3.2절.
+- 이동 큐브는 회색 기본 큐브로 임시 표시다. 대장간 쪽 큐브가 입구를 가려 보일 수 있다.
+- 전투 후 다음 날 아침에는 플레이어가 전날 밤에 있던 자리(대장간 또는 광장)에서 그대로 시작한다. 아침 시작 위치는 아직 정하지 않았다.
 
 ### 대장간 업그레이드·해금 (미구현)
 
@@ -270,6 +278,10 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 
 ## 검증 상태
 
+- 구역 이동·화면 페이드: 에디터 플레이 모드에서 로비에서 호스트로 시작해 다음을 확인했다. 콘솔 오류 없음.
+  - 로비 → `Game` 진입 후 화면이 밝아지고, 대장간 입구 큐브에 닿으면 광장 도착 지점에, 광장 큐브에 닿으면 대장간 도착 지점에 멈춰 서고, 카메라가 바로 따라오며 조작 잠금이 풀리는 것. 큐브에 닿게 하는 것은 키 입력 대신 스크립트로 플레이어를 큐브 앞에 옮겨 확인했다.
+  - 영입한 모험가를 스크립트로 파견해 `Battle` 씬이 열리고 화면이 밝아지는 것, 결과를 확정하면 `Battle` 씬이 내려가고 화면이 밝아지는 것.
+  - 두 명 접속에서 페이드와 구역 이동이 동작하는 것을 확인했다.
 - 에디터 컴파일 오류 없음. EditMode 테스트 271개 통과 (에디터가 열려 있으면 `unity command test run editor`).
 - 인간형 캐릭터 모델: 플레이 모드에서 다음을 확인했다. 콘솔 경고·오류 없음.
   - `ForgeTest`: 플레이어가 앞치마 차림으로 서서 대기 동작을 하는 것, 손님이 무작위 외형(피부·머리색, 의상)으로 서서 돌아다니는 것.
@@ -351,8 +363,8 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 2. 역할별(대장간, 광장, 전투, 인벤토리) 기능을 구현하고 MVP 시연으로 피드백을 받는다.
    - 대장간: 나머지 제작 미니게임 3종 이식(판 성형, 조립, 장신구)과 담금질·단조를 최신 프로토타입과 대조해 맞추기, 미니게임 입력·화면, 재료 수급 방식, 판매
    - 전투: 던전 지도·파견 창·Additive 전투를 실제 마우스와 두 명 접속으로 확인, 스테이지 안의 웨이브(던전 단계에 따라 웨이브 수가 늘어남, 기획 7.1 [미정]), 모험가가 적이 아닌 옆(월드 +Z)을 보고 싸우는 문제 고치기(`BattlePlayer`가 유닛을 회전 없이 `Quaternion.identity`로 생성하는데 인간형 모델의 정면은 +Z이고 전투 진행 축 `_pathStep`은 +X다. 진행 방향을 보도록 생성할 때 회전을 정해야 한다), 몬스터 아트와 수치 조정, 보스 등장 연출 중 카메라가 보스를 비추게 하기(지금은 파티를 따라가 보스가 화면 위쪽에 걸친다), 3~10단계 몬스터·던전 데이터(구성은 `docs/GAME_CONCEPT.md` 7.1, 전체 10단계·10단계 보스 마왕은 7.2. MVP 이후 작업), 장비별 이펙트, 전투 도중 들어온 참가자의 재생을 호스트 화면에 맞추기(재접속 처리와 함께), 전투 결과를 관리 목록(경험치·부상·사망)과 골드·재료에 반영(`BattleChannel.ResultConfirmed`에 연결), `Game` 씬에 파견 창·`DispatchSession`·`DaySceneBattleCover` 배치.
-   - 공통: `ForgeTest`에 던전 지도 연결(`DispatchUI` 안 `DungeonMap`의 `_state`·`_progress`를 씬의 `DispatchState`·`DungeonProgressState`로, 대장간 담당), 낮·밤 사이클의 실제 미니게임 도중 마감과 두 명 접속 확인, 밤 화면 연출과 전투 중 낮 화면 끄기(`DaySceneBattleCover`, 임시)를 합칠지 정하기, `Game` 씬에는 `GameState`·낮·밤·밤 파견이 배치되었고 광장·대화는 아직 없다. 골드를 둘 낮 씬 게임 상태(`GameState`를 누가 언제 스폰할지 포함)와 게임을 껐다 켤 때의 저장 구조(던전 진행 상황 `DungeonProgressState` 포함)를 정한다. 장비 보정과 직업별 공격 방식은 정해지면 `AdventurerSetupRules`와 `AdventurerBattle`에 추가한다.
-   - 광장: 낮이 시작될 때 후보 다시 뽑기(`GameState.PhaseChanged`, 기획 6.1절 [미정]), 전투 결과(부상·사망, `BattleRewards`의 레벨·경험치)를 관리 목록에 반영하는 API, 낮이 시작될 때 후보 재생성, `Game` 씬에 관리 목록·광장 배치, 외형을 조합한 초상화([고도화])
+   - 공통: `ForgeTest`에 던전 지도 연결(`DispatchUI` 안 `DungeonMap`의 `_state`·`_progress`를 씬의 `DispatchState`·`DungeonProgressState`로, 대장간 담당), 낮·밤 사이클의 실제 미니게임 도중 마감과 두 명 접속 확인, 밤 화면 연출과 전투 중 낮 화면 끄기(`DaySceneBattleCover`, 임시)를 합칠지 정하기, `Game` 씬에는 `GameState`·낮·밤·밤 파견·광장·대화가 배치되었다. 다음 날 아침 플레이어 시작 위치(전날 자리 유지, 대장간으로 모으기 등)를 정한다. 골드를 둘 낮 씬 게임 상태(`GameState`를 누가 언제 스폰할지 포함)와 게임을 껐다 켤 때의 저장 구조(던전 진행 상황 `DungeonProgressState` 포함)를 정한다. 장비 보정과 직업별 공격 방식은 정해지면 `AdventurerSetupRules`와 `AdventurerBattle`에 추가한다.
+   - 광장: 낮이 시작될 때 후보 다시 뽑기(`GameState.PhaseChanged`, 기획 6.1절 [미정]), 전투 결과(부상·사망, `BattleRewards`의 레벨·경험치)를 관리 목록에 반영하는 API, 낮이 시작될 때 후보 재생성, 외형을 조합한 초상화([고도화])
    - 인간형 모델: 걷기·공격·투구 모습·쓰러짐과 장비 착용 창 미리보기를 화면으로 확인, 손에 든 물건을 들기 소켓(`ItemSocket_Hold`)에 아이템별로 얹기, 미니게임별 작업 동작, 갑옷·장신구 모델
    - 인벤토리: 재접속한 플레이어의 슬롯 이어 주기(`PlayerRef`가 아닌 별도 식별자로 찾음, 플레이어 식별 방식이 정해진 뒤), 손에 든 물건의 실제 모델·아이콘, 실제 아이템 데이터와 아이콘. 다른 영역과의 연결: 진열대에 올리기(판매), 실제 마우스와 두 명 접속으로 장비 착용 확인, 장비 벗기기 기능 제거(기획은 교체만 가능), 전투 보상 재료 넣기(전투), 밤 저장, `Game` 씬에 공용 창고 배치. 슬롯이 가득 찼을 때 제작 결과·보상 재료 처리, 파견 뒤 장비 반환은 정해야 한다.
    - 대화: 튜토리얼·클리어 컷씬에서 `SharedDialogue` 사용, 명성 등 조건 값(`DialogueStat`, `GameDialogueStats`) 추가, `Game` 씬에 대화창·`GameDialogueStats`·`SharedDialogue` 배치.

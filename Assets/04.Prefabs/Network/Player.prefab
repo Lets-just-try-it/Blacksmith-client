@@ -417,6 +417,7 @@ GameObject:
   - component: {fileID: 7781040051162245662}
   - component: {fileID: 3994268588077678658}
   - component: {fileID: 489576047317289931}
+  - component: {fileID: 6820468251294844430}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -472,6 +473,7 @@ MonoBehaviour:
   - {fileID: 7781040051162245662}
   - {fileID: 3994268588077678658}
   - {fileID: 489576047317289931}
+  - {fileID: 6820468251294844430}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &928977346244656201
 CharacterController:
@@ -543,6 +545,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Network.NetworkPlayer
   _localMarker: {fileID: 4285081122121494856}
+  _screenFade: {fileID: 11400000, guid: d014f3a0aaa78ce48a6b8fccd8a5159b, type: 2}
 --- !u!114 &5647528071314369560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -683,6 +686,21 @@ MonoBehaviour:
   - Kind: 3
     Pose: 1
     HeldPart: Weapon_SmithHammer_Held
+--- !u!114 &6820468251294844430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6939742712899349512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c038d0fa69ca5b42a3157f52592622b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Network.PlayerAreaTravel
+  _controller: {fileID: 6226732348625818365}
+  _inputLock: {fileID: 11400000, guid: 55343e3bee392d840ad4d7043c323fbc, type: 2}
+  _screenFade: {fileID: 11400000, guid: d014f3a0aaa78ce48a6b8fccd8a5159b, type: 2}
 --- !u!1 &9110488598716451685
 GameObject:
   m_ObjectHideFlags: 0
