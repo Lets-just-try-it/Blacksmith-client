@@ -30,7 +30,7 @@ MonoBehaviour:
       MaxMana: 1000
       ManaPerTick: 10
       ManaPerHit: 150
-    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
+    ViewPrefab: {fileID: 9093188762804707282, guid: 0207677dac841e04f9981a93425f1655, type: 3}
   - JobId: 3
     Stats:
       AttackRange: 120
@@ -39,7 +39,7 @@ MonoBehaviour:
       MaxMana: 1000
       ManaPerTick: 10
       ManaPerHit: 150
-    ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
+    ViewPrefab: {fileID: 3321833332991262974, guid: 65428ca27aa13ef4cb403dd7b394f42e, type: 3}
   _skills:
   - SkillId: 1
     Skill:

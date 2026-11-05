@@ -1,3 +1,4 @@
+using Blacksmith.Characters;
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
 using Blacksmith.Inventory;
@@ -112,7 +113,7 @@ namespace Blacksmith.Battle
             AdventurerData adventurer = _channel.FindAdventurer(view.Unit.SourceId);
             string jobName = AdventurerLabels.GetJobName(_adventurerGeneration, adventurer.JobId);
             view.gameObject.AddComponent<AdventurerUnitInfo>().Bind(adventurer, jobName, view.Unit);
-            if (view.TryGetComponent(out AdventurerEquipmentLook look))
+            if (view.TryGetComponent(out AdventurerLook look))
             {
                 look.Show(adventurer, _itemCatalog);
             }

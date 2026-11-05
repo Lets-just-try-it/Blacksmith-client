@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Blacksmith.Characters;
 using Blacksmith.Core.Adventurers;
 using UnityEngine;
 
@@ -10,11 +11,10 @@ namespace Blacksmith.Plaza
         [SerializeField] private string[] _names = new string[0];
         [SerializeField] private AdventurerJobData[] _jobs = new AdventurerJobData[0];
         [SerializeField, Min(1)] private int _startLevel = 1;
-        [SerializeField, Min(1)] private int _hairPresetCount = 1;
-        [SerializeField, Min(1)] private int _eyePresetCount = 1;
-        [SerializeField, Min(1)] private int _mouthPresetCount = 1;
-        [SerializeField, Min(1)] private int _hairColorCount = 1;
-        [SerializeField, Min(1)] private int _skinColorCount = 1;
+        [Tooltip("헤어·눈·입·색·의상 목록. 손님과 플레이어도 같은 목록을 쓴다")]
+        [SerializeField] private HumanoidLookData _look;
+        [Tooltip("모험가가 입을 수 있는 의상 번호(HumanoidLook 의상 목록의 위치). 비우면 모든 의상에서 고른다")]
+        [SerializeField] private int[] _outfitChoices = new int[0];
         [Tooltip("광장에 한 번에 나오는 영입 후보 수 (최소~최대)")]
         [SerializeField] private IntRange _candidateCount = new IntRange(1, 4);
 
@@ -31,11 +31,7 @@ namespace Blacksmith.Plaza
                 Names = _names,
                 Jobs = jobs,
                 StartLevel = _startLevel,
-                HairPresetCount = _hairPresetCount,
-                EyePresetCount = _eyePresetCount,
-                MouthPresetCount = _mouthPresetCount,
-                HairColorCount = _hairColorCount,
-                SkinColorCount = _skinColorCount,
+                Appearance = _look.ToRules(_outfitChoices),
                 CandidateCount = _candidateCount,
             };
         }

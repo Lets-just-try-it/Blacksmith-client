@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbcfb2dd476991a4587f9773886dd2fe, type: 3}
+  m_Name: Item_OldStaff
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Inventory.ItemData
+  _itemId: 12
+  _displayName: "\uB0A1\uC740 \uC9C0\uD321\uC774"
+  _icon: {fileID: 0}
+  _color: {r: 0.55, g: 0.5, b: 0.45, a: 1}
+  _kind: 2
+  _tier: 1
+  _equipmentSlot: 1
+  _weaponType: 3
+  _statBonus:
+    MaxHp: 0
+    Attack: 5
+    Defense: 0
+  _wornPart: Weapon_Staff_A_Held

@@ -1,4 +1,5 @@
 using System;
+using Blacksmith.Core.Characters;
 
 namespace Blacksmith.Core.Adventurers
 {
@@ -18,17 +19,6 @@ namespace Blacksmith.Core.Adventurers
         public int Defense;
     }
 
-    // 각 값은 0부터 센 프리셋·색 번호다. 실제 모델과 색은 표시 쪽에서 번호로 찾는다.
-    [Serializable]
-    public struct AdventurerAppearance
-    {
-        public int HairPreset;
-        public int EyePreset;
-        public int MouthPreset;
-        public int HairColor;
-        public int SkinColor;
-    }
-
     // 모험가 한 명의 원본 정보다. 광장, 파견, 전투가 모두 이 형식을 기준으로 삼는다.
     public sealed class AdventurerData
     {
@@ -43,7 +33,7 @@ namespace Blacksmith.Core.Adventurers
         public int Level { get; set; }
         // 현재 레벨에서 쌓은 경험치다. 레벨이 오르면 필요 경험치만큼 빠지고 나머지가 남는다.
         public int Experience { get; set; }
-        public AdventurerAppearance Appearance { get; set; }
+        public HumanoidAppearance Appearance { get; set; }
         // 1레벨 기준 값이다. 현재 레벨의 값은 AdventurerStatRules로 구한다.
         public AdventurerStats BaseStats { get; set; }
         public AdventurerStats GrowthStats { get; set; }

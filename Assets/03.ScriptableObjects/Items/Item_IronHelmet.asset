@@ -24,3 +24,4 @@ MonoBehaviour:
     MaxHp: 20
     Attack: 0
     Defense: 3
+  _wornPart: Hat_Helmet

@@ -1,4 +1,5 @@
 using Blacksmith.Core.Adventurers;
+using Blacksmith.Core.Characters;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,7 +19,7 @@ namespace Blacksmith.Plaza
         {
             AdventurerStats stats = AdventurerStatRules.GetCurrentStats(adventurer);
             AdventurerStats growth = adventurer.GrowthStats;
-            AdventurerAppearance appearance = adventurer.Appearance;
+            HumanoidAppearance appearance = adventurer.Appearance;
 
             _portrait.enabled = true;
             _portrait.sprite = portrait;
@@ -26,8 +27,8 @@ namespace Blacksmith.Plaza
             _statsText.text = $"체력 {stats.MaxHp} (+{growth.MaxHp})   공격 {stats.Attack} (+{growth.Attack})   방어 {stats.Defense} (+{growth.Defense})";
             // 프리셋 번호는 0부터 세지만 화면에는 1부터 보여 준다.
             _detailText.text =
-                $"헤어 {appearance.HairPreset + 1} · 눈 {appearance.EyePreset + 1} · 입 {appearance.MouthPreset + 1} · " +
-                $"머리색 {appearance.HairColor + 1} · 피부색 {appearance.SkinColor + 1}\n" +
+                $"헤어 {appearance.HairStyle + 1} · 눈 {appearance.EyeStyle + 1} · 입 {appearance.MouthStyle + 1} · " +
+                $"머리색 {appearance.HairColor + 1} · 피부색 {appearance.SkinColor + 1} · 의상 {appearance.Outfit + 1}\n" +
                 $"무기 {AdventurerLabels.GetEquipmentName(adventurer.WeaponId)} · " +
                 $"투구 {AdventurerLabels.GetEquipmentName(adventurer.HelmetId)} · " +
                 $"갑옷 {AdventurerLabels.GetEquipmentName(adventurer.ArmorId)} · " +

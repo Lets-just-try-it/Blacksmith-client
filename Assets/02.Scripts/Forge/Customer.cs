@@ -1,4 +1,6 @@
 using System;
+using Blacksmith.Characters;
+using Blacksmith.Core.Characters;
 using Blacksmith.Core.Sales;
 using Blacksmith.Network;
 using Fusion;
@@ -31,7 +33,10 @@ namespace Blacksmith.Forge
             Leaving,
         }
 
+        [SerializeField] private HumanoidAppearanceView _view;
+
         [Networked] public Stage CurrentStage { get; private set; }
+        [Networked] public NetworkHumanoidAppearance Appearance { get; private set; }
         [Networked] private TickTimer BrowseTimer { get; set; }
 
         private Stop[] _route;
@@ -43,8 +48,10 @@ namespace Blacksmith.Forge
         private Action<Customer> _onGone;
 
         // 스폰되기 전(onBeforeSpawned)에 호스트가 부른다.
-        public void Init(Stop[] route, Vector3 exitPoint, SalesRules rules, System.Random random, GameState gameState, Action<Customer> onGone)
+        public void Init(Stop[] route, Vector3 exitPoint, HumanoidAppearance appearance, SalesRules rules, System.Random random,
+            GameState gameState, Action<Customer> onGone)
         {
+            Appearance = NetworkHumanoidAppearance.FromAppearance(appearance);
             _route = route;
             _exitPoint = exitPoint;
             _rules = rules;
@@ -55,6 +62,7 @@ namespace Blacksmith.Forge
 
         public override void Spawned()
         {
+            _view.Apply(Appearance.ToAppearance());
             if (HasStateAuthority)
             {
                 CurrentStage = _route.Length > 0 ? Stage.Entering : Stage.Leaving;

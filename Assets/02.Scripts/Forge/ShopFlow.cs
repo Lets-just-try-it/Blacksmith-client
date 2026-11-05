@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Blacksmith.Characters;
 using Blacksmith.Core;
+using Blacksmith.Core.Characters;
 using Blacksmith.Core.Sales;
 using Blacksmith.Network;
 using Fusion;
@@ -20,9 +22,12 @@ namespace Blacksmith.Forge
         [SerializeField] private Transform _entrance;
         [Tooltip("진열대 말고 손님이 구경하러 들르는 빈 자리들")]
         [SerializeField] private Transform[] _wanderPoints;
+        [Tooltip("손님 외형을 뽑는 목록. 손님은 모든 의상에서 고른다")]
+        [SerializeField] private HumanoidLookData _look;
 
         private readonly List<Customer> _customers = new List<Customer>();
         private SalesRules _rules;
+        private HumanoidAppearanceRules _appearanceRules;
         private System.Random _random;
         private TickTimer _spawnTimer;
 
@@ -36,6 +41,7 @@ namespace Blacksmith.Forge
             }
 
             _rules = _rulesData.ToRules();
+            _appearanceRules = _look.ToRules(null);
             _random = new System.Random(Environment.TickCount);
             _spawnTimer = TickTimer.CreateFromSeconds(Runner, _rules.CustomerInterval);
         }
@@ -82,10 +88,11 @@ namespace Blacksmith.Forge
             }
 
             Vector3 entrance = _entrance.position;
+            HumanoidAppearance appearance = HumanoidAppearanceGenerator.Generate(_random, _appearanceRules);
             Runner.Spawn(_customerPrefab, entrance + Vector3.up, Quaternion.identity, null, (runner, spawned) =>
             {
                 var customer = spawned.GetComponent<Customer>();
-                customer.Init(route, entrance, _rules, _random, _gameState, OnCustomerGone);
+                customer.Init(route, entrance, appearance, _rules, _random, _gameState, OnCustomerGone);
                 _customers.Add(customer);
             });
         }

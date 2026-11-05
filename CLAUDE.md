@@ -54,6 +54,7 @@ Assets/
     Battle/      # 자동 전투, 몬스터, 던전
     Inventory/   # 개인·공용 인벤토리, 손에 들 슬롯 선택, 아이템 정의
     Dialogue/    # 영역 공통 대화: NPC 대화, 함께 보는 대화(컷씬·튜토리얼), 대화창
+    Characters/  # 영역 공통 인간형 캐릭터: 외형 목록, 외형 적용, 모험가 모습, 걷기 동작
     UI/
     Utils/
     Editor/      # 에디터 전용 스크립트 (빌드에 포함되지 않음)
@@ -66,6 +67,7 @@ Assets/
     Monsters/
     Dungeons/
     Dialogues/   # 대사 데이터, 화자, 함께 보는 대화 목록
+    Characters/  # 인간형 외형 목록(헤어·눈·입·색·의상·모자)
     Runtime/     # 런타임 상태를 잇는 에셋 (입력 잠금, 대화 채널 등). 밸런스 수치가 아니다
 
   04.Prefabs/
@@ -77,6 +79,7 @@ Assets/
     Effects/
 
   05.Art/
+    Models/      # 3D 모델 원본(FBX)
     Sprites/
     Animations/
     Materials/

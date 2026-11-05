@@ -1,5 +1,6 @@
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
+using Blacksmith.Core.Characters;
 using NUnit.Framework;
 
 namespace Blacksmith.Tests
@@ -95,14 +96,20 @@ namespace Blacksmith.Tests
                             Attack = new IntRange(2, 4),
                             Defense = new IntRange(1, 2),
                         },
+                        DefaultWeaponId = 1,
+                        DefaultWeaponGrade = 1,
                     },
                 },
                 StartLevel = 1,
-                HairPresetCount = 1,
-                EyePresetCount = 1,
-                MouthPresetCount = 1,
-                HairColorCount = 1,
-                SkinColorCount = 1,
+                Appearance = new HumanoidAppearanceRules
+                {
+                    HairStyleCount = 1,
+                    EyeStyleCount = 1,
+                    MouthStyleCount = 1,
+                    HairColorCount = 1,
+                    SkinColorCount = 1,
+                    OutfitCount = 1,
+                },
                 CandidateCount = new IntRange(1, 1),
             };
 

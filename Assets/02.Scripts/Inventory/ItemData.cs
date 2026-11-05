@@ -31,6 +31,8 @@ namespace Blacksmith.Inventory
         [SerializeField] private WeaponType _weaponType;
         [Tooltip("장비일 때만 쓴다. 입은 모험가의 체력·공격력·방어력에 더하는 기본 보정. 등급 배수는 EquipmentStats 데이터에 있다")]
         [SerializeField] private AdventurerStats _statBonus;
+        [Tooltip("투구·무기일 때만 쓴다. 입었을 때 켤 인간형 모델 파츠(Hero.fbx 안의 오브젝트 이름). 투구는 외형 목록(HumanoidLook)의 모자에도 있어야 한다. 비우면 모습에 나오지 않는다")]
+        [SerializeField] private string _wornPart = "";
 
         public int ItemId => _itemId;
         public string DisplayName => _displayName;
@@ -41,6 +43,7 @@ namespace Blacksmith.Inventory
         public EquipmentSlot EquipmentSlot => _kind == ItemKind.Equipment ? _equipmentSlot : EquipmentSlot.None;
         public WeaponType WeaponType => EquipmentSlot == EquipmentSlot.Weapon ? _weaponType : WeaponType.None;
         public AdventurerStats StatBonus => _kind == ItemKind.Equipment ? _statBonus : default;
+        public string WornPart => _kind == ItemKind.Equipment ? _wornPart : "";
         // 재료만 한 칸에 쌓는다. 장비와 중간 형태는 한 칸에 하나다.
         public bool IsStackable => _kind == ItemKind.Material;
     }

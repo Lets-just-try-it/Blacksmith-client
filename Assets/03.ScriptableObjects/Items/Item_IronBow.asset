@@ -24,3 +24,4 @@ MonoBehaviour:
     MaxHp: 0
     Attack: 10
     Defense: 0
+  _wornPart: Weapon_Bow_B_Held

@@ -36,3 +36,5 @@ MonoBehaviour:
       Max: 2
   _skillIds: 01000000
   _weaponType: 2
+  _defaultWeapon: {fileID: 11400000, guid: 94ef21ce84d422e449ab11f943bd4bfb, type: 2}
+  _defaultWeaponGrade: 1

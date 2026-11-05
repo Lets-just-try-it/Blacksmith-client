@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Blacksmith.Core.Characters;
 
 namespace Blacksmith.Core.Adventurers
 {
@@ -38,6 +39,9 @@ namespace Blacksmith.Core.Adventurers
         public AdventurerStatRange GrowthStats { get; set; }
         // 비어 있으면 스킬 없이 생성한다.
         public IReadOnlyList<int> SkillIds { get; set; } = Array.Empty<int>();
+        // 영입 후보가 처음부터 들고 있는 무기의 아이템 번호와 등급. 모험가는 맨손으로 생성되지 않는다.
+        public int DefaultWeaponId { get; set; }
+        public int DefaultWeaponGrade { get; set; }
     }
 
     // 밸런스 수치는 ScriptableObject에서 읽어 넘긴다.
@@ -46,11 +50,7 @@ namespace Blacksmith.Core.Adventurers
         public IReadOnlyList<string> Names { get; set; }
         public IReadOnlyList<AdventurerJobRules> Jobs { get; set; }
         public int StartLevel { get; set; }
-        public int HairPresetCount { get; set; }
-        public int EyePresetCount { get; set; }
-        public int MouthPresetCount { get; set; }
-        public int HairColorCount { get; set; }
-        public int SkinColorCount { get; set; }
+        public HumanoidAppearanceRules Appearance { get; set; }
         // 광장에 한 번에 나오는 영입 후보 수
         public IntRange CandidateCount { get; set; }
     }
