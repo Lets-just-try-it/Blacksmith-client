@@ -1678,7 +1678,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgeTestStarter
   _bootstrap: {fileID: 0}
   _inventory: {fileID: 2082279646}
-  _supplyItem: {fileID: 11400000, guid: aea1a5cef7898394e83cbc803ed180ce, type: 2}
+  _supplyItem: {fileID: 11400000, guid: 06a4ba720df9b634080e6cd430474cfd, type: 2}
   _supplyCount: 10
   _roster: {fileID: 944958973}
   _generation: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}

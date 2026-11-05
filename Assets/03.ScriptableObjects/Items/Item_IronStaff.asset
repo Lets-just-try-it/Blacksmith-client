@@ -17,7 +17,7 @@ MonoBehaviour:
   _icon: {fileID: 0}
   _color: {r: 0.55, g: 0.45, b: 0.85, a: 1}
   _kind: 2
-  _tier: 1
+  _tier: 2
   _equipmentSlot: 1
   _weaponType: 3
   _statBonus:

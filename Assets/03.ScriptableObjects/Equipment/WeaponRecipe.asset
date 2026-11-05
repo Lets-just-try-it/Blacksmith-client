@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e59036c743440542a8abed1fbc6a3f4, type: 3}
   m_Name: WeaponRecipe
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.CraftingRecipeData
-  _displayName: "\uCCA0\uAC80"
+  _displayName: "\uAD6C\uB9AC \uB300\uAC80"
   _steps:
   - Station: 0
-    Input: {fileID: 11400000, guid: aea1a5cef7898394e83cbc803ed180ce, type: 2}
-    Output: {fileID: 11400000, guid: 610fbc0ce5fa3a04a8286aba074dd77a, type: 2}
+    Input: {fileID: 11400000, guid: 06a4ba720df9b634080e6cd430474cfd, type: 2}
+    Output: {fileID: 11400000, guid: a6b9c544fb1db6e43b6673b369be3f84, type: 2}
   - Station: 1
-    Input: {fileID: 11400000, guid: 610fbc0ce5fa3a04a8286aba074dd77a, type: 2}
-    Output: {fileID: 11400000, guid: 617ac2e300158e74b8ae32c96eabec60, type: 2}
+    Input: {fileID: 11400000, guid: a6b9c544fb1db6e43b6673b369be3f84, type: 2}
+    Output: {fileID: 11400000, guid: d1374daeb3a06da4995d7ebba1afb04e, type: 2}
   - Station: 2
-    Input: {fileID: 11400000, guid: 617ac2e300158e74b8ae32c96eabec60, type: 2}
-    Output: {fileID: 11400000, guid: 17ac7d858ffb3524a9b784c7a936fe16, type: 2}
+    Input: {fileID: 11400000, guid: d1374daeb3a06da4995d7ebba1afb04e, type: 2}
+    Output: {fileID: 11400000, guid: 0ff346028c30c8e449a5fb48d029e179, type: 2}
   - Station: 3
-    Input: {fileID: 11400000, guid: 17ac7d858ffb3524a9b784c7a936fe16, type: 2}
-    Output: {fileID: 11400000, guid: c26abfa5ffa34f74ca5830bbd285d9ea, type: 2}
+    Input: {fileID: 11400000, guid: 0ff346028c30c8e449a5fb48d029e179, type: 2}
+    Output: {fileID: 11400000, guid: d56aa68ecc48bcd4cafecabbebb2fa0d, type: 2}

@@ -17,7 +17,7 @@ MonoBehaviour:
     Difficulty: 0
   - BasePrice: 5000
     Difficulty: 1
-  - BasePrice: 25000
+  - BasePrice: 15000
     Difficulty: 2
   _gradeMultipliers:
   - 0.5

@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Item_IronSword
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Inventory.ItemData
   _itemId: 3
-  _displayName: "\uCCA0\uAC80"
+  _displayName: "\uCCA0 \uB300\uAC80"
   _icon: {fileID: 0}
   _color: {r: 0.85, g: 0.35, b: 0.3, a: 1}
   _kind: 2
-  _tier: 1
+  _tier: 2
   _equipmentSlot: 1
   _weaponType: 1
   _statBonus:
