@@ -13,43 +13,66 @@ namespace Blacksmith.Core.Battle
         public int[] MaterialIds;
     }
 
-    // 스테이지 하나에서 나온 재료다. Materials는 에메랄드 효과를 받는 광석·부재료, Gems는 받지 않는 보석이다.
-    public sealed class StageLoot
+    // 몬스터 한 마리가 떨어뜨린 재료다. Materials는 에메랄드 효과를 받는 광석·부재료, Gems는 받지 않는 보석이다.
+    public sealed class MonsterLoot
     {
         public IReadOnlyList<MaterialReward> Materials { get; }
         public IReadOnlyList<MaterialReward> Gems { get; }
 
-        public StageLoot(IReadOnlyList<MaterialReward> materials, IReadOnlyList<MaterialReward> gems)
+        public MonsterLoot(IReadOnlyList<MaterialReward> materials, IReadOnlyList<MaterialReward> gems)
         {
             Materials = materials;
             Gems = gems;
         }
     }
 
-    // 스테이지 재료 드랍을 정한다 (docs/GAME_CONCEPT.md 7.1 "보상과 경험치").
+    // 웨이브 하나에서 나온 재료다. Monsters는 그 웨이브에 나온 몬스터와 같은 순서다.
+    public sealed class WaveLoot
+    {
+        public IReadOnlyList<MonsterLoot> Monsters { get; }
+
+        public WaveLoot(IReadOnlyList<MonsterLoot> monsters)
+        {
+            Monsters = monsters;
+        }
+    }
+
+    // 몬스터마다 재료 드랍을 굴린다 (docs/GAME_CONCEPT.md 7.1 "보상과 경험치").
+    // 몬스터가 많고 웨이브가 많을수록 굴리는 횟수가 늘어 기대 드랍도 는다.
     // 같은 시드면 같은 결과라, 결과창 보상과 전투 화면의 드랍 연출이 같은 값을 쓴다.
     public static class BattleDropRules
     {
         // 전투 시뮬레이션과 같은 시드를 쓰되 다른 난수열이 나오게 섞는 값이다. 밸런스 수치가 아니다.
         private const int SeedSalt = 0x5EED_D20B;
 
-        // 싸운 모든 스테이지를 순서대로 굴린다. 클리어하지 못한 스테이지의 결과는 받는 쪽이 버린다.
-        public static IReadOnlyList<StageLoot> Roll(IReadOnlyList<StageReward> stages, int seed)
+        // 싸운 모든 웨이브를 순서대로 굴린다. 클리어하지 못한 웨이브의 결과는 받는 쪽이 버린다.
+        public static IReadOnlyList<WaveLoot> Roll(IReadOnlyList<WaveReward> waves, int seed)
         {
             var random = new Random(seed ^ SeedSalt);
-            var loots = new List<StageLoot>(stages.Count);
-            foreach (StageReward stage in stages)
+            var loots = new List<WaveLoot>(waves.Count);
+            foreach (WaveReward wave in waves)
             {
-                var materials = new List<MaterialReward>();
-                MaterialMath.AddAll(materials, stage.Materials);
-                RollAll(materials, stage.ChanceDrops, random);
+                var monsters = new List<MonsterLoot>(wave.Monsters.Count);
+                foreach (MonsterReward monster in wave.Monsters)
+                {
+                    monsters.Add(RollMonster(monster, random));
+                }
 
-                var gems = new List<MaterialReward>();
-                RollAll(gems, stage.GemDrops, random);
-                loots.Add(new StageLoot(materials, gems));
+                loots.Add(new WaveLoot(monsters));
             }
 
             return loots;
+        }
+
+        private static MonsterLoot RollMonster(MonsterReward monster, Random random)
+        {
+            var materials = new List<MaterialReward>();
+            MaterialMath.AddAll(materials, monster.Materials);
+            RollAll(materials, monster.ChanceDrops, random);
+
+            var gems = new List<MaterialReward>();
+            RollAll(gems, monster.GemDrops, random);
+            return new MonsterLoot(materials, gems);
         }
 
         private static void RollAll(List<MaterialReward> total, IReadOnlyList<ChanceDrop> drops, Random random)

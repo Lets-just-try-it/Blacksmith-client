@@ -7,9 +7,9 @@ namespace Blacksmith.Tests
     {
         private const int StageCount = 3;
 
-        private static BattleResult Result(bool isVictory, int stagesCleared)
+        private static BattleResult Result(bool isVictory, int wavesCleared)
         {
-            return new BattleResult(isVictory, stagesCleared, 0, new AdventurerBattleResult[0]);
+            return new BattleResult(isVictory, wavesCleared, 0, new AdventurerBattleResult[0]);
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace Blacksmith.Tests
         [Test]
         public void DefeatInNextStage_KeepsProgress()
         {
-            Assert.AreEqual(1, DungeonProgressRules.ApplyResult(1, 1, Result(false, 0)));
+            Assert.AreEqual(1, DungeonProgressRules.ApplyResult(1, 1, Result(false, 2)));
         }
 
         [Test]

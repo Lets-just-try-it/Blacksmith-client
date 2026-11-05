@@ -96,7 +96,7 @@ namespace Blacksmith.Battle
             if (HasStateAuthority)
             {
                 ClearedStages.Set(outcome.DungeonId,
-                    DungeonProgressRules.ApplyResult(GetClearedStages(outcome.DungeonId), outcome.FirstStage, outcome.Result));
+                    DungeonProgressRules.ApplyResult(GetClearedStages(outcome.DungeonId), outcome.Stage, outcome.Result));
             }
         }
     }

@@ -13,7 +13,7 @@ namespace Blacksmith.Core.Battle
         private readonly List<BattleUnit> _units = new List<BattleUnit>();
         private readonly List<BattleEvent> _events = new List<BattleEvent>();
 
-        private int _stageIndex = -1;
+        private int _waveIndex = -1;
 
         public BattleSimulation(BattleSetup setup)
         {
@@ -25,7 +25,7 @@ namespace Blacksmith.Core.Battle
 
         public IReadOnlyList<BattleUnit> Units => _units;
         public int Tick { get; private set; }
-        public int StageIndex => _stageIndex;
+        public int WaveIndex => _waveIndex;
         public bool IsFinished => Result != null;
         public BattleResult Result { get; private set; }
 
@@ -37,9 +37,9 @@ namespace Blacksmith.Core.Battle
                 return _events;
             }
 
-            if (_stageIndex < 0)
+            if (_waveIndex < 0)
             {
-                if (!TryStartNextStage())
+                if (!TryStartNextWave())
                 {
                     return _events;
                 }
@@ -99,7 +99,7 @@ namespace Blacksmith.Core.Battle
 
                 int row = isMelee ? groupRow : meleeRows + groupRow;
                 int lane = GetCenteredLane(slot, GetRowSize(groupCount, maxRowSize, groupRow));
-                _units.Add(new BattleUnit(_units.Count, BattleTeam.Adventurer, adventurer.AdventurerId, -1, lane,
+                _units.Add(new BattleUnit(_units.Count, BattleTeam.Adventurer, adventurer.AdventurerId, -1, -1, lane,
                     adventurer.Stats, new[] { adventurer.Skill }, default, -row * _rules.FormationSpacing));
             }
         }
@@ -150,7 +150,7 @@ namespace Blacksmith.Core.Battle
             return rowIndex;
         }
 
-        private bool TryStartNextStage()
+        private bool TryStartNextWave()
         {
             if (!HasAliveTeam(BattleTeam.Adventurer))
             {
@@ -158,23 +158,23 @@ namespace Blacksmith.Core.Battle
                 return false;
             }
 
-            if (_stageIndex + 1 >= _setup.Stages.Count)
+            if (_waveIndex + 1 >= _setup.Waves.Count)
             {
                 Finish(true);
                 return false;
             }
 
-            _stageIndex++;
-            int spawnBase = FrontAdventurerPosition() + _rules.StageSpawnDistance;
-            StageSetup stage = _setup.Stages[_stageIndex];
-            for (int i = 0; i < stage.Monsters.Count; i++)
+            _waveIndex++;
+            int spawnBase = FrontAdventurerPosition() + _rules.WaveSpawnDistance;
+            WaveSetup wave = _setup.Waves[_waveIndex];
+            for (int i = 0; i < wave.Monsters.Count; i++)
             {
-                MonsterSetup monster = stage.Monsters[i];
-                _units.Add(new BattleUnit(_units.Count, BattleTeam.Monster, monster.MonsterId, _stageIndex,
-                    GetCenteredLane(i, stage.Monsters.Count), monster.Stats, monster.Skills, monster.Enrage, spawnBase + monster.SpawnOffset));
+                MonsterSetup monster = wave.Monsters[i];
+                _units.Add(new BattleUnit(_units.Count, BattleTeam.Monster, monster.MonsterId, _waveIndex, i,
+                    GetCenteredLane(i, wave.Monsters.Count), monster.Stats, monster.Skills, monster.Enrage, spawnBase + monster.SpawnOffset));
             }
 
-            _events.Add(new BattleEvent(BattleEventType.StageStarted, BattleEvent.NoUnit, BattleEvent.NoUnit, _stageIndex));
+            _events.Add(new BattleEvent(BattleEventType.WaveStarted, BattleEvent.NoUnit, BattleEvent.NoUnit, _waveIndex));
             return true;
         }
 
@@ -188,9 +188,9 @@ namespace Blacksmith.Core.Battle
 
             if (!HasAliveTeam(BattleTeam.Monster))
             {
-                CreditStageClear();
-                _events.Add(new BattleEvent(BattleEventType.StageCleared, BattleEvent.NoUnit, BattleEvent.NoUnit, _stageIndex));
-                TryStartNextStage();
+                CreditWaveClear();
+                _events.Add(new BattleEvent(BattleEventType.WaveCleared, BattleEvent.NoUnit, BattleEvent.NoUnit, _waveIndex));
+                TryStartNextWave();
                 return;
             }
 
@@ -200,13 +200,13 @@ namespace Blacksmith.Core.Battle
             }
         }
 
-        private void CreditStageClear()
+        private void CreditWaveClear()
         {
             for (int i = 0; i < _units.Count; i++)
             {
                 if (_units[i].Team == BattleTeam.Adventurer && _units[i].IsAlive)
                 {
-                    _units[i].StagesCleared++;
+                    _units[i].WavesCleared++;
                 }
             }
         }
@@ -434,7 +434,7 @@ namespace Blacksmith.Core.Battle
 
         private void Finish(bool isVictory)
         {
-            int stagesCleared = isVictory ? _setup.Stages.Count : Math.Max(0, _stageIndex);
+            int wavesCleared = isVictory ? _setup.Waves.Count : Math.Max(0, _waveIndex);
             // 모험가는 SpawnAdventurers에서 설정 순서대로 먼저 넣었으므로 _units의 앞쪽 번호가 설정 번호와 같다.
             var adventurers = new List<AdventurerBattleResult>();
             for (int i = 0; i < _setup.Adventurers.Count; i++)
@@ -443,10 +443,10 @@ namespace Blacksmith.Core.Battle
                 bool isDead = unit.IsFallen && BattleFormulas.RollDeath(_rules.DeathChancePercent, _random);
                 bool isAccessoryBroken = isDead && TryDeathImmunity(_setup.Adventurers[i].Accessory);
                 adventurers.Add(new AdventurerBattleResult(unit.SourceId, unit.IsFallen, isDead && !isAccessoryBroken,
-                    unit.DamageDealt, unit.StagesCleared, isAccessoryBroken));
+                    unit.DamageDealt, unit.WavesCleared, isAccessoryBroken));
             }
 
-            Result = new BattleResult(isVictory, stagesCleared, Tick, adventurers);
+            Result = new BattleResult(isVictory, wavesCleared, Tick, adventurers);
             _events.Add(new BattleEvent(BattleEventType.BattleEnded, BattleEvent.NoUnit, BattleEvent.NoUnit, isVictory ? 1 : 0));
         }
 

@@ -139,7 +139,8 @@ namespace Blacksmith.Battle
         {
             yield return new WaitForSeconds(_resultDelay);
             _resultView.Show(result, _rewards, _battleState.CurrentDungeon.DisplayName,
-                _battleState.FirstStage, _battleState.LastStage, id => _channel.FindAdventurer(id)?.Name ?? id.ToString(),
+                DungeonMapLabels.GetStageName(_battleState.CurrentDungeon, _battleState.Stage),
+                _battleState.CurrentSetup.Waves.Count, id => _channel.FindAdventurer(id)?.Name ?? id.ToString(),
                 GetItemName, _battleState.HasStateAuthority);
         }
 
@@ -157,8 +158,8 @@ namespace Blacksmith.Battle
 
         private void PassResult(BattleResult result, BattleRewards rewards)
         {
-            Debug.Log($"전투 결과 반영: {(result.IsVictory ? "승리" : "패배")}, 스테이지 {result.StagesCleared}개, 골드 {rewards.Gold}");
-            _channel.ConfirmResult(new BattleOutcome { DungeonId = _battleState.DungeonId, FirstStage = _battleState.FirstStage, Result = result, Rewards = rewards });
+            Debug.Log($"전투 결과 반영: {(result.IsVictory ? "승리" : "패배")}, 웨이브 {result.WavesCleared}개, 골드 {rewards.Gold}");
+            _channel.ConfirmResult(new BattleOutcome { DungeonId = _battleState.DungeonId, Stage = _battleState.Stage, Result = result, Rewards = rewards });
         }
     }
 }

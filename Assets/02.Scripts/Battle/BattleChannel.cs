@@ -21,8 +21,8 @@ namespace Blacksmith.Battle
     public sealed class BattleOutcome
     {
         public int DungeonId { get; set; }
-        // 싸운 첫 스테이지. 진행 상황은 여기에 클리어한 스테이지 수를 더해 정한다.
-        public int FirstStage { get; set; }
+        // 싸운 스테이지. 승리하면 이 스테이지까지 클리어한 것으로 진행 상황을 정한다.
+        public int Stage { get; set; }
         public BattleResult Result { get; set; }
         public BattleRewards Rewards { get; set; }
     }

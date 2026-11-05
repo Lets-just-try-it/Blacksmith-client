@@ -21,6 +21,7 @@ namespace Blacksmith.Battle
         public int MonsterId => _monsterId;
         public string DisplayName => _displayName;
         public bool IsBoss => _isBoss;
+        public int AttackRange => _stats.AttackRange;
         public BattleUnitView ViewPrefab => _viewPrefab;
 
         public MonsterSetup ToSetup(int spawnOffset)

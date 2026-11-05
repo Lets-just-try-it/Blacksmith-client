@@ -18,7 +18,9 @@ namespace Blacksmith.Core.Battle
         public BattleTeam Team { get; }
         // 모험가는 AdventurerId, 몬스터는 MonsterId다. 연출에서 외형과 이펙트를 찾는 데 쓴다.
         public int SourceId { get; }
-        public int StageIndex { get; }
+        public int WaveIndex { get; }
+        // 웨이브 안에서 몇 번째로 나온 몬스터인지. 몬스터별 드랍을 찾는 데 쓴다. 모험가는 -1이다.
+        public int WaveSlot { get; }
         // 옆으로 선 자리. 연출만 쓴다. 반 칸 단위이고 0이 길 가운데라, 줄마다 가운데에 맞춰 설 수 있다(2명 → -1, 1 / 3명 → -2, 0, 2).
         public int Lane { get; }
         // 분노하면 공격력과 공격 간격이 바뀐다.
@@ -32,16 +34,17 @@ namespace Blacksmith.Core.Battle
         public bool IsFallen { get; internal set; }
         public bool IsEnraged { get; internal set; }
         public int DamageDealt { get; internal set; }
-        // 쓰러지지 않은 채 클리어한 스테이지 수다. 경험치 계산에 쓴다.
-        public int StagesCleared { get; internal set; }
+        // 쓰러지지 않은 채 클리어한 웨이브 수다. 경험치 계산에 쓴다.
+        public int WavesCleared { get; internal set; }
 
-        internal BattleUnit(int unitId, BattleTeam team, int sourceId, int stageIndex, int lane,
+        internal BattleUnit(int unitId, BattleTeam team, int sourceId, int waveIndex, int waveSlot, int lane,
             UnitStats stats, IReadOnlyList<SkillData> skills, EnrageData enrage, int position)
         {
             UnitId = unitId;
             Team = team;
             SourceId = sourceId;
-            StageIndex = stageIndex;
+            WaveIndex = waveIndex;
+            WaveSlot = waveSlot;
             Lane = lane;
             Stats = stats;
             _skills = skills ?? Array.Empty<SkillData>();

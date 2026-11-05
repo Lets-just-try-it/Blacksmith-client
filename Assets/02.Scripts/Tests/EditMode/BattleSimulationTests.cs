@@ -15,7 +15,7 @@ namespace Blacksmith.Tests
                 MaxTicks = 20000,
                 MarchSpeed = 10,
                 FormationSpacing = 100,
-                StageSpawnDistance = 1000,
+                WaveSpawnDistance = 1000,
                 DamageVariancePercent = 10,
                 DeathChancePercent = 30,
             };
@@ -37,11 +37,11 @@ namespace Blacksmith.Tests
             };
         }
 
-        private static StageSetup Stage(bool isBoss, params MonsterSetup[] monsters)
+        private static WaveSetup Wave(bool isBoss, params MonsterSetup[] monsters)
         {
-            var stage = new StageSetup { IsBoss = isBoss };
-            stage.Monsters.AddRange(monsters);
-            return stage;
+            var wave = new WaveSetup { IsBoss = isBoss };
+            wave.Monsters.AddRange(monsters);
+            return wave;
         }
 
         private static MonsterSetup Monster(int id, int hp, int attack, int offset = 0)
@@ -64,9 +64,9 @@ namespace Blacksmith.Tests
                 Stats = Stats(200, adventurerAttack, 400),
                 Skill = new SkillData { Kind = SkillKind.HealLowestAlly, PowerPercent = 150 },
             });
-            setup.Stages.Add(Stage(false, Monster(10, 80, monsterAttack), Monster(10, 80, monsterAttack, 150)));
-            setup.Stages.Add(Stage(false, Monster(11, 120, monsterAttack), Monster(11, 120, monsterAttack, 150)));
-            setup.Stages.Add(Stage(true, Monster(20, 600, monsterAttack * 2)));
+            setup.Waves.Add(Wave(false, Monster(10, 80, monsterAttack), Monster(10, 80, monsterAttack, 150)));
+            setup.Waves.Add(Wave(false, Monster(11, 120, monsterAttack), Monster(11, 120, monsterAttack, 150)));
+            setup.Waves.Add(Wave(true, Monster(20, 600, monsterAttack * 2)));
             return setup;
         }
 
@@ -216,28 +216,28 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void StrongParty_ClearsAllStages()
+        public void StrongParty_ClearsAllWaves()
         {
             BattleResult result = new BattleSimulation(CreateSetup(1, 60, 5)).RunToEnd();
 
             Assert.IsTrue(result.IsVictory);
-            Assert.AreEqual(3, result.StagesCleared);
+            Assert.AreEqual(3, result.WavesCleared);
         }
 
         [Test]
-        public void StrongParty_EveryAdventurerClearsAllStages()
+        public void StrongParty_EveryAdventurerClearsAllWaves()
         {
             BattleResult result = new BattleSimulation(CreateSetup(1, 60, 5)).RunToEnd();
 
             foreach (AdventurerBattleResult adventurer in result.Adventurers)
             {
                 Assert.IsFalse(adventurer.IsInjured);
-                Assert.AreEqual(3, adventurer.StagesCleared);
+                Assert.AreEqual(3, adventurer.WavesCleared);
             }
         }
 
         [Test]
-        public void AdventurerStagesCleared_CountsOnlyClearsBeforeFalling()
+        public void AdventurerWavesCleared_CountsOnlyClearsBeforeFalling()
         {
             // 이 시드에서는 모험가 1이 중간에 쓰러지고 모험가 2가 끝까지 남아 승리한다.
             var simulation = new BattleSimulation(CreateSetup(1, 15, 10));
@@ -258,7 +258,7 @@ namespace Blacksmith.Tests
                         fallen.Add(fellId);
                     }
 
-                    if (e.Type == BattleEventType.StageCleared)
+                    if (e.Type == BattleEventType.WaveCleared)
                     {
                         foreach (int adventurerId in new[] { 1, 2 })
                         {
@@ -273,8 +273,8 @@ namespace Blacksmith.Tests
 
             foreach (AdventurerBattleResult adventurer in simulation.Result.Adventurers)
             {
-                Assert.AreEqual(expected[adventurer.AdventurerId], adventurer.StagesCleared);
-                Assert.LessOrEqual(adventurer.StagesCleared, simulation.Result.StagesCleared);
+                Assert.AreEqual(expected[adventurer.AdventurerId], adventurer.WavesCleared);
+                Assert.LessOrEqual(adventurer.WavesCleared, simulation.Result.WavesCleared);
             }
 
             Assert.AreNotEqual(expected[1], expected[2]);
@@ -330,7 +330,7 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void HpAndMana_CarryOverToNextStage()
+        public void HpAndMana_CarryOverToNextWave()
         {
             BattleSetup setup = CreateSetup(5, 30, 12);
             setup.Adventurers.RemoveAt(1);
@@ -339,7 +339,7 @@ namespace Blacksmith.Tests
             {
                 foreach (BattleEvent e in simulation.Step())
                 {
-                    if (e.Type == BattleEventType.StageStarted && e.Amount > 0)
+                    if (e.Type == BattleEventType.WaveStarted && e.Amount > 0)
                     {
                         Assert.Less(simulation.Units[0].Hp, simulation.Units[0].Stats.MaxHp);
                         return;
@@ -347,7 +347,7 @@ namespace Blacksmith.Tests
                 }
             }
 
-            Assert.Fail("두 번째 스테이지가 시작되지 않았다.");
+            Assert.Fail("두 번째 웨이브가 시작되지 않았다.");
         }
 
         [Test]
@@ -380,7 +380,7 @@ namespace Blacksmith.Tests
         {
             var setup = new BattleSetup { Seed = 11, Rules = CreateRules() };
             setup.Adventurers.Add(new AdventurerSetup { AdventurerId = 1, Stats = Stats(100000, adventurerAttack, maxMana: 0) });
-            setup.Stages.Add(Stage(true, boss));
+            setup.Waves.Add(Wave(true, boss));
             return setup;
         }
 
