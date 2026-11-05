@@ -71,7 +71,7 @@ namespace Blacksmith.Core.Battle
         // 근접은 앞줄, 원거리는 그 뒷줄에 나란히 선다. 한쪽만 있으면 그쪽만 선다.
         // 한 종류가 MaxRowSize명을 넘으면 그 종류끼리 줄을 나누되 고르게 나눈다(4명 → 2 / 2, 5명 → 3 / 2).
         // 예: 근접 4·원거리 1 → 2 / 2 / 1, 근접 1·원거리 4 → 1 / 2 / 2, 근접 3·원거리 2 → 3 / 2.
-        // 줄 안에서는 사거리가 짧은 순, 같으면 파티 순서로 옆으로 늘어서고, 짧은 줄은 가장 긴 줄의 가운데에 맞춘다.
+        // 줄 안에서는 사거리가 짧은 순, 같으면 파티 순서로 옆으로 늘어서고, 줄마다 길 가운데에 맞춘다.
         // 유닛 번호와 결과 순서는 파티 순서 그대로다.
         private void SpawnAdventurers()
         {
@@ -84,7 +84,6 @@ namespace Blacksmith.Core.Battle
 
             int rangedCount = _setup.Adventurers.Count - meleeCount;
             int meleeRows = GetRowCount(meleeCount, maxRowSize);
-            int widest = Math.Max(GetRowSize(meleeCount, maxRowSize, 0), GetRowSize(rangedCount, maxRowSize, 0));
             for (int i = 0; i < _setup.Adventurers.Count; i++)
             {
                 AdventurerSetup adventurer = _setup.Adventurers[i];
@@ -99,10 +98,16 @@ namespace Blacksmith.Core.Battle
                 }
 
                 int row = isMelee ? groupRow : meleeRows + groupRow;
-                int lane = slot + (widest - GetRowSize(groupCount, maxRowSize, groupRow)) / 2;
+                int lane = GetCenteredLane(slot, GetRowSize(groupCount, maxRowSize, groupRow));
                 _units.Add(new BattleUnit(_units.Count, BattleTeam.Adventurer, adventurer.AdventurerId, -1, lane,
                     adventurer.Stats, new[] { adventurer.Skill }, default, -row * _rules.FormationSpacing));
             }
+        }
+
+        // count명이 나란히 설 때 slot번째의 자리(반 칸 단위, 0이 가운데).
+        private static int GetCenteredLane(int slot, int count)
+        {
+            return slot * 2 - (count - 1);
         }
 
         private static int GetRowCount(int count, int maxRowSize)
@@ -165,8 +170,8 @@ namespace Blacksmith.Core.Battle
             for (int i = 0; i < stage.Monsters.Count; i++)
             {
                 MonsterSetup monster = stage.Monsters[i];
-                _units.Add(new BattleUnit(_units.Count, BattleTeam.Monster, monster.MonsterId, _stageIndex, i,
-                    monster.Stats, monster.Skills, monster.Enrage, spawnBase + monster.SpawnOffset));
+                _units.Add(new BattleUnit(_units.Count, BattleTeam.Monster, monster.MonsterId, _stageIndex,
+                    GetCenteredLane(i, stage.Monsters.Count), monster.Stats, monster.Skills, monster.Enrage, spawnBase + monster.SpawnOffset));
             }
 
             _events.Add(new BattleEvent(BattleEventType.StageStarted, BattleEvent.NoUnit, BattleEvent.NoUnit, _stageIndex));
