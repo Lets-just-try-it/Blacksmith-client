@@ -30,11 +30,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9074120ac5b88d443b0982717cc6c7b6, type: 2}
   - {fileID: 11400000, guid: 7ca790a0083a428428639679c2db7c5d, type: 2}
   _startLevel: 1
-  _hairPresetCount: 5
-  _eyePresetCount: 5
-  _mouthPresetCount: 5
-  _hairColorCount: 12
-  _skinColorCount: 5
+  _look: {fileID: 11400000, guid: 3ce850b142f3a1f4199d134d09bd5c96, type: 2}
+  _outfitChoices: 00000000
   _candidateCount:
     Min: 1
     Max: 4

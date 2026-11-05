@@ -1,3 +1,4 @@
+using Blacksmith.Characters;
 using Blacksmith.Core.Adventurers;
 using Fusion;
 
@@ -13,11 +14,7 @@ namespace Blacksmith.Plaza
         public int JobId;
         public int Level;
         public int Experience;
-        public int HairPreset;
-        public int EyePreset;
-        public int MouthPreset;
-        public int HairColor;
-        public int SkinColor;
+        public NetworkHumanoidAppearance Appearance;
         public int BaseMaxHp;
         public int BaseAttack;
         public int BaseDefense;
@@ -44,11 +41,7 @@ namespace Blacksmith.Plaza
                 JobId = data.JobId,
                 Level = data.Level,
                 Experience = data.Experience,
-                HairPreset = data.Appearance.HairPreset,
-                EyePreset = data.Appearance.EyePreset,
-                MouthPreset = data.Appearance.MouthPreset,
-                HairColor = data.Appearance.HairColor,
-                SkinColor = data.Appearance.SkinColor,
+                Appearance = NetworkHumanoidAppearance.FromAppearance(data.Appearance),
                 BaseMaxHp = data.BaseStats.MaxHp,
                 BaseAttack = data.BaseStats.Attack,
                 BaseDefense = data.BaseStats.Defense,
@@ -77,14 +70,7 @@ namespace Blacksmith.Plaza
                 JobId = JobId,
                 Level = Level,
                 Experience = Experience,
-                Appearance = new AdventurerAppearance
-                {
-                    HairPreset = HairPreset,
-                    EyePreset = EyePreset,
-                    MouthPreset = MouthPreset,
-                    HairColor = HairColor,
-                    SkinColor = SkinColor,
-                },
+                Appearance = Appearance.ToAppearance(),
                 BaseStats = new AdventurerStats { MaxHp = BaseMaxHp, Attack = BaseAttack, Defense = BaseDefense },
                 GrowthStats = new AdventurerStats { MaxHp = GrowthMaxHp, Attack = GrowthAttack, Defense = GrowthDefense },
                 SkillId = SkillId,

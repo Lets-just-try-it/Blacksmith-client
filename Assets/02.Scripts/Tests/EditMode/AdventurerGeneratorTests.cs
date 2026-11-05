@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Blacksmith.Core.Adventurers;
+using Blacksmith.Core.Characters;
 using NUnit.Framework;
 
 namespace Blacksmith.Tests
@@ -21,20 +22,29 @@ namespace Blacksmith.Tests
                         BaseStats = CreateStatRange(new IntRange(100, 120), new IntRange(10, 12), new IntRange(8, 10)),
                         GrowthStats = CreateStatRange(new IntRange(3, 5), new IntRange(1, 2), new IntRange(1, 2)),
                         SkillIds = new[] { 11, 12 },
+                        DefaultWeaponId = 101,
+                        DefaultWeaponGrade = 1,
                     },
                     new AdventurerJobRules
                     {
                         JobId = 2,
                         BaseStats = CreateStatRange(new IntRange(60, 70), new IntRange(20, 25), new IntRange(2, 4)),
                         GrowthStats = CreateStatRange(new IntRange(1, 2), new IntRange(3, 4), new IntRange(0, 1)),
+                        DefaultWeaponId = 102,
+                        DefaultWeaponGrade = 2,
                     },
                 },
                 StartLevel = 1,
-                HairPresetCount = 3,
-                EyePresetCount = 4,
-                MouthPresetCount = 2,
-                HairColorCount = 12,
-                SkinColorCount = 5,
+                Appearance = new HumanoidAppearanceRules
+                {
+                    HairStyleCount = 3,
+                    EyeStyleCount = 4,
+                    MouthStyleCount = 2,
+                    HairColorCount = 12,
+                    SkinColorCount = 5,
+                    OutfitCount = 2,
+                    OutfitChoices = new[] { 0 },
+                },
                 CandidateCount = new IntRange(1, 4),
             };
         }
@@ -95,11 +105,7 @@ namespace Blacksmith.Tests
 
                 AssertInRange(adventurer.BaseStats, job.BaseStats);
                 AssertInRange(adventurer.GrowthStats, job.GrowthStats);
-                Assert.That(adventurer.Appearance.HairPreset, Is.InRange(0, rules.HairPresetCount - 1));
-                Assert.That(adventurer.Appearance.EyePreset, Is.InRange(0, rules.EyePresetCount - 1));
-                Assert.That(adventurer.Appearance.MouthPreset, Is.InRange(0, rules.MouthPresetCount - 1));
-                Assert.That(adventurer.Appearance.HairColor, Is.InRange(0, rules.HairColorCount - 1));
-                Assert.That(adventurer.Appearance.SkinColor, Is.InRange(0, rules.SkinColorCount - 1));
+                Assert.AreEqual(0, adventurer.Appearance.Outfit);
                 Assert.That(rules.Names, Does.Contain(adventurer.Name));
             }
         }
@@ -124,16 +130,32 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Generate_StartsHealthyWithoutIdAndEquipment()
+        public void Generate_StartsHealthyWithoutIdAndOnlyDefaultWeapon()
         {
-            AdventurerData adventurer = AdventurerGenerator.Generate(7, CreateRules());
+            AdventurerGenerationRules rules = CreateRules();
+            for (int seed = 0; seed < 50; seed++)
+            {
+                AdventurerData adventurer = AdventurerGenerator.Generate(seed, rules);
+                AdventurerJobRules job = FindJob(rules, adventurer.JobId);
 
-            Assert.AreEqual(AdventurerData.NoAdventurerId, adventurer.AdventurerId);
-            Assert.AreEqual(1, adventurer.Level);
-            Assert.AreEqual(AdventurerCondition.Healthy, adventurer.Condition);
-            Assert.AreEqual(AdventurerData.NoEquipment, adventurer.WeaponId);
-            Assert.AreEqual(AdventurerData.NoEquipment, adventurer.HelmetId);
-            Assert.AreEqual(AdventurerData.NoEquipment, adventurer.ArmorId);
+                Assert.AreEqual(AdventurerData.NoAdventurerId, adventurer.AdventurerId);
+                Assert.AreEqual(1, adventurer.Level);
+                Assert.AreEqual(AdventurerCondition.Healthy, adventurer.Condition);
+                Assert.AreEqual(job.DefaultWeaponId, adventurer.WeaponId);
+                Assert.AreEqual(job.DefaultWeaponGrade, adventurer.WeaponGrade);
+                Assert.AreEqual(AdventurerData.NoEquipment, adventurer.HelmetId);
+                Assert.AreEqual(AdventurerData.NoEquipment, adventurer.ArmorId);
+                Assert.AreEqual(AdventurerData.NoEquipment, adventurer.AccessoryId);
+            }
+        }
+
+        [Test]
+        public void Generate_JobWithoutDefaultWeapon_Throws()
+        {
+            AdventurerGenerationRules rules = CreateRules();
+            rules.Jobs[0].DefaultWeaponId = AdventurerData.NoEquipment;
+
+            Assert.Throws<ArgumentException>(() => AdventurerGenerator.Generate(1, rules));
         }
 
         [Test]
@@ -175,6 +197,7 @@ namespace Blacksmith.Tests
             Assert.AreEqual(expected.BaseStats, actual.BaseStats);
             Assert.AreEqual(expected.GrowthStats, actual.GrowthStats);
             Assert.AreEqual(expected.SkillId, actual.SkillId);
+            Assert.AreEqual(expected.WeaponId, actual.WeaponId);
         }
     }
 }

@@ -1,5 +1,7 @@
+using Blacksmith.Characters;
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Dialogue;
+using Blacksmith.Inventory;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -18,6 +20,9 @@ namespace Blacksmith.Plaza
         [SerializeField] private AdventurerGenerationData _generation;
         [SerializeField] private TMP_Text _nameLabel;
         [SerializeField] private DialogueSeat _seat;
+        [SerializeField] private AdventurerLook _look;
+        [Tooltip("들고 있는 무기의 모델을 찾는 데 쓴다")]
+        [SerializeField] private ItemCatalog _catalog;
 
         // 호스트에서만 채워진다. 영입 요청은 호스트에서만 처리하기 때문이다.
         private PlazaRecruitment _recruitment;
@@ -37,6 +42,7 @@ namespace Blacksmith.Plaza
             name = $"RecruitCandidate {data.Name}";
             _nameLabel.text = $"{data.Name}\n{AdventurerLabels.GetJobName(_generation, data.JobId)} Lv.{data.Level}";
             _seat.SpeakerName = data.Name;
+            _look.Show(data, _catalog);
         }
 
         // 호스트 전용.

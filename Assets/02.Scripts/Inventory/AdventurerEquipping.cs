@@ -5,7 +5,9 @@ using Blacksmith.Plaza;
 namespace Blacksmith.Inventory
 {
     // 모험가에게 장비를 입히고 벗기는 일을 인벤토리와 관리 목록에 함께 반영한다.
-    // 입힌 장비는 인벤토리에서 빠져 모험가에게 저장되고, 벗기거나 다른 장비로 바꾼 장비는 공용 창고로 돌아간다.
+    // 입힌 장비는 인벤토리에서 빠져 모험가에게 저장된다. 다른 장비로 바꾸면 원래 장비는 사라진다(기본무기도 같다).
+    // returnReplaced를 켜면 바꾼 장비를 공용 창고로 돌려보낸다. 기획이 바뀔 때를 위해 남겨 둔 방식이다.
+    // 벗긴 장비는 공용 창고로 돌아간다. 기획에서는 벗기기가 빠졌고(교체만 가능), 기능 제거는 따로 한다.
     public static class AdventurerEquipping
     {
         // 장비 창의 표시와 호스트의 확인이 같이 쓴다.
@@ -22,9 +24,9 @@ namespace Blacksmith.Inventory
             return EquipmentRules.CanEquip(slot, data.EquipmentSlot, data.WeaponType, jobWeapon);
         }
 
-        // 호스트 전용. 벗긴 장비를 공용 창고에 넣을 자리가 없으면 아무것도 바꾸지 않는다.
+        // 호스트 전용. returnReplaced일 때 바꾼 장비를 공용 창고에 넣을 자리가 없으면 아무것도 바꾸지 않는다.
         public static bool TryEquip(NetworkInventory from, int fromSlot, AdventurerRosterState roster, int adventurerId,
-            EquipmentSlot slot, NetworkInventory storage, AdventurerGenerationData jobs)
+            EquipmentSlot slot, NetworkInventory storage, AdventurerGenerationData jobs, bool returnReplaced)
         {
             AdventurerData adventurer = roster.FindById(adventurerId);
             if (!roster.HasStateAuthority || !CanEquip(from.Catalog, jobs, adventurer, from.Get(fromSlot), slot))
@@ -32,7 +34,7 @@ namespace Blacksmith.Inventory
                 return false;
             }
 
-            ItemStack previous = EquipmentRules.GetEquipped(adventurer, slot);
+            ItemStack previous = returnReplaced ? EquipmentRules.GetEquipped(adventurer, slot) : ItemStack.Empty;
             if (!previous.IsEmpty && !storage.CanAdd(previous))
             {
                 return false;

@@ -15,6 +15,8 @@ namespace Blacksmith.Inventory
         [SerializeField] private PlayerInventoryState _playerInventory;
         [Tooltip("직업별로 쓸 수 있는 무기 종류를 찾는 데 쓴다")]
         [SerializeField] private AdventurerGenerationData _jobs;
+        [Tooltip("켜면 모험가의 장비를 바꿀 때 원래 장비를 공용 창고로 돌려보낸다. 끄면 원래 장비는 사라진다")]
+        [SerializeField] private bool _returnReplacedEquipment;
 
         public override void Spawned()
         {
@@ -59,7 +61,7 @@ namespace Blacksmith.Inventory
             RpcTransfer(from.Object.Id, fromSlot, to.Object.Id, NetworkItemStack.FromStack(from.Get(fromSlot)));
         }
 
-        // storage: 벗긴 장비가 돌아갈 공용 창고.
+        // storage: 바꾼 장비를 돌려보내도록 설정했을 때 돌아갈 공용 창고.
         public void RequestEquip(NetworkInventory from, int fromSlot, AdventurerRosterState roster, int adventurerId, EquipmentSlot slot, NetworkInventory storage)
         {
             if (from.IsReady && roster.IsReady && storage.IsReady)
@@ -119,7 +121,7 @@ namespace Blacksmith.Inventory
                 && TryFind(rosterId, out AdventurerRosterState roster)
                 && TryFindInventory(storageId, out NetworkInventory storage))
             {
-                AdventurerEquipping.TryEquip(from, fromSlot, roster, adventurerId, (EquipmentSlot)slot, storage, _jobs);
+                AdventurerEquipping.TryEquip(from, fromSlot, roster, adventurerId, (EquipmentSlot)slot, storage, _jobs, _returnReplacedEquipment);
             }
         }
 

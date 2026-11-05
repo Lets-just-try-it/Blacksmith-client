@@ -14,7 +14,7 @@ namespace Blacksmith.Battle
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
         [SerializeField] private Animator _animator;
-        [Tooltip("애니메이터가 없는 임시 모델에서 쓰러질 때 눕힐 대상")]
+        [Tooltip("쓰러질 때 눕힐 대상. 쓰러지는 동작이 없는 모델이 쓴다")]
         [SerializeField] private Transform _body;
         [SerializeField] private ParticleSystem _attackEffect;
         [SerializeField] private ParticleSystem _skillEffect;
@@ -95,7 +95,7 @@ namespace Blacksmith.Battle
             SetMoving(false);
             Stop(_aura);
             Stop(_enrageAura);
-            if (_animator == null && _body != null)
+            if (_body != null)
             {
                 _body.localRotation = Quaternion.Euler(0f, 0f, 90f);
             }

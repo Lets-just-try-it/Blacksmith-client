@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Blacksmith.Core.Characters;
 
 namespace Blacksmith.Core.Adventurers
 {
@@ -36,18 +37,13 @@ namespace Blacksmith.Core.Adventurers
                 Name = rules.Names[random.Next(rules.Names.Count)],
                 JobId = job.JobId,
                 Level = rules.StartLevel,
-                Appearance = new AdventurerAppearance
-                {
-                    HairPreset = random.Next(rules.HairPresetCount),
-                    EyePreset = random.Next(rules.EyePresetCount),
-                    MouthPreset = random.Next(rules.MouthPresetCount),
-                    HairColor = random.Next(rules.HairColorCount),
-                    SkinColor = random.Next(rules.SkinColorCount),
-                },
+                Appearance = HumanoidAppearanceGenerator.Generate(random, rules.Appearance),
                 BaseStats = PickStats(random, job.BaseStats),
                 GrowthStats = PickStats(random, job.GrowthStats),
                 SkillId = job.SkillIds.Count > 0 ? job.SkillIds[random.Next(job.SkillIds.Count)] : AdventurerData.NoSkill,
-                WeaponId = AdventurerData.NoEquipment,
+                // 영입 후보는 직업의 기본무기만 들고, 나머지 칸은 비어 있다.
+                WeaponId = job.DefaultWeaponId,
+                WeaponGrade = job.DefaultWeaponGrade,
                 HelmetId = AdventurerData.NoEquipment,
                 ArmorId = AdventurerData.NoEquipment,
                 AccessoryId = AdventurerData.NoEquipment,
@@ -77,11 +73,15 @@ namespace Blacksmith.Core.Adventurers
                 throw new ArgumentException("직업이 하나 이상 있어야 한다.", nameof(rules));
             }
 
-            if (rules.HairPresetCount < 1 || rules.EyePresetCount < 1 || rules.MouthPresetCount < 1
-                || rules.HairColorCount < 1 || rules.SkinColorCount < 1)
+            foreach (AdventurerJobRules job in rules.Jobs)
             {
-                throw new ArgumentException("외형 프리셋과 색은 하나 이상 있어야 한다.", nameof(rules));
+                if (job.DefaultWeaponId == AdventurerData.NoEquipment)
+                {
+                    throw new ArgumentException($"직업에 기본무기가 없다: {job.JobId}", nameof(rules));
+                }
             }
+
+            HumanoidAppearanceGenerator.Validate(rules.Appearance);
         }
     }
 }

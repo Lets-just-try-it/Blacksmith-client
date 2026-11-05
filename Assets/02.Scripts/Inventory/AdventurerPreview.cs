@@ -1,4 +1,5 @@
 using Blacksmith.Battle;
+using Blacksmith.Characters;
 using Blacksmith.Core.Adventurers;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +7,7 @@ using UnityEngine.UI;
 namespace Blacksmith.Inventory
 {
     // 장비 착용 창에 고른 모험가의 모습을 보여 준다. 화면 밖에 둔 무대에서 직업의 전투 모델을 전용 카메라로 찍어 RawImage에 그린다.
-    // 입은 장비는 전투 모델의 AdventurerEquipmentLook으로 보여 주므로 전투에서도 같은 모습이다.
+    // 외형과 입은 장비는 전투 모델의 AdventurerLook으로 보여 주므로 전투에서도 같은 모습이다.
     public class AdventurerPreview : MonoBehaviour
     {
         [Tooltip("직업별 전투 모델을 찾는 데 쓴다")]
@@ -49,7 +50,7 @@ namespace Blacksmith.Inventory
             EnsureTexture();
             _camera.enabled = true;
             SetModel(adventurer != null ? adventurer.JobId : 0);
-            if (_model != null && _model.TryGetComponent(out AdventurerEquipmentLook look))
+            if (_model != null && _model.TryGetComponent(out AdventurerLook look))
             {
                 look.Show(adventurer, _catalog);
             }

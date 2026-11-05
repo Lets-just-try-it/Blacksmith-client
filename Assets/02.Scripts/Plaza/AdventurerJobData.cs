@@ -1,5 +1,7 @@
+using Blacksmith.Core;
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Inventory;
+using Blacksmith.Inventory;
 using UnityEngine;
 
 namespace Blacksmith.Plaza
@@ -20,6 +22,10 @@ namespace Blacksmith.Plaza
         [SerializeField] private int[] _skillIds = new int[0];
         [Tooltip("이 직업이 무기 칸에 착용할 수 있는 무기 종류")]
         [SerializeField] private WeaponType _weaponType;
+        [Tooltip("영입 후보가 처음부터 들고 있는 무기. 이 직업의 무기 종류여야 한다")]
+        [SerializeField] private ItemData _defaultWeapon;
+        [Tooltip("기본무기의 등급")]
+        [SerializeField, Min(GradeRule.MinGrade)] private int _defaultWeaponGrade = GradeRule.MinGrade;
 
         public int JobId => _jobId;
         public string DisplayName => _displayName;
@@ -33,6 +39,8 @@ namespace Blacksmith.Plaza
                 BaseStats = _baseStats,
                 GrowthStats = _growthStats,
                 SkillIds = _skillIds,
+                DefaultWeaponId = _defaultWeapon != null ? _defaultWeapon.ItemId : AdventurerData.NoEquipment,
+                DefaultWeaponGrade = _defaultWeaponGrade,
             };
         }
 
@@ -40,6 +48,14 @@ namespace Blacksmith.Plaza
         {
             WarnIfInvalid(_baseStats, "기본값");
             WarnIfInvalid(_growthStats, "성장값");
+            if (_defaultWeapon == null)
+            {
+                Debug.LogWarning("기본무기가 없다. 모험가는 무기를 든 채로 생성되어야 한다.", this);
+            }
+            else if (_defaultWeapon.WeaponType != _weaponType)
+            {
+                Debug.LogWarning($"기본무기({_defaultWeapon.DisplayName})가 이 직업의 무기 종류가 아니다.", this);
+            }
         }
 
         private void WarnIfInvalid(AdventurerStatRange range, string label)

@@ -1,0 +1,131 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67e8c538808d3544ba44c8a75321400, type: 3}
+  m_Name: HumanoidLook
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Characters.HumanoidLookData
+  _hairStyles:
+  - DisplayName: "\uD5E4\uC5B4 A"
+    Plain: Hair_A
+    Cap: Hair_A_Cap
+    Helmet: Hair_A_Helmet
+  - DisplayName: "\uD5E4\uC5B4 B"
+    Plain: Hair_B
+    Cap: Hair_B_Cap
+    Helmet: Hair_B_Helmet
+  - DisplayName: "\uD5E4\uC5B4 C"
+    Plain: Hair_C
+    Cap: Hair_C_Cap
+    Helmet: Hair_C_Helmet
+  - DisplayName: "\uD5E4\uC5B4 D"
+    Plain: Hair_D
+    Cap: Hair_D_Cap
+    Helmet: Hair_D_Helmet
+  _eyeStyles:
+  - Face_Eye_A
+  - Face_Eye_B
+  - Face_Eye_C
+  _mouthStyles:
+  - Face_Mouth_A
+  - Face_Mouth_B
+  - Face_Mouth_C
+  _hairColors:
+    BaseRow: 9
+    Colors:
+    - DisplayName: "\uC9D9\uC740 \uAC08\uC0C9"
+      Row: 9
+    - DisplayName: "\uAE08\uBC1C"
+      Row: 20
+    - DisplayName: "\uC801\uBC1C"
+      Row: 6
+    - DisplayName: "\uD751\uBC1C"
+      Row: 0
+    - DisplayName: "\uBC1D\uC740 \uAC08\uC0C9"
+      Row: 13
+    - DisplayName: "\uD770\uBA38\uB9AC"
+      Row: 3
+  _skinColors:
+    BaseRow: 16
+    Colors:
+    - DisplayName: "\uAE30\uBCF8"
+      Row: 16
+    - DisplayName: "\uD669\uAC08\uC0C9"
+      Row: 15
+    - DisplayName: "\uAC08\uC0C9"
+      Row: 12
+    - DisplayName: "\uCC3D\uBC31"
+      Row: 17
+  _skinParts:
+  - Body_Arm_L
+  - Body_Arm_R
+  - Body_Ear_L
+  - Body_Ear_R
+  - Body_Foot_L
+  - Body_Foot_R
+  - Body_Hand_L
+  - Body_Hand_R
+  - Body_Head
+  - Body_Joint_Shoulder_L
+  - Body_Joint_Shoulder_R
+  - Body_Leg_L
+  - Body_Leg_R
+  - Body_Neck
+  - Body_Thumb_L
+  - Body_Thumb_R
+  - Body_Trunk
+  _outfits:
+  - DisplayName: "\uD29C\uB2C9"
+    Parts:
+    - Outfit_A_Torso
+    - Outfit_A_Sleeve_L
+    - Outfit_A_JointShoulder_L
+    - Outfit_A_Sleeve_R
+    - Outfit_A_JointShoulder_R
+    - Outfit_A_Bottom
+    - Outfit_A_Belt
+    - Outfit_A_Buckle
+    - Outfit_A_Boot_L
+    - Outfit_A_Boot_R
+  - DisplayName: "\uC55E\uCE58\uB9C8"
+    Parts:
+    - Outfit_B_Torso
+    - Outfit_B_Sleeve_L
+    - Outfit_B_JointShoulder_L
+    - Outfit_B_Sleeve_R
+    - Outfit_B_JointShoulder_R
+    - Outfit_B_Bottom
+    - Outfit_B_ApronBib
+    - Outfit_B_ApronSkirt
+    - Outfit_B_ApronStrap_L
+    - Outfit_B_ApronStrap_R
+    - Outfit_B_Boot_L
+    - Outfit_B_Boot_R
+  _hats:
+  - Part: Hat_Helmet
+    HairVariant: 2
+    HideEars: 1
+  - Part: Hat_Cap
+    HairVariant: 1
+    HideEars: 0
+  - Part: Hat_Hairband
+    HairVariant: 0
+    HideEars: 0
+  _heldParts:
+  - Weapon_SmithHammer_Held
+  - Weapon_GreatSword_A_Held
+  - Weapon_GreatSword_B_Held
+  - Weapon_Bow_A_Held
+  - Weapon_Bow_B_Held
+  - Weapon_Staff_A_Held
+  - Weapon_Staff_B_Held
+  _earParts:
+  - Body_Ear_L
+  - Body_Ear_R
