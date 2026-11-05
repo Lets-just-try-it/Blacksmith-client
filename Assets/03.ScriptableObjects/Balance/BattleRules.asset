@@ -16,6 +16,8 @@ MonoBehaviour:
   _maxTicks: 20000
   _marchSpeed: 10
   _formationSpacing: 100
+  _meleeRangeMax: 200
+  _maxRowSize: 3
   _stageSpawnDistance: 1000
   _damageVariancePercent: 10
   _deathChancePercent: 10

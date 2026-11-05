@@ -68,14 +68,81 @@ namespace Blacksmith.Core.Battle
             return Result;
         }
 
+        // 근접은 앞줄, 원거리는 그 뒷줄에 나란히 선다. 한쪽만 있으면 그쪽만 선다.
+        // 한 종류가 MaxRowSize명을 넘으면 그 종류끼리 줄을 나누되 고르게 나눈다(4명 → 2 / 2, 5명 → 3 / 2).
+        // 예: 근접 4·원거리 1 → 2 / 2 / 1, 근접 1·원거리 4 → 1 / 2 / 2, 근접 3·원거리 2 → 3 / 2.
+        // 줄 안에서는 사거리가 짧은 순, 같으면 파티 순서로 옆으로 늘어서고, 짧은 줄은 가장 긴 줄의 가운데에 맞춘다.
+        // 유닛 번호와 결과 순서는 파티 순서 그대로다.
         private void SpawnAdventurers()
         {
+            int maxRowSize = Math.Max(1, _rules.MaxRowSize);
+            int meleeCount = 0;
+            foreach (AdventurerSetup adventurer in _setup.Adventurers)
+            {
+                meleeCount += IsMelee(adventurer) ? 1 : 0;
+            }
+
+            int rangedCount = _setup.Adventurers.Count - meleeCount;
+            int meleeRows = GetRowCount(meleeCount, maxRowSize);
+            int widest = Math.Max(GetRowSize(meleeCount, maxRowSize, 0), GetRowSize(rangedCount, maxRowSize, 0));
             for (int i = 0; i < _setup.Adventurers.Count; i++)
             {
                 AdventurerSetup adventurer = _setup.Adventurers[i];
-                _units.Add(new BattleUnit(_units.Count, BattleTeam.Adventurer, adventurer.AdventurerId, -1, i,
-                    adventurer.Stats, new[] { adventurer.Skill }, default, -i * _rules.FormationSpacing));
+                bool isMelee = IsMelee(adventurer);
+                int groupCount = isMelee ? meleeCount : rangedCount;
+                int slot = GetGroupIndex(i, isMelee);
+                int groupRow = 0;
+                while (slot >= GetRowSize(groupCount, maxRowSize, groupRow))
+                {
+                    slot -= GetRowSize(groupCount, maxRowSize, groupRow);
+                    groupRow++;
+                }
+
+                int row = isMelee ? groupRow : meleeRows + groupRow;
+                int lane = slot + (widest - GetRowSize(groupCount, maxRowSize, groupRow)) / 2;
+                _units.Add(new BattleUnit(_units.Count, BattleTeam.Adventurer, adventurer.AdventurerId, -1, lane,
+                    adventurer.Stats, new[] { adventurer.Skill }, default, -row * _rules.FormationSpacing));
             }
+        }
+
+        private static int GetRowCount(int count, int maxRowSize)
+        {
+            return (count + maxRowSize - 1) / maxRowSize;
+        }
+
+        // count명을 GetRowCount개 줄에 고르게 나눌 때 row번째 줄의 인원. 남는 사람은 앞줄부터 하나씩 더 선다.
+        private static int GetRowSize(int count, int maxRowSize, int row)
+        {
+            int rows = GetRowCount(count, maxRowSize);
+            if (row >= rows)
+            {
+                return 0;
+            }
+
+            return count / rows + (row < count % rows ? 1 : 0);
+        }
+
+        private bool IsMelee(AdventurerSetup adventurer)
+        {
+            return adventurer.Stats.AttackRange <= _rules.MeleeRangeMax;
+        }
+
+        // 같은 종류(근접·원거리) 안에서 몇 번째인지. 사거리가 같으면 파티 순서를 따른다.
+        private int GetGroupIndex(int index, bool isMelee)
+        {
+            int range = _setup.Adventurers[index].Stats.AttackRange;
+            int rowIndex = 0;
+            for (int i = 0; i < _setup.Adventurers.Count; i++)
+            {
+                AdventurerSetup other = _setup.Adventurers[i];
+                int otherRange = other.Stats.AttackRange;
+                if (IsMelee(other) == isMelee && (otherRange < range || (otherRange == range && i < index)))
+                {
+                    rowIndex++;
+                }
+            }
+
+            return rowIndex;
         }
 
         private bool TryStartNextStage()
