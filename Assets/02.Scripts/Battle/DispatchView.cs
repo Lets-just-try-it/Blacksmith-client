@@ -38,11 +38,8 @@ namespace Blacksmith.Battle
         [Tooltip("던전 지도로 돌아가 스테이지를 다시 고른다")]
         [SerializeField] private Button _mapButton;
         [SerializeField] private Button _dispatchButton;
-        [SerializeField] private Button _closeButton;
-        [Tooltip("밤에만 보인다. 파견하지 않고 다음 날로 넘긴다")]
+        [Tooltip("파견하지 않고 다음 날로 넘긴다")]
         [SerializeField] private Button _skipButton;
-        [Tooltip("테스트 씬에서 창을 여는 버튼. 비워 두면 낮·밤 사이클이 DispatchState.Open을 부른다")]
-        [SerializeField] private Button _openButton;
         [SerializeField] private Color _rowColor = new Color(0.18f, 0.16f, 0.14f, 1f);
         [SerializeField] private Color _selectedRowColor = new Color(0.55f, 0.42f, 0.18f, 1f);
         [SerializeField] private Color _unavailableRowColor = new Color(0.25f, 0.12f, 0.12f, 1f);
@@ -62,12 +59,7 @@ namespace Blacksmith.Battle
             _progress.Changed += Refresh;
             _mapButton.onClick.AddListener(ShowMap);
             _dispatchButton.onClick.AddListener(Dispatch);
-            _closeButton.onClick.AddListener(Close);
             _skipButton.onClick.AddListener(Skip);
-            if (_openButton != null)
-            {
-                _openButton.onClick.AddListener(Open);
-            }
         }
 
         private void OnDisable()
@@ -77,24 +69,8 @@ namespace Blacksmith.Battle
             _progress.Changed -= Refresh;
             _mapButton.onClick.RemoveListener(ShowMap);
             _dispatchButton.onClick.RemoveListener(Dispatch);
-            _closeButton.onClick.RemoveListener(Close);
             _skipButton.onClick.RemoveListener(Skip);
-            if (_openButton != null)
-            {
-                _openButton.onClick.RemoveListener(Open);
-            }
-
             SetShown(false);
-        }
-
-        private void Open()
-        {
-            _state.Open();
-        }
-
-        private void Close()
-        {
-            _state.Close();
         }
 
         private void Skip()
@@ -117,10 +93,6 @@ namespace Blacksmith.Battle
         {
             bool isOpen = _state.IsReady && _roster.IsReady && _progress.IsReady && _state.IsOpen;
             SetShown(isOpen && _state.Screen == DispatchScreen.Party);
-            if (_openButton != null)
-            {
-                _openButton.gameObject.SetActive(_state.CanEdit && !isOpen);
-            }
 
             if (!_isShown)
             {
@@ -216,8 +188,7 @@ namespace Blacksmith.Battle
 
             _mapButton.gameObject.SetActive(canEdit && _state.HasMap);
             _dispatchButton.interactable = _state.CanDispatch();
-            _closeButton.gameObject.SetActive(canEdit && !_state.IsNight);
-            _skipButton.gameObject.SetActive(canEdit && _state.IsNight);
+            _skipButton.gameObject.SetActive(canEdit);
         }
 
         private void EnsureRowCount(int count)

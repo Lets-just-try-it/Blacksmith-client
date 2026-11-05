@@ -47,10 +47,8 @@ namespace Blacksmith.Battle
         [SerializeField] private TMP_Text _hintText;
         [Tooltip("고른 스테이지로 파견 창(파티 고르기)으로 넘어간다")]
         [SerializeField] private Button _partyButton;
-        [Tooltip("밤에만 보인다. 파견하지 않고 다음 날로 넘긴다")]
+        [Tooltip("파견하지 않고 다음 날로 넘긴다")]
         [SerializeField] private Button _skipButton;
-        [Tooltip("낮에 연 창에서만 보인다")]
-        [SerializeField] private Button _closeButton;
         [SerializeField] private Color _clearedColor = new Color(0.36f, 0.56f, 0.3f, 1f);
         [SerializeField] private Color _openColor = new Color(0.95f, 0.72f, 0.25f, 1f);
         [SerializeField] private Color _lockedColor = new Color(0.55f, 0.5f, 0.45f, 0.75f);
@@ -84,7 +82,6 @@ namespace Blacksmith.Battle
             _progress.Changed += Refresh;
             _partyButton.onClick.AddListener(ShowParty);
             _skipButton.onClick.AddListener(Skip);
-            _closeButton.onClick.AddListener(Close);
         }
 
         private void OnDisable()
@@ -99,7 +96,6 @@ namespace Blacksmith.Battle
             _progress.Changed -= Refresh;
             _partyButton.onClick.RemoveListener(ShowParty);
             _skipButton.onClick.RemoveListener(Skip);
-            _closeButton.onClick.RemoveListener(Close);
             SetShown(false);
         }
 
@@ -111,11 +107,6 @@ namespace Blacksmith.Battle
         private void Skip()
         {
             _state.Skip();
-        }
-
-        private void Close()
-        {
-            _state.Close();
         }
 
         private void Refresh()
@@ -266,8 +257,7 @@ namespace Blacksmith.Battle
 
             _partyButton.gameObject.SetActive(canEdit);
             _partyButton.interactable = _state.Stage >= 0;
-            _skipButton.gameObject.SetActive(canEdit && _state.IsNight);
-            _closeButton.gameObject.SetActive(canEdit && !_state.IsNight);
+            _skipButton.gameObject.SetActive(canEdit);
         }
 
         private void HandleNodeClicked(DungeonMapNode node)

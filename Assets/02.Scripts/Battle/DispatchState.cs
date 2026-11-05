@@ -29,9 +29,8 @@ namespace Blacksmith.Battle
         // 이 참가자의 씬에 연결된 던전 지도 창이 있는지. 없으면 지도를 건너뛰고 파견 창부터 연다.
         private bool _hasMap;
 
+        // 창은 밤에만 열린다. 닫을 수 없고, 파견하거나 파견하지 않고 다음 날로 넘겨야 닫힌다.
         [Networked] public NetworkBool IsOpen { get; private set; }
-        // 밤에 열린 창은 닫을 수 없고, 파견하거나 파견하지 않고 다음 날로 넘겨야 한다.
-        [Networked] public NetworkBool IsNight { get; private set; }
         [Networked] public DispatchScreen Screen { get; private set; }
         [Networked] public int TierIndex { get; private set; }
         // 한 번 파견하면 싸우는 스테이지 하나. 0부터 센 번호이고, 고를 스테이지가 없으면 -1이다.
@@ -111,33 +110,26 @@ namespace Blacksmith.Battle
             return Stage >= 0 && DungeonProgressRules.IsStageCleared(GetClearedStages(), Stage);
         }
 
-        // 호스트 전용. 테스트 씬의 버튼이 낮에 연다. 낮에 연 창은 닫을 수 있다.
-        public void Open()
-        {
-            Open(false);
-        }
-
-        // 호스트 전용. 밤이 되면 NightDispatchLink가 연다.
+        // 호스트 전용. 밤이 되면 NightDispatchLink가 연다. 낮에는 창을 열 수 없다.
         public void OpenForNight()
         {
-            Open(true);
-        }
-
-        public void Close()
-        {
-            if (CanEdit && !IsNight)
+            if (CanEdit && !IsOpen)
             {
-                IsOpen = false;
+                // 창을 새로 열 때마다 열린 가장 깊은 단계의 다음 스테이지부터 보여 준다.
+                TierIndex = FindDeepestUnlockedTier();
+                Stage = -1;
+                Screen = _hasMap ? DispatchScreen.Map : DispatchScreen.Party;
+                IsOpen = true;
+                ClampSelection();
             }
         }
 
         // 호스트 전용. 밤에 파견하지 않고 다음 날로 넘긴다.
         public void Skip()
         {
-            if (CanEdit && IsOpen && IsNight)
+            if (CanEdit && IsOpen)
             {
                 IsOpen = false;
-                IsNight = false;
                 Skipped?.Invoke();
             }
         }
@@ -244,29 +236,9 @@ namespace Blacksmith.Battle
             if (isDispatched)
             {
                 IsOpen = false;
-                IsNight = false;
             }
 
             return isDispatched;
-        }
-
-        private void Open(bool isNight)
-        {
-            if (CanEdit)
-            {
-                // 밤에 열린 창을 낮용으로 다시 열어도 밤 창(닫을 수 없음)으로 남긴다.
-                IsNight = isNight || (IsOpen && IsNight);
-                if (!IsOpen)
-                {
-                    // 창을 새로 열 때마다 열린 가장 깊은 단계의 다음 스테이지부터 보여 준다.
-                    TierIndex = FindDeepestUnlockedTier();
-                    Stage = -1;
-                    Screen = _hasMap ? DispatchScreen.Map : DispatchScreen.Party;
-                }
-
-                IsOpen = true;
-                ClampSelection();
-            }
         }
 
         private int IndexOfParty(int adventurerId)
