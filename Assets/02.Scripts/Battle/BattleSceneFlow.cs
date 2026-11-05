@@ -74,9 +74,9 @@ namespace Blacksmith.Battle
                 return;
             }
 
-            if (!_battleState.StartBattle(request.Seed, request.DungeonId, request.ClearedStages, request.LastStage, request.PartyIds))
+            if (!_battleState.StartBattle(request.Seed, request.DungeonId, request.ClearedStages, request.Stage, request.PartyIds))
             {
-                Debug.LogError($"전투를 시작할 수 없다: 던전 {request.DungeonId}, 스테이지 {request.LastStage + 1}, 파티 {request.PartyIds.Count}명", this);
+                Debug.LogError($"전투를 시작할 수 없다: 던전 {request.DungeonId}, 스테이지 {request.Stage + 1}, 파티 {request.PartyIds.Count}명", this);
             }
         }
 
@@ -135,7 +135,7 @@ namespace Blacksmith.Battle
         private void PassResult(BattleResult result, BattleRewards rewards)
         {
             Debug.Log($"전투 결과 반영: {(result.IsVictory ? "승리" : "패배")}, 스테이지 {result.StagesCleared}개, 골드 {rewards.Gold}");
-            _channel.ConfirmResult(new BattleOutcome { DungeonId = _battleState.DungeonId, Result = result, Rewards = rewards });
+            _channel.ConfirmResult(new BattleOutcome { DungeonId = _battleState.DungeonId, FirstStage = _battleState.FirstStage, Result = result, Rewards = rewards });
         }
     }
 }

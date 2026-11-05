@@ -34,17 +34,24 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void ClampStage_MovesClearedStageToFirstUncleared()
+        public void ClampStage_KeepsSelectableStage()
         {
-            Assert.AreEqual(1, DispatchRules.ClampStage(1, StageCount, 0));
-            Assert.AreEqual(2, DispatchRules.ClampStage(1, StageCount, 2));
-            Assert.AreEqual(2, DispatchRules.ClampStage(0, StageCount, 5));
+            Assert.AreEqual(0, DispatchRules.ClampStage(1, StageCount, 0));
+            Assert.AreEqual(1, DispatchRules.ClampStage(1, StageCount, 1));
         }
 
         [Test]
-        public void ClampStage_ClearedTier_HasNoStage()
+        public void ClampStage_MovesLockedStageToDefault()
         {
-            Assert.AreEqual(-1, DispatchRules.ClampStage(StageCount, StageCount, 0));
+            Assert.AreEqual(1, DispatchRules.ClampStage(1, StageCount, 2));
+            Assert.AreEqual(0, DispatchRules.ClampStage(0, StageCount, 5));
+            Assert.AreEqual(2, DispatchRules.ClampStage(StageCount, StageCount, -1));
+        }
+
+        [Test]
+        public void ClampStage_EmptyTier_HasNoStage()
+        {
+            Assert.AreEqual(-1, DispatchRules.ClampStage(0, 0, 0));
         }
 
         [Test]
@@ -57,10 +64,10 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void ClearedTier_IsNotSelectable()
+        public void ClearedTier_StaysSelectable()
         {
             int[] stageCounts = { StageCount, StageCount };
-            Assert.IsFalse(DispatchRules.IsTierSelectable(0, new[] { StageCount, 0 }, stageCounts));
+            Assert.IsTrue(DispatchRules.IsTierSelectable(0, new[] { StageCount, 0 }, stageCounts));
             Assert.IsFalse(DispatchRules.IsTierSelectable(2, new[] { StageCount, StageCount }, stageCounts));
         }
     }

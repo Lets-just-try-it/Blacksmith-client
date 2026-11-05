@@ -36,6 +36,16 @@ namespace Blacksmith.Battle
         public string DisplayName => _displayName;
         public int StageCount => _stages.Count;
 
+        public bool IsBossStage(int stage)
+        {
+            return stage >= 0 && stage < _stages.Count && _stages[stage].IsBoss;
+        }
+
+        public int GetStageGold(int stage)
+        {
+            return stage >= 0 && stage < _stages.Count ? _stages[stage].Gold : 0;
+        }
+
         // firstStage부터 lastStage까지(0부터 센 번호, 양 끝 포함) 이어서 싸울 스테이지를 넣는다.
         public void AddStagesTo(BattleSetup setup, int firstStage, int lastStage)
         {

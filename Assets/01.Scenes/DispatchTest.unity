@@ -1807,8 +1807,9 @@ MonoBehaviour:
     RawValue: 0
   _IsNight:
     RawValue: 0
+  _Screen: 0
   _TierIndex: 0
-  _LastStage: 0
+  _Stage: 0
   _PartyCount: 0
 --- !u!114 &1342970125
 MonoBehaviour:
@@ -3479,6 +3480,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: DispatchUI
       objectReference: {fileID: 0}
+    - target: {fileID: 4595491362898789361, guid: 4222f879142de1148b9495a134a92d37, type: 3}
+      propertyPath: _state
+      value: 
+      objectReference: {fileID: 1342970124}
+    - target: {fileID: 4595491362898789361, guid: 4222f879142de1148b9495a134a92d37, type: 3}
+      propertyPath: _progress
+      value: 
+      objectReference: {fileID: 1342970123}
     - target: {fileID: 9059559562685475960, guid: 4222f879142de1148b9495a134a92d37, type: 3}
       propertyPath: _state
       value: 
