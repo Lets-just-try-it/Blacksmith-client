@@ -692,16 +692,39 @@ namespace Blacksmith.Core.Forge
                 || ActClock >= _rules.PourMax;
         }
 
-        private void FinishPour()
+        // 지금 끝냈을 때의 붓기 점수와 정확도. 마무리 계산과 같은 함수를 쓰므로 화면에 보인 값이 결과와 같다.
+        public float PreviewFillScore => ComputeFillScore();
+        public float PreviewPurity => Clamp01(1f - SlagIn / _rules.SlagZero);
+        public float PreviewPourQuality => ComputePourQuality(ComputeFillScore(), PreviewPurity);
+        public float PreviewAccuracy => ComputeAccuracy(PreviewPourQuality);
+        // 눈금의 끝. 이 값까지 채우면 넘쳐서 끝난다.
+        public float FillMax => _rules.OverflowEnd;
+
+        private float ComputeFillScore()
         {
             float center = (FillLow + FillHigh) * 0.5f;
             float deviation = Math.Max(0f, Math.Abs(Fill - center) - (FillHigh - FillLow) * 0.5f);
-            FillScore = Clamp01(1f - deviation / _difficulty.FillTolerance);
-            float waste = Clamp01(1f - Spilled / _rules.SpillZero);
-            Purity = Clamp01(1f - SlagIn / _rules.SlagZero);
-            PourQuality = FillScore * (0.55f + 0.45f * waste) * (0.6f + 0.4f * Purity);
+            return Clamp01(1f - deviation / _difficulty.FillTolerance);
+        }
 
-            Accuracy = Clamp01(_rules.CrackWeight * CrackScore + _rules.FluidityWeight * Fluidity + _rules.PourWeight * PourQuality);
+        private float ComputePourQuality(float fillScore, float purity)
+        {
+            float waste = Clamp01(1f - Spilled / _rules.SpillZero);
+            return fillScore * (0.55f + 0.45f * waste) * (0.6f + 0.4f * purity);
+        }
+
+        private float ComputeAccuracy(float pourQuality)
+        {
+            return Clamp01(_rules.CrackWeight * CrackScore + _rules.FluidityWeight * Fluidity + _rules.PourWeight * pourQuality);
+        }
+
+        private void FinishPour()
+        {
+            FillScore = ComputeFillScore();
+            Purity = PreviewPurity;
+            PourQuality = ComputePourQuality(FillScore, Purity);
+
+            Accuracy = ComputeAccuracy(PourQuality);
             Act = ActKind.Done;
             ActClock = 0f;
             _endTimer = 0f;

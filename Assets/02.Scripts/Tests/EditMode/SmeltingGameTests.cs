@@ -316,6 +316,38 @@ namespace Blacksmith.Tests
         }
 
         [Test]
+        public void Pour_PreviewMatchesFinalResult()
+        {
+            SmeltingGame game = ReachPour();
+            while (game.Act == SmeltingGame.ActKind.Pour)
+            {
+                float target = (game.FillLow + game.FillHigh) * 0.5f - 0.03f;
+                bool pour = game.Fill < target;
+                float pourAngle = game.PourAngle;
+                float tilt = pour ? pourAngle + 0.18f * (1f - pourAngle) : 0f;
+                float previewBefore = game.PreviewAccuracy;
+                game.Tick(Dt, new MiniInput { PointerHeld = pour, PointerX = game.MoldX, PointerY = tilt });
+                if (game.Act == SmeltingGame.ActKind.Done)
+                {
+                    break;
+                }
+
+                Assert.GreaterOrEqual(previewBefore, 0f);
+                Assert.LessOrEqual(previewBefore, 1f);
+            }
+
+            Assert.AreEqual(game.PreviewAccuracy, game.Accuracy, 0.0001f);
+            Assert.AreEqual(game.PreviewPourQuality, game.PourQuality, 0.0001f);
+        }
+
+        [Test]
+        public void Pour_FillMax_IsPastTheTargetBand()
+        {
+            SmeltingGame game = ReachPour();
+            Assert.Greater(game.FillMax, game.FillHigh);
+        }
+
+        [Test]
         public void Pour_AwayFromTheMold_SpillsInsteadOfFilling()
         {
             SmeltingGame game = ReachPour();

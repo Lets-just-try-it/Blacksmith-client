@@ -139,6 +139,12 @@
   4. 호스트: `ForgeStationState.TryFinish`가 사용자, 세션, 중복 여부를 확인하고 사용권을 풀면, `Core/Forge/CraftingRules`로 결과물을 만들어 `PlayerInventoryState.TryReplaceOne`으로 바꾼다.
 - 호스트가 자기 요청을 보낼 때는 RPC가 바로 실행되어 승인이 요청 호출 안에서 돌아온다. 그래서 요청 쪽(`ForgeStationLink`)은 보내기 전에 기다림 상태로 바꿔 둔다.
 
+## 5.5 판매
+
+- 골드는 `GameState`의 `[Networked] Gold`에 둔다. 호스트만 `TryAddGold`로 바꾸고, 모자라게 쓰는 요청은 거절한다.
+- 진열대는 씬 네트워크 오브젝트인 `DisplayShelfState`(올려 둔 물건 하나)이다. 올리고 내리는 요청은 Player 프리팹의 `SalesPlayerActions`가 `RpcPlace`, `RpcTake`로 호스트에 보낸다. 호스트는 요청한 사람의 슬롯에 그 장비가 있는지, 진열대가 비었는지(내릴 때는 슬롯에 자리가 있는지)만 확인하고 옮긴다.
+- 손님(`Customer`)은 호스트가 스폰하는 네트워크 오브젝트이고 위치는 `NetworkTransform`이 복제한다. 들를 곳의 순서(`CustomerChoice.PlanRoute`)와 사는지 여부(`WillBuy`)는 호스트가 정하고, 걷기와 구매도 호스트만 처리한다. 구매는 진열대의 `TryBuy`가 물건을 비우고 정가를 돌려주면 골드에 더하는 순서라 같은 물건을 두 번 사지 않는다.
+
 ## 6. 예외 상황 처리
 
 ### 6.1 미니게임 도중 클라이언트 연결이 끊어진 경우
