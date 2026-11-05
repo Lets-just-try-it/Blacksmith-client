@@ -1,0 +1,137 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: HumanoidArms
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Elements:
+  - m_Path: Rig
+    m_Weight: 0
+  - m_Path: Rig/Hips
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Body_Neck
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Body_Head
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Body_Head/Body_Ear_L
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Body_Head/Body_Ear_R
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Body_Head/Face_Eye_A
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Body_Head/Face_Eye_B
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Body_Head/Face_Eye_C
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Body_Head/Face_Mouth_A
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Body_Head/Face_Mouth_B
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Body_Head/Face_Mouth_C
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_A
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_A_Cap
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_A_Helmet
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_B
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_B_Cap
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_B_Helmet
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_C
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_C_Cap
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_C_Helmet
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_D
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_D_Cap
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hair_D_Helmet
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hat_Cap
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hat_Hairband
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Neck/Head/Hat_Helmet
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_L
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_L/Body_Joint_Shoulder_L
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_L/Outfit_A_JointShoulder_L
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_L/Outfit_B_JointShoulder_L
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_L/UpperArm_L
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_L/UpperArm_L/LowerArm_L
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_L/UpperArm_L/LowerArm_L/Hand_L
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_L/UpperArm_L/LowerArm_L/Hand_L/Body_Hand_L
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_L/UpperArm_L/LowerArm_L/Hand_L/Body_Thumb_L
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_L/UpperArm_L/LowerArm_L/Hand_L/Weapon_L
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_L/UpperArm_L/LowerArm_L/Hand_L/Weapon_L/Weapon_Bow_A_Held
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_L/UpperArm_L/LowerArm_L/Hand_L/Weapon_L/Weapon_Bow_B_Held
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_R/Body_Joint_Shoulder_R
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R/Outfit_A_JointShoulder_R
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R/Outfit_B_JointShoulder_R
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R/Hand_R
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R/Hand_R/Body_Hand_R
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R/Hand_R/Body_Thumb_R
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R/Hand_R/Weapon_R
+    m_Weight: 1
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R/Hand_R/Weapon_R/Weapon_GreatSword_A_Held
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R/Hand_R/Weapon_R/Weapon_GreatSword_B_Held
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R/Hand_R/Weapon_R/Weapon_SmithHammer_Held
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R/Hand_R/Weapon_R/Weapon_Staff_A_Held
+    m_Weight: 0
+  - m_Path: Rig/Hips/Spine/Shoulder_R/UpperArm_R/LowerArm_R/Hand_R/Weapon_R/Weapon_Staff_B_Held
+    m_Weight: 0
+  - m_Path: Rig/Hips/UpperLeg_L
+    m_Weight: 0
+  - m_Path: Rig/Hips/UpperLeg_L/LowerLeg_L
+    m_Weight: 0
+  - m_Path: Rig/Hips/UpperLeg_L/LowerLeg_L/Foot_L
+    m_Weight: 0
+  - m_Path: Rig/Hips/UpperLeg_R
+    m_Weight: 0
+  - m_Path: Rig/Hips/UpperLeg_R/LowerLeg_R
+    m_Weight: 0
+  - m_Path: Rig/Hips/UpperLeg_R/LowerLeg_R/Foot_R
+    m_Weight: 0

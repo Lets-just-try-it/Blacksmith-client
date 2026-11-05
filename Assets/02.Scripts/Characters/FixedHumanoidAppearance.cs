@@ -10,7 +10,8 @@ namespace Blacksmith.Characters
         [SerializeField] private HumanoidAppearanceView _view;
         [SerializeField] private HumanoidAppearance _appearance;
 
-        private void Start()
+        // 대장간 작업 자세처럼 스폰 직후 손에 든 파츠를 바꾸는 표시가 덮어써지지 않도록 가장 먼저 적용한다.
+        private void Awake()
         {
             _view.Apply(_appearance);
         }

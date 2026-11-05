@@ -88,6 +88,7 @@ namespace Blacksmith.Characters
         [Tooltip("투구에 가려 숨길 귀 파츠")]
         [SerializeField] private string[] _earParts = new string[0];
         public IReadOnlyList<string> EarParts => _earParts;
+        public IReadOnlyList<string> HeldParts => _heldParts;
         public IReadOnlyList<string> SkinParts => _skinParts;
         public int SkinBaseRow => _skinColors.BaseRow;
         public int HairBaseRow => _hairColors.BaseRow;
