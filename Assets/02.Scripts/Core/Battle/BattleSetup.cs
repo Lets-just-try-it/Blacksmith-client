@@ -10,7 +10,12 @@ namespace Blacksmith.Core.Battle
         // 전투가 끝나지 않는 데이터 오류를 막는 안전장치다. 넘기면 패배로 처리한다.
         public int MaxTicks { get; set; }
         public int MarchSpeed { get; set; }
+        // 앞줄과 뒷줄 사이 거리다.
         public int FormationSpacing { get; set; }
+        // 사거리가 이 값 이하면 근접으로 보고 앞줄에 세운다.
+        public int MeleeRangeMax { get; set; }
+        // 한 줄에 서는 최대 인원이다. 넘으면 같은 종류끼리 다음 줄을 만든다.
+        public int MaxRowSize { get; set; }
         public int StageSpawnDistance { get; set; }
         public int DamageVariancePercent { get; set; }
         public int DeathChancePercent { get; set; }

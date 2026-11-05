@@ -24,7 +24,7 @@ MonoBehaviour:
     ViewPrefab: {fileID: 7690759360899639822, guid: 0f87b3808f41051449a3204ff480ce03, type: 3}
   - JobId: 2
     Stats:
-      AttackRange: 120
+      AttackRange: 450
       AttackIntervalTicks: 20
       MoveSpeed: 18
       MaxMana: 1000
@@ -33,7 +33,7 @@ MonoBehaviour:
     ViewPrefab: {fileID: 9093188762804707282, guid: 0207677dac841e04f9981a93425f1655, type: 3}
   - JobId: 3
     Stats:
-      AttackRange: 120
+      AttackRange: 400
       AttackIntervalTicks: 20
       MoveSpeed: 18
       MaxMana: 1000

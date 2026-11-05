@@ -95,6 +95,108 @@ namespace Blacksmith.Tests
             Assert.AreEqual(first.Result.EndTick, second.Result.EndTick);
         }
 
+        private static BattleSimulation CreateFormation(params int[] ranges)
+        {
+            BattleRules rules = CreateRules();
+            rules.MeleeRangeMax = 200;
+            rules.MaxRowSize = 3;
+            var setup = new BattleSetup { Seed = 1, Rules = rules };
+            for (int i = 0; i < ranges.Length; i++)
+            {
+                setup.Adventurers.Add(new AdventurerSetup { AdventurerId = i + 1, Stats = Stats(100, 10, ranges[i]) });
+            }
+
+            return new BattleSimulation(setup);
+        }
+
+        private static void AssertSpot(BattleSimulation simulation, int partyIndex, int lane, int position)
+        {
+            BattleUnit unit = simulation.Units[partyIndex];
+            Assert.AreEqual(partyIndex + 1, unit.SourceId);
+            Assert.AreEqual(lane, unit.Lane, $"#{partyIndex + 1} lane");
+            Assert.AreEqual(position, unit.Position, $"#{partyIndex + 1} position");
+        }
+
+        [Test]
+        public void Formation_PlacesMeleeInFrontRowAndRangedInBackRow()
+        {
+            BattleSimulation simulation = CreateFormation(450, 120, 400, 120);
+
+            AssertSpot(simulation, 1, 0, 0);
+            AssertSpot(simulation, 3, 1, 0);
+            AssertSpot(simulation, 2, 0, -100);
+            AssertSpot(simulation, 0, 1, -100);
+        }
+
+        [Test]
+        public void Formation_SingleTypePartyStandsInOneFrontRow()
+        {
+            BattleSimulation simulation = CreateFormation(450, 400, 450);
+
+            AssertSpot(simulation, 1, 0, 0);
+            AssertSpot(simulation, 0, 1, 0);
+            AssertSpot(simulation, 2, 2, 0);
+        }
+
+        [Test]
+        public void Formation_CentersShorterRowOnWiderRow()
+        {
+            BattleSimulation simulation = CreateFormation(450, 450, 120, 400);
+
+            AssertSpot(simulation, 2, 1, 0);
+            AssertSpot(simulation, 3, 0, -100);
+            AssertSpot(simulation, 0, 1, -100);
+            AssertSpot(simulation, 1, 2, -100);
+        }
+
+        [Test]
+        public void Formation_FourMeleeOneRanged_Forms221()
+        {
+            BattleSimulation simulation = CreateFormation(120, 120, 120, 120, 450);
+
+            AssertSpot(simulation, 0, 0, 0);
+            AssertSpot(simulation, 1, 1, 0);
+            AssertSpot(simulation, 2, 0, -100);
+            AssertSpot(simulation, 3, 1, -100);
+            AssertSpot(simulation, 4, 0, -200);
+        }
+
+        [Test]
+        public void Formation_OneMeleeFourRanged_Forms122()
+        {
+            BattleSimulation simulation = CreateFormation(450, 120, 400, 450, 450);
+
+            AssertSpot(simulation, 1, 0, 0);
+            AssertSpot(simulation, 2, 0, -100);
+            AssertSpot(simulation, 0, 1, -100);
+            AssertSpot(simulation, 3, 0, -200);
+            AssertSpot(simulation, 4, 1, -200);
+        }
+
+        [Test]
+        public void Formation_TwoMeleeThreeRanged_Forms23WithoutSplittingRanged()
+        {
+            BattleSimulation simulation = CreateFormation(450, 120, 400, 120, 450);
+
+            AssertSpot(simulation, 1, 0, 0);
+            AssertSpot(simulation, 3, 1, 0);
+            AssertSpot(simulation, 2, 0, -100);
+            AssertSpot(simulation, 0, 1, -100);
+            AssertSpot(simulation, 4, 2, -100);
+        }
+
+        [Test]
+        public void Formation_ThreeMeleeTwoRanged_Forms32()
+        {
+            BattleSimulation simulation = CreateFormation(120, 450, 120, 400, 120);
+
+            AssertSpot(simulation, 0, 0, 0);
+            AssertSpot(simulation, 2, 1, 0);
+            AssertSpot(simulation, 4, 2, 0);
+            AssertSpot(simulation, 3, 0, -100);
+            AssertSpot(simulation, 1, 1, -100);
+        }
+
         [Test]
         public void StepPlayback_MatchesRunToEnd()
         {
