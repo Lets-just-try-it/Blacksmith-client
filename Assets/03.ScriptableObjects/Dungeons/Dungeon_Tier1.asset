@@ -25,7 +25,9 @@ MonoBehaviour:
       SpawnOffset: 350
     Gold: 100
     Experience: 60
-    Materials: []
+    Materials:
+    - MaterialId: 13
+      Count: 4
   - IsBoss: 0
     Spawns:
     - Monster: {fileID: 11400000, guid: 29bb8bb99433a6549acd6103f531efa2, type: 2}
@@ -38,7 +40,9 @@ MonoBehaviour:
       SpawnOffset: 450
     Gold: 150
     Experience: 80
-    Materials: []
+    Materials:
+    - MaterialId: 13
+      Count: 4
   - IsBoss: 1
     Spawns:
     - Monster: {fileID: 11400000, guid: 2f983ef24e7a1e748aa520cde1e5bda1, type: 2}
@@ -46,5 +50,5 @@ MonoBehaviour:
     Gold: 400
     Experience: 200
     Materials:
-    - MaterialId: 1
-      Count: 2
+    - MaterialId: 13
+      Count: 10

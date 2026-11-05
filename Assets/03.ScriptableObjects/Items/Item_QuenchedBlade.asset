@@ -13,8 +13,15 @@ MonoBehaviour:
   m_Name: Item_QuenchedBlade
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Inventory.ItemData
   _itemId: 7
-  _displayName: "\uB2F4\uAE08\uC9C8\uD55C \uCE7C\uB0A0"
+  _displayName: "\uB2F4\uAE08\uC9C8\uD55C \uCCA0 \uCE7C\uB0A0"
   _icon: {fileID: 0}
   _color: {r: 0.45, g: 0.55, b: 0.7, a: 1}
   _kind: 1
+  _tier: 2
   _equipmentSlot: 0
+  _weaponType: 0
+  _statBonus:
+    MaxHp: 0
+    Attack: 0
+    Defense: 0
+  _wornPart: 
