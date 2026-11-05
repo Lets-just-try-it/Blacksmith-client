@@ -13,42 +13,84 @@ MonoBehaviour:
   m_Name: Dungeon_Tier2
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.DungeonData
   _dungeonId: 2
-  _displayName: "\uBC84\uB824\uC9C4 \uBB18\uC9C0"
+  _displayName: "\uACE0\uBE14\uB9B0\xB7\uC624\uD06C \uC18C\uAD74"
   _stages:
   - IsBoss: 0
     Spawns:
-    - Monster: {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
+    - Monster: {fileID: 11400000, guid: 29bb8bb99433a6549acd6103f531efa2, type: 2}
       SpawnOffset: 0
-    - Monster: {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
+    - Monster: {fileID: 11400000, guid: 29bb8bb99433a6549acd6103f531efa2, type: 2}
       SpawnOffset: 150
-    - Monster: {fileID: 11400000, guid: b3175517a493bc447ade8ab00ed6e68e, type: 2}
+    - Monster: {fileID: 11400000, guid: 649f1b774a39ae049a646e7f1714e584, type: 2}
       SpawnOffset: 350
     Gold: 250
     Experience: 150
     Materials:
     - MaterialId: 1
       Count: 4
+    ChanceDrops:
+    - Rolls: 2
+      ChancePercent: 50
+      MaterialIds: 0f000000
+    - Rolls: 2
+      ChancePercent: 50
+      MaterialIds: 10000000
+    - Rolls: 2
+      ChancePercent: 50
+      MaterialIds: 11000000
+    GemDrops:
+    - Rolls: 1
+      ChancePercent: 30
+      MaterialIds: 12000000130000001400000015000000
   - IsBoss: 0
     Spawns:
-    - Monster: {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
+    - Monster: {fileID: 11400000, guid: 471b2a2b1b1fa9d4eb32fb4eee1facc9, type: 2}
       SpawnOffset: 0
-    - Monster: {fileID: 11400000, guid: a87e5bdb8cdfb044eb88ad9eb106311a, type: 2}
-      SpawnOffset: 100
-    - Monster: {fileID: 11400000, guid: a87e5bdb8cdfb044eb88ad9eb106311a, type: 2}
-      SpawnOffset: 200
-    - Monster: {fileID: 11400000, guid: b3175517a493bc447ade8ab00ed6e68e, type: 2}
-      SpawnOffset: 400
+    - Monster: {fileID: 11400000, guid: 29bb8bb99433a6549acd6103f531efa2, type: 2}
+      SpawnOffset: 150
+    - Monster: {fileID: 11400000, guid: 649f1b774a39ae049a646e7f1714e584, type: 2}
+      SpawnOffset: 350
+    - Monster: {fileID: 11400000, guid: 3f874b70188f8774395a9e0f02752622, type: 2}
+      SpawnOffset: 450
     Gold: 300
     Experience: 180
     Materials:
     - MaterialId: 1
       Count: 4
+    ChanceDrops:
+    - Rolls: 2
+      ChancePercent: 50
+      MaterialIds: 0f000000
+    - Rolls: 2
+      ChancePercent: 50
+      MaterialIds: 10000000
+    - Rolls: 2
+      ChancePercent: 50
+      MaterialIds: 11000000
+    GemDrops:
+    - Rolls: 1
+      ChancePercent: 30
+      MaterialIds: 12000000130000001400000015000000
   - IsBoss: 1
     Spawns:
-    - Monster: {fileID: 11400000, guid: 29f9c18c23e4a3b4bbe879fc250c0085, type: 2}
+    - Monster: {fileID: 11400000, guid: c38322c4046df10478f2a69119fba7a9, type: 2}
       SpawnOffset: 0
     Gold: 800
     Experience: 400
     Materials:
     - MaterialId: 1
       Count: 10
+    ChanceDrops:
+    - Rolls: 2
+      ChancePercent: 50
+      MaterialIds: 0f000000
+    - Rolls: 2
+      ChancePercent: 50
+      MaterialIds: 10000000
+    - Rolls: 2
+      ChancePercent: 50
+      MaterialIds: 11000000
+    GemDrops:
+    - Rolls: 2
+      ChancePercent: 45
+      MaterialIds: 12000000130000001400000015000000

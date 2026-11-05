@@ -191,6 +191,23 @@ namespace Blacksmith.Tests
         }
 
         [Test]
+        public void DeathImmunity_AlwaysSavesAndBreaksAccessory()
+        {
+            BattleRules rules = CreateRules();
+            rules.DeathChancePercent = 100;
+            BattleSetup setup = CreateSetup(1, 3, 60);
+            setup.Rules = rules;
+            setup.Adventurers[0].Accessory = new AccessoryEffect(AccessoryEffectKind.DeathImmunity, 100);
+
+            BattleResult result = new BattleSimulation(setup).RunToEnd();
+
+            Assert.IsFalse(result.Adventurers[0].IsDead);
+            Assert.IsTrue(result.Adventurers[0].IsAccessoryBroken);
+            Assert.IsTrue(result.Adventurers[1].IsDead);
+            Assert.IsFalse(result.Adventurers[1].IsAccessoryBroken);
+        }
+
+        [Test]
         public void FullMana_CastsSkillAndResetsMana()
         {
             var simulation = new BattleSimulation(CreateSetup(3, 30, 12));

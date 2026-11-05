@@ -64,6 +64,8 @@ namespace Blacksmith.Core.Battle
         public int AdventurerId { get; set; }
         public UnitStats Stats { get; set; }
         public SkillData Skill { get; set; }
+        // 입은 목걸이의 효과. 루비는 전투 시뮬레이션이, 나머지는 보상 계산이 쓴다.
+        public AccessoryEffect Accessory { get; set; }
     }
 
     public sealed class MonsterSetup

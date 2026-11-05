@@ -1,4 +1,5 @@
 using Blacksmith.Core.Adventurers;
+using Blacksmith.Core.Battle;
 using Blacksmith.Core.Inventory;
 using UnityEngine;
 
@@ -33,6 +34,8 @@ namespace Blacksmith.Inventory
         [SerializeField] private AdventurerStats _statBonus;
         [Tooltip("투구·무기일 때만 쓴다. 입었을 때 켤 인간형 모델 파츠(Hero.fbx 안의 오브젝트 이름). 투구는 외형 목록(HumanoidLook)의 모자에도 있어야 한다. 비우면 모습에 나오지 않는다")]
         [SerializeField] private string _wornPart = "";
+        [Tooltip("장신구(목걸이)일 때만 쓴다. 처음 넣은 보석이 정하는 효과 종류. 수치는 전투의 AccessoryEffects 데이터에 있다 (docs/GAME_CONCEPT.md 4.4)")]
+        [SerializeField] private AccessoryEffectKind _accessoryEffect;
 
         public int ItemId => _itemId;
         public string DisplayName => _displayName;
@@ -44,6 +47,7 @@ namespace Blacksmith.Inventory
         public WeaponType WeaponType => EquipmentSlot == EquipmentSlot.Weapon ? _weaponType : WeaponType.None;
         public AdventurerStats StatBonus => _kind == ItemKind.Equipment ? _statBonus : default;
         public string WornPart => _kind == ItemKind.Equipment ? _wornPart : "";
+        public AccessoryEffectKind AccessoryEffect => EquipmentSlot == EquipmentSlot.Accessory ? _accessoryEffect : AccessoryEffectKind.None;
         // 재료만 한 칸에 쌓는다. 장비와 중간 형태는 한 칸에 하나다.
         public bool IsStackable => _kind == ItemKind.Material;
     }

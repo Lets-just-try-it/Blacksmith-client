@@ -13,8 +13,10 @@ namespace Blacksmith.Battle
         public void Show(string adventurerName, AdventurerBattleResult result, AdventurerReward reward)
         {
             _nameText.text = adventurerName;
-            _statusText.text = result.IsDead ? "사망" : result.IsInjured ? "부상" : "생존";
-            _damageText.text = $"피해량 {result.DamageDealt} · 경험치 +{reward.ExperienceGained}{FormatLevelUp(reward)}";
+            string status = result.IsDead ? "사망" : result.IsInjured ? "부상" : "생존";
+            _statusText.text = result.IsAccessoryBroken ? $"{status}(목걸이 파손)" : status;
+            string bonus = reward.ExperienceBonus > 0 ? $"(사파이어 +{reward.ExperienceBonus})" : "";
+            _damageText.text = $"피해량 {result.DamageDealt} · 경험치 +{reward.ExperienceGained}{bonus}{FormatLevelUp(reward)}";
         }
 
         private static string FormatLevelUp(AdventurerReward reward)

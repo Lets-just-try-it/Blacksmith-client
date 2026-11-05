@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.MonsterData
   _monsterId: 203
   _displayName: "\uB9DD\uB839"
+  _isBoss: 0
   _stats:
-    MaxHp: 200
-    Attack: 22
-    Defense: 2
+    MaxHp: 130
+    Attack: 12
+    Defense: 1
     AttackRange: 100
     AttackIntervalTicks: 18
     MoveSpeed: 22
@@ -26,7 +27,7 @@ MonoBehaviour:
     ManaPerHit: 120
   _skills:
   - Kind: 2
-    PowerPercent: 180
+    PowerPercent: 160
     Radius: 250
   _enrage:
     HpPercent: 0

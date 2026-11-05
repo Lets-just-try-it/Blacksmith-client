@@ -30,6 +30,7 @@ namespace Blacksmith.Battle
 
         public event Action<BattleUnitView> UnitSpawned;
         public event Action<BattleUnitView> UnitEnraged;
+        public event Action<BattleUnitView> UnitFell;
         public event Action TickAdvanced;
         public event Action<BattleResult> Finished;
 
@@ -144,6 +145,7 @@ namespace Blacksmith.Battle
                 case BattleEventType.Fell:
                     _views[battleEvent.TargetUnitId].PlayFall();
                     _views[battleEvent.TargetUnitId].RefreshHp();
+                    UnitFell?.Invoke(_views[battleEvent.TargetUnitId]);
                     break;
                 case BattleEventType.Enraged:
                     _views[battleEvent.SourceUnitId].PlayEnrage();

@@ -25,7 +25,12 @@ namespace Blacksmith.Battle
             public int Gold;
             [Tooltip("이 스테이지를 쓰러지지 않고 클리어한 모험가가 받는 경험치")]
             public int Experience;
+            [Tooltip("클리어하면 반드시 받는 재료(광석)")]
             public List<MaterialReward> Materials = new List<MaterialReward>();
+            [Tooltip("확률로 받는 부재료. 굴릴 때마다 성공하면 1개. 에메랄드 효과를 받는다")]
+            public List<ChanceDrop> ChanceDrops = new List<ChanceDrop>();
+            [Tooltip("확률로 받는 보석. 성공하면 목록 중 하나를 균등하게 고른다. 에메랄드 효과를 받지 않는다")]
+            public List<ChanceDrop> GemDrops = new List<ChanceDrop>();
         }
 
         [SerializeField] private int _dungeonId;
@@ -74,6 +79,8 @@ namespace Blacksmith.Battle
                     Gold = entry.Gold,
                     Experience = entry.Experience,
                     Materials = entry.Materials,
+                    ChanceDrops = entry.ChanceDrops,
+                    GemDrops = entry.GemDrops,
                 });
             }
 

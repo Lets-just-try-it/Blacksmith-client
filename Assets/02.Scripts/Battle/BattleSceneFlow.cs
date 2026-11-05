@@ -1,3 +1,4 @@
+using System.Collections;
 using Blacksmith.Characters;
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
@@ -20,12 +21,18 @@ namespace Blacksmith.Battle
         [SerializeField] private BattleBossHpBar _bossHpBar;
         [SerializeField] private BattleBossIntro _bossIntro;
         [SerializeField] private BattleResultView _resultView;
+        [SerializeField] private BattleLootDrops _lootDrops;
         [SerializeField] private BattleRulesData _rules;
         [SerializeField] private AdventurerBattleData _adventurerBattle;
         [Tooltip("직업 이름을 찾는 데 쓴다")]
         [SerializeField] private AdventurerGenerationData _adventurerGeneration;
         [Tooltip("입은 장비의 색을 찾는 데 쓴다. 장비 착용 창 미리보기와 같은 표를 쓴다")]
         [SerializeField] private ItemCatalog _itemCatalog;
+        [Tooltip("[추정] 전투가 끝난 뒤 결과창을 띄우기까지 기다리는 시간(초). 마지막 몬스터가 쓰러지고 재료가 떨어지는 모습을 보여 준다")]
+        [SerializeField, Min(0f)] private float _resultDelay = 1.5f;
+
+        // 재생을 시작할 때 미리 계산한 보상이다. 드랍 연출과 결과창이 같은 값을 쓴다.
+        private BattleRewards _rewards;
 
         private void Awake()
         {
@@ -86,6 +93,10 @@ namespace Blacksmith.Battle
             _hud.Clear();
             _bossHpBar.Hide();
             _bossIntro.Hide();
+            StopAllCoroutines();
+            BattleResult result = new BattleSimulation(_battleState.CurrentSetup).RunToEnd();
+            _rewards = _battleState.CalculateRewards(result);
+            _lootDrops.Prepare(_battleState.CurrentSetup, _rewards);
             _player.Play(_battleState.CurrentSetup, _rules.TicksPerSecond, GetPrefab);
         }
 
@@ -121,9 +132,21 @@ namespace Blacksmith.Battle
 
         private void HandleFinished(BattleResult result)
         {
-            _resultView.Show(result, _battleState.CalculateRewards(result), _battleState.CurrentDungeon.DisplayName,
+            StartCoroutine(ShowResultAfterDelay(result));
+        }
+
+        private IEnumerator ShowResultAfterDelay(BattleResult result)
+        {
+            yield return new WaitForSeconds(_resultDelay);
+            _resultView.Show(result, _rewards, _battleState.CurrentDungeon.DisplayName,
                 _battleState.FirstStage, _battleState.LastStage, id => _channel.FindAdventurer(id)?.Name ?? id.ToString(),
-                _battleState.HasStateAuthority);
+                GetItemName, _battleState.HasStateAuthority);
+        }
+
+        private string GetItemName(int itemId)
+        {
+            ItemData item = _itemCatalog.Find(itemId);
+            return item != null ? item.DisplayName : $"#{itemId}";
         }
 
         // 호스트에서만 눌린다.

@@ -26,7 +26,12 @@ namespace Blacksmith.Core.Battle
 
         public static bool RollDeath(int deathChancePercent, Random random)
         {
-            return random.Next(100) < deathChancePercent;
+            return RollChance(deathChancePercent, random);
+        }
+
+        public static bool RollChance(int chancePercent, Random random)
+        {
+            return random.Next(100) < chancePercent;
         }
     }
 }
