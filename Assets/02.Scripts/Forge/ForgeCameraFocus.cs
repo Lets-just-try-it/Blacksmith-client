@@ -71,6 +71,11 @@ namespace Blacksmith.Forge
         // 맞는 순간 화면이 흔들린다. 진폭은 미터 단위이고 끝으로 갈수록 줄어든다.
         public void Shake(float amplitude, float seconds)
         {
+            if (!MinigameFeedbackSwitch.Enabled)
+            {
+                return;
+            }
+
             _shakeAmplitude = Mathf.Max(_shakeAmplitude * (_shakeLeft / Mathf.Max(0.01f, _shakeDuration)), amplitude);
             _shakeDuration = _shakeLeft = seconds;
         }
@@ -78,6 +83,11 @@ namespace Blacksmith.Forge
         // 맞는 순간 화면이 살짝 다가왔다 돌아온다. amount는 시야각이 줄어드는 비율이다.
         public void Punch(float amount)
         {
+            if (!MinigameFeedbackSwitch.Enabled)
+            {
+                return;
+            }
+
             _punch = Mathf.Max(_punch, amount);
         }
 

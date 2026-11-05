@@ -115,6 +115,11 @@ namespace Blacksmith.Forge
 
         public static void Burst(ParticleSystem system, int count)
         {
+            if (!MinigameFeedbackSwitch.Enabled)
+            {
+                return;
+            }
+
             system.Emit(count);
         }
 

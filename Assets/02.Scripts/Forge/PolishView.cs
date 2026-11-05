@@ -138,6 +138,11 @@ namespace Blacksmith.Forge
 
         public void Flash(float alpha, Color color)
         {
+            if (!MinigameFeedbackSwitch.Enabled)
+            {
+                return;
+            }
+
             _flashAlpha = Mathf.Max(_flashAlpha, alpha);
             color.a = _flashAlpha;
             _flash.color = color;

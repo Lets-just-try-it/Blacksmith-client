@@ -709,8 +709,9 @@ MonoBehaviour:
     RawValue: 0
   _IsNight:
     RawValue: 0
+  _Screen: 0
   _TierIndex: 0
-  _LastStage: 0
+  _Stage: 0
   _PartyCount: 0
 --- !u!114 &181058528
 MonoBehaviour:
@@ -1467,8 +1468,8 @@ MonoBehaviour:
   _inventory: {fileID: 2082279646}
   _supplyItem: {fileID: 11400000, guid: aea1a5cef7898394e83cbc803ed180ce, type: 2}
   _supplyCount: 10
-  _roster: {fileID: 0}
-  _generation: {fileID: 0}
+  _roster: {fileID: 944958973}
+  _generation: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
 --- !u!114 &513847051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4031,6 +4032,51 @@ Canvas:
   m_CorrespondingSourceObject: {fileID: 8764581269082336429, guid: 4222f879142de1148b9495a134a92d37, type: 3}
   m_PrefabInstance: {fileID: 1759104825}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1805578511
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1805578513}
+  - component: {fileID: 1805578512}
+  m_Layer: 0
+  m_Name: MinigameFeedbackToggle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1805578512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805578511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 464a544d499817d43b724b47cba60779, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.MinigameFeedbackToggle
+  _notice: {fileID: 1902003066}
+--- !u!4 &1805578513
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805578511}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1849070823
 GameObject:
   m_ObjectHideFlags: 0
@@ -4261,6 +4307,17 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1901001929}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1902003066 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3615486708826309771, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+  m_PrefabInstance: {fileID: 622512718}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6523f4bb39a76614b9a322e64ed58fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgeNotice
 --- !u!1 &1919108254
 GameObject:
   m_ObjectHideFlags: 0
@@ -4836,3 +4893,4 @@ SceneRoots:
   - {fileID: 1958198729}
   - {fileID: 563068612}
   - {fileID: 216139103}
+  - {fileID: 1805578513}

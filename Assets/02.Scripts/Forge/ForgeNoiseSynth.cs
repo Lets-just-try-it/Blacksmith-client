@@ -36,7 +36,7 @@ namespace Blacksmith.Forge
                 return;
             }
 
-            float volume = Volume;
+            float volume = MinigameFeedbackSwitch.Enabled ? Volume : 0f;
             float brightness = Brightness;
             float crackle = Crackle;
             for (int i = 0; i < data.Length; i += channels)
