@@ -15,6 +15,7 @@ namespace Blacksmith.UI
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _joinButton;
         [SerializeField] private TMP_Text _statusText;
+        [SerializeField] private ScreenFadeChannel _screenFade;
 
         private void Awake()
         {
@@ -44,12 +45,14 @@ namespace Blacksmith.UI
         private async Task StartSession(Func<string, Task<bool>> start)
         {
             SetButtonsInteractable(false);
+            await _screenFade.FadeOut();
             bool started = await start(_sessionNameInput.text);
 
-            // 성공하면 Game 씬으로 넘어가며 이 화면은 사라진다.
+            // 성공하면 어두운 채로 Game 씬으로 넘어가며 이 화면은 사라진다. 실패하면 다시 밝혀 상태 문구를 보여 준다.
             if (!started && this != null)
             {
                 SetButtonsInteractable(true);
+                _ = _screenFade.FadeIn();
             }
         }
 

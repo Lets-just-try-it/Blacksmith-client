@@ -1,3 +1,4 @@
+using Blacksmith.UI;
 using Fusion;
 using UnityEngine;
 
@@ -9,11 +10,18 @@ namespace Blacksmith.Network
     {
         [Tooltip("내 캐릭터를 구분하는 임시 표시. 캐릭터 외형이 생기면 대체한다.")]
         [SerializeField] private GameObject _localMarker;
+        [SerializeField] private ScreenFadeChannel _screenFade;
 
         public override void Spawned()
         {
             name = $"Player {Object.InputAuthority}";
             _localMarker.SetActive(HasInputAuthority);
+
+            // 로비에서 어두워진 채로 넘어온 Game 씬은 내 캐릭터가 나타난 뒤에 밝힌다.
+            if (HasInputAuthority)
+            {
+                _ = _screenFade.FadeIn();
+            }
         }
     }
 }

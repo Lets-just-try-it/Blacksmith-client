@@ -1805,8 +1805,6 @@ MonoBehaviour:
   _loader: {fileID: 1342970125}
   _IsOpen:
     RawValue: 0
-  _IsNight:
-    RawValue: 0
   _Screen: 0
   _TierIndex: 0
   _Stage: 0
@@ -1825,6 +1823,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleSceneLoader
   _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
   _battleScenePath: Assets/01.Scenes/Battle.unity
+  _screenFade: {fileID: 11400000, guid: d014f3a0aaa78ce48a6b8fccd8a5159b, type: 2}
 --- !u!114 &1342970126
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2508,6 +2507,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.DaySceneBattleCover
   _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
   _inputLock: {fileID: 11400000, guid: 55343e3bee392d840ad4d7043c323fbc, type: 2}
+  _screenFade: {fileID: 11400000, guid: d014f3a0aaa78ce48a6b8fccd8a5159b, type: 2}
   _cameras:
   - {fileID: 1718736445}
   _canvases:

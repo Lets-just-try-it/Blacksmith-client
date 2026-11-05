@@ -303,6 +303,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleSceneLoader
   _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
   _battleScenePath: Assets/01.Scenes/Battle.unity
+  _screenFade: {fileID: 11400000, guid: d014f3a0aaa78ce48a6b8fccd8a5159b, type: 2}
 --- !u!114 &562500926
 MonoBehaviour:
   m_ObjectHideFlags: 0
