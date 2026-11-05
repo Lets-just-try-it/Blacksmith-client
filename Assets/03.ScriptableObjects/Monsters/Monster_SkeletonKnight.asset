@@ -16,9 +16,9 @@ MonoBehaviour:
   _displayName: "\uD574\uACE8 \uAE30\uC0AC"
   _isBoss: 1
   _stats:
-    MaxHp: 4000
-    Attack: 60
-    Defense: 12
+    MaxHp: 1800
+    Attack: 40
+    Defense: 6
     AttackRange: 150
     AttackIntervalTicks: 30
     MoveSpeed: 10
@@ -27,16 +27,13 @@ MonoBehaviour:
     ManaPerHit: 120
   _skills:
   - Kind: 1
-    PowerPercent: 280
+    PowerPercent: 250
     Radius: 0
   - Kind: 2
-    PowerPercent: 180
+    PowerPercent: 160
     Radius: 300
-  - Kind: 2
-    PowerPercent: 220
-    Radius: 350
   _enrage:
-    HpPercent: 40
-    AttackBonusPercent: 40
-    AttackIntervalReductionPercent: 30
+    HpPercent: 50
+    AttackBonusPercent: 30
+    AttackIntervalReductionPercent: 25
   _viewPrefab: {fileID: 2434687279871641917, guid: 7123f00df770b734790965bfc2c723b1, type: 3}

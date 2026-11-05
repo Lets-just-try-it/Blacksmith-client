@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbcfb2dd476991a4587f9773886dd2fe, type: 3}
+  m_Name: Item_RubyNecklace2
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Inventory.ItemData
+  _itemId: 31
+  _displayName: "\uB8E8\uBE44 \uBAA9\uAC78\uC774 II"
+  _icon: {fileID: 0}
+  _color: {r: 0.85, g: 0.1, b: 0.15, a: 1}
+  _kind: 2
+  _tier: 2
+  _equipmentSlot: 4
+  _weaponType: 0
+  _statBonus:
+    MaxHp: 0
+    Attack: 0
+    Defense: 0
+  _wornPart: 
+  _accessoryEffect: 4

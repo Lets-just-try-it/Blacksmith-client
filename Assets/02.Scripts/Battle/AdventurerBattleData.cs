@@ -32,6 +32,8 @@ namespace Blacksmith.Battle
         [SerializeField] private List<SkillEntry> _skills = new List<SkillEntry>();
         [Tooltip("입은 장비의 능력치 보정. 장비 착용 창과 같은 데이터를 쓴다. 비워 두면 장비 보정을 넣지 않는다")]
         [SerializeField] private EquipmentStatData _equipment;
+        [Tooltip("입은 목걸이의 효과 수치. 비워 두면 장신구 효과를 넣지 않는다")]
+        [SerializeField] private AccessoryEffectData _accessoryEffects;
 
         public AdventurerSetup ToSetup(AdventurerData adventurer)
         {
@@ -42,7 +44,9 @@ namespace Blacksmith.Battle
             }
 
             AdventurerStats equipmentBonus = _equipment != null ? _equipment.GetEquipmentBonus(adventurer) : default;
-            return AdventurerSetupRules.Create(adventurer, job.Stats, FindSkill(adventurer.SkillId), equipmentBonus);
+            AdventurerSetup setup = AdventurerSetupRules.Create(adventurer, job.Stats, FindSkill(adventurer.SkillId), equipmentBonus);
+            setup.Accessory = _accessoryEffects != null ? _accessoryEffects.GetEffect(adventurer) : default;
+            return setup;
         }
 
         public BattleUnitView GetViewPrefab(int jobId)

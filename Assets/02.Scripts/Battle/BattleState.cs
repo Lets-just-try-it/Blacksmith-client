@@ -108,8 +108,9 @@ namespace Blacksmith.Battle
 
             BattleId++;
 
-            _pendingResult = new BattleSimulation(BuildSetup(dungeon)).RunToEnd();
-            _pendingRewards = CalculateRewards(_pendingResult, dungeon);
+            BattleSetup setup = BuildSetup(dungeon);
+            _pendingResult = new BattleSimulation(setup).RunToEnd();
+            _pendingRewards = CalculateRewards(setup, _pendingResult, dungeon);
             return true;
         }
 
@@ -131,14 +132,15 @@ namespace Blacksmith.Battle
         }
 
         // 결과창 표시와 호스트의 결과 계산이 같은 함수를 쓴다.
+        // 전투 화면의 드랍 연출도 같은 값을 쓴다.
         public BattleRewards CalculateRewards(BattleResult result)
         {
-            return CalculateRewards(result, CurrentDungeon);
+            return CalculateRewards(CurrentSetup, result, CurrentDungeon);
         }
 
-        private BattleRewards CalculateRewards(BattleResult result, DungeonData dungeon)
+        private BattleRewards CalculateRewards(BattleSetup setup, BattleResult result, DungeonData dungeon)
         {
-            return BattleRewardRules.Calculate(dungeon.GetStageRewards(FirstStage, LastStage), result,
+            return BattleRewardRules.Calculate(setup, dungeon.GetStageRewards(FirstStage, LastStage), result,
                 _findAdventurer, _adventurerLevel.ToRules());
         }
 

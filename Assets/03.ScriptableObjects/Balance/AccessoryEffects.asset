@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b30b5ca2c766b140affc6097e4911b1, type: 3}
+  m_Name: AccessoryEffects
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.AccessoryEffectData
+  _catalog: {fileID: 11400000, guid: 3d2a0086023e1c546b12a3cb2047b43e, type: 2}
+  _effects:
+  - Kind: 1
+    Tiers:
+    - GradePercents: 0a0000000f00000014000000190000001e000000
+    - GradePercents: 0f000000160000001e000000250000002d000000
+    - GradePercents: 140000001e00000028000000320000003c000000
+  - Kind: 2
+    Tiers:
+    - GradePercents: 020000000400000006000000080000000a000000
+    - GradePercents: 0300000006000000090000000c0000000f000000
+    - GradePercents: 04000000080000000c0000001000000014000000
+  - Kind: 3
+    Tiers:
+    - GradePercents: 020000000400000006000000080000000a000000
+    - GradePercents: 0300000006000000090000000c0000000f000000
+    - GradePercents: 04000000080000000c0000001000000014000000
+  - Kind: 4
+    Tiers:
+    - GradePercents: 1e00000028000000320000003c00000046000000
+    - GradePercents: 2d00000037000000410000004b00000055000000
+    - GradePercents: 3c00000046000000500000005a00000064000000

@@ -28,7 +28,7 @@ namespace Blacksmith.Battle
         [Tooltip("창이 열린 동안 하단 개인 슬롯을 숨기는 데 쓴다")]
         [SerializeField] private InventoryChannel _inventoryChannel;
         [Tooltip("지도에 보여 줄 전체 던전 단계 수 (docs/GAME_CONCEPT.md 7.2). 던전 데이터가 없는 단계는 잠긴 거점으로 보인다")]
-        [SerializeField, Min(1)] private int _totalTierCount = 10;
+        [SerializeField, Min(1)] private int _totalTierCount = 5;
         [Tooltip("던전 데이터가 없는 단계에 그릴 스테이지 수. 마지막이 보스다 (docs/GAME_CONCEPT.md 7.2: 잡몹 2 + 보스 1)")]
         [SerializeField, Min(1)] private int _defaultStageCount = 3;
         [Tooltip("길을 따라 놓을 거점 위치. 지도 그림 기준 0~1(왼쪽 아래가 0)이고, 1단계 1스테이지부터 차례로 하나씩이다")]

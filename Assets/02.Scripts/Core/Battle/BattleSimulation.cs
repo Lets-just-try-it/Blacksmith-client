@@ -363,22 +363,26 @@ namespace Blacksmith.Core.Battle
         private void Finish(bool isVictory)
         {
             int stagesCleared = isVictory ? _setup.Stages.Count : Math.Max(0, _stageIndex);
+            // 모험가는 SpawnAdventurers에서 설정 순서대로 먼저 넣었으므로 _units의 앞쪽 번호가 설정 번호와 같다.
             var adventurers = new List<AdventurerBattleResult>();
-            for (int i = 0; i < _units.Count; i++)
+            for (int i = 0; i < _setup.Adventurers.Count; i++)
             {
                 BattleUnit unit = _units[i];
-                if (unit.Team != BattleTeam.Adventurer)
-                {
-                    continue;
-                }
-
                 bool isDead = unit.IsFallen && BattleFormulas.RollDeath(_rules.DeathChancePercent, _random);
-                adventurers.Add(new AdventurerBattleResult(unit.SourceId, unit.IsFallen, isDead, unit.DamageDealt,
-                    unit.StagesCleared));
+                bool isAccessoryBroken = isDead && TryDeathImmunity(_setup.Adventurers[i].Accessory);
+                adventurers.Add(new AdventurerBattleResult(unit.SourceId, unit.IsFallen, isDead && !isAccessoryBroken,
+                    unit.DamageDealt, unit.StagesCleared, isAccessoryBroken));
             }
 
             Result = new BattleResult(isVictory, stagesCleared, Tick, adventurers);
             _events.Add(new BattleEvent(BattleEventType.BattleEnded, BattleEvent.NoUnit, BattleEvent.NoUnit, isVictory ? 1 : 0));
+        }
+
+        // 루비 목걸이: 사망으로 판정된 모험가를 확률로 살린다. 효과가 없으면 난수를 쓰지 않아 기존 결과가 바뀌지 않는다.
+        private bool TryDeathImmunity(AccessoryEffect accessory)
+        {
+            int percent = accessory.PercentOf(AccessoryEffectKind.DeathImmunity);
+            return percent > 0 && BattleFormulas.RollChance(percent, _random);
         }
     }
 }

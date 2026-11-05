@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbcfb2dd476991a4587f9773886dd2fe, type: 3}
+  m_Name: Item_TopazNecklace1
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Inventory.ItemData
+  _itemId: 36
+  _displayName: "\uD1A0\uD30C\uC988 \uBAA9\uAC78\uC774 I"
+  _icon: {fileID: 0}
+  _color: {r: 0.95, g: 0.75, b: 0.2, a: 1}
+  _kind: 2
+  _tier: 1
+  _equipmentSlot: 4
+  _weaponType: 0
+  _statBonus:
+    MaxHp: 0
+    Attack: 0
+    Defense: 0
+  _wornPart: 
+  _accessoryEffect: 2

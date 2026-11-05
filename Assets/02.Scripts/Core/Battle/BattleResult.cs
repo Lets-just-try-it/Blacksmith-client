@@ -10,9 +10,13 @@ namespace Blacksmith.Core.Battle
         public int DamageDealt { get; }
         // 쓰러지기 전까지 클리어한 스테이지 수다. 이 수만큼의 스테이지 경험치를 받는다.
         public int StagesCleared { get; }
+        // 루비 목걸이가 사망 판정을 막고 부서졌다.
+        public bool IsAccessoryBroken { get; }
 
-        public AdventurerBattleResult(int adventurerId, bool isInjured, bool isDead, int damageDealt, int stagesCleared)
+        public AdventurerBattleResult(int adventurerId, bool isInjured, bool isDead, int damageDealt, int stagesCleared,
+            bool isAccessoryBroken = false)
         {
+            IsAccessoryBroken = isAccessoryBroken;
             AdventurerId = adventurerId;
             IsInjured = isInjured;
             IsDead = isDead;

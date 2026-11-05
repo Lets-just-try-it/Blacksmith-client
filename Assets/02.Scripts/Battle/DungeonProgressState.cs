@@ -11,7 +11,7 @@ namespace Blacksmith.Battle
     // [미정] 게임을 껐다 켤 때의 저장 구조가 정해지면 그 저장에 넣는다 (docs/NETWORK_DESIGN.md 8절).
     public class DungeonProgressState : NetworkBehaviour
     {
-        // [Networked] 사전 크기는 컴파일할 때 정해야 해서 상수로 둔다. 기획상 전체 던전 단계 수(10)보다 넉넉하다.
+        // [Networked] 사전 크기는 컴파일할 때 정해야 해서 상수로 둔다. 기획상 전체 던전 단계 수(5)보다 넉넉하다.
         private const int MaxDungeons = 16;
 
         [SerializeField] private BattleChannel _channel;

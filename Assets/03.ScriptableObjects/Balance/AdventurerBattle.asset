@@ -47,3 +47,4 @@ MonoBehaviour:
       PowerPercent: 220
       Radius: 250
   _equipment: {fileID: 11400000, guid: 4e565ef83f5cb174c8dc4a0158958416, type: 2}
+  _accessoryEffects: {fileID: 11400000, guid: cd16235d87534b747a9a2d6f70d833db, type: 2}

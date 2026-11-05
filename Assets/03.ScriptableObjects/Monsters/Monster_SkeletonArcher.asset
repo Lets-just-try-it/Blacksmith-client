@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.MonsterData
   _monsterId: 202
   _displayName: "\uD574\uACE8 \uAD81\uC218"
+  _isBoss: 0
   _stats:
-    MaxHp: 180
-    Attack: 24
-    Defense: 3
+    MaxHp: 110
+    Attack: 14
+    Defense: 1
     AttackRange: 450
     AttackIntervalTicks: 30
     MoveSpeed: 10
