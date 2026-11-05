@@ -56,6 +56,11 @@ namespace Blacksmith.Forge
         // 강하게 맞는 순간 화면 전체가 번쩍인다.
         public void Flash(float alpha, Color color)
         {
+            if (!MinigameFeedbackSwitch.Enabled)
+            {
+                return;
+            }
+
             _flashAlpha = Mathf.Max(_flashAlpha, alpha);
             color.a = _flashAlpha;
             _flash.color = color;

@@ -160,6 +160,11 @@ namespace Blacksmith.Forge
         // 강한 변화에 화면 전체가 약하게 번쩍인다.
         public void Flash(float alpha, Color color)
         {
+            if (!MinigameFeedbackSwitch.Enabled)
+            {
+                return;
+            }
+
             _flashAlpha = Mathf.Max(_flashAlpha, alpha);
             color.a = _flashAlpha;
             _flash.color = color;
