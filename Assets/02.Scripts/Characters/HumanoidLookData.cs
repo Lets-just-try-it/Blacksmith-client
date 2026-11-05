@@ -48,6 +48,23 @@ namespace Blacksmith.Characters
             public string[] Parts = new string[0];
         }
 
+        // 팔레트(Hero_Palette)의 행 하나. 행은 색 램프(그림자·기본·하이라이트)다.
+        [Serializable]
+        public class PaletteColor
+        {
+            public string DisplayName;
+            public int Row;
+        }
+
+        // 한 부위의 색 변형. 모델은 BaseRow를 쓰고, 셰이더가 렌더러마다 BaseRow를 고른 색의 행으로 바꿔 읽는다.
+        [Serializable]
+        public class ColorVariants
+        {
+            [Tooltip("모델이 기본으로 쓰는 팔레트 행")]
+            public int BaseRow;
+            public PaletteColor[] Colors = new PaletteColor[0];
+        }
+
         // 투구 칸 장비의 모델 파츠(아이템의 WornPart)가 어떤 헤어 버전을 쓰는지 정한다.
         [Serializable]
         public class Hat
@@ -60,22 +77,20 @@ namespace Blacksmith.Characters
         [SerializeField] private HairStyle[] _hairStyles = new HairStyle[0];
         [SerializeField] private string[] _eyeStyles = new string[0];
         [SerializeField] private string[] _mouthStyles = new string[0];
-        [SerializeField] private Color[] _hairColors = new Color[0];
-        [SerializeField] private Color[] _skinColors = new Color[0];
+        [SerializeField] private ColorVariants _hairColors = new ColorVariants();
+        [SerializeField] private ColorVariants _skinColors = new ColorVariants();
+        [Tooltip("피부색을 바꿀 파츠. 헤어 파츠는 헤어 목록에서 정해진다")]
+        [SerializeField] private string[] _skinParts = new string[0];
         [SerializeField] private Outfit[] _outfits = new Outfit[0];
         [SerializeField] private Hat[] _hats = new Hat[0];
         [Tooltip("손에 드는 모든 파츠. 들고 있지 않은 파츠는 숨긴다")]
         [SerializeField] private string[] _heldParts = new string[0];
         [Tooltip("투구에 가려 숨길 귀 파츠")]
         [SerializeField] private string[] _earParts = new string[0];
-        [Tooltip("피부색을 칠할 머티리얼 이름")]
-        [SerializeField] private string _skinMaterial = "M_Body_Skin";
-        [Tooltip("머리색을 칠할 머티리얼 이름")]
-        [SerializeField] private string _hairMaterial = "M_Hair_DarkBrown";
-
-        public string SkinMaterial => _skinMaterial;
-        public string HairMaterial => _hairMaterial;
         public IReadOnlyList<string> EarParts => _earParts;
+        public IReadOnlyList<string> SkinParts => _skinParts;
+        public int SkinBaseRow => _skinColors.BaseRow;
+        public int HairBaseRow => _hairColors.BaseRow;
 
         // outfitChoices: 고를 수 있는 의상 번호. 비우면 모든 의상에서 고른다.
         public HumanoidAppearanceRules ToRules(IReadOnlyList<int> outfitChoices)
@@ -85,8 +100,8 @@ namespace Blacksmith.Characters
                 HairStyleCount = _hairStyles.Length,
                 EyeStyleCount = _eyeStyles.Length,
                 MouthStyleCount = _mouthStyles.Length,
-                HairColorCount = _hairColors.Length,
-                SkinColorCount = _skinColors.Length,
+                HairColorCount = _hairColors.Colors.Length,
+                SkinColorCount = _skinColors.Colors.Length,
                 OutfitCount = _outfits.Length,
                 OutfitChoices = outfitChoices ?? Array.Empty<int>(),
             };
@@ -95,8 +110,8 @@ namespace Blacksmith.Characters
         public HairStyle GetHairStyle(int index) => Pick(_hairStyles, index);
         public string GetEyePart(int index) => Pick(_eyeStyles, index);
         public string GetMouthPart(int index) => Pick(_mouthStyles, index);
-        public Color GetHairColor(int index) => Pick(_hairColors, index);
-        public Color GetSkinColor(int index) => Pick(_skinColors, index);
+        public int GetHairRow(int index) => Pick(_hairColors.Colors, index)?.Row ?? _hairColors.BaseRow;
+        public int GetSkinRow(int index) => Pick(_skinColors.Colors, index)?.Row ?? _skinColors.BaseRow;
         public Outfit GetOutfit(int index) => Pick(_outfits, index);
 
         // 목록에 없는 파츠면 null. 모자가 아닌 파츠를 투구 칸에 적은 경우다.
@@ -113,14 +128,23 @@ namespace Blacksmith.Characters
             return null;
         }
 
-        // 외형이 켜고 끄는 모든 파츠. 몸처럼 항상 보이는 파츠는 들어 있지 않다.
-        public IEnumerable<string> GetSwappableParts()
+        // 모든 헤어 파츠(모자에 따른 버전 포함). 머리색을 바꿀 파츠다.
+        public IEnumerable<string> GetHairParts()
         {
             foreach (HairStyle hair in _hairStyles)
             {
                 yield return hair.Plain;
                 yield return hair.Cap;
                 yield return hair.Helmet;
+            }
+        }
+
+        // 외형이 켜고 끄는 모든 파츠. 몸처럼 항상 보이는 파츠는 들어 있지 않다.
+        public IEnumerable<string> GetSwappableParts()
+        {
+            foreach (string hair in GetHairParts())
+            {
+                yield return hair;
             }
 
             foreach (string eye in _eyeStyles)
@@ -172,7 +196,7 @@ namespace Blacksmith.Characters
         private void OnValidate()
         {
             if (_hairStyles.Length == 0 || _eyeStyles.Length == 0 || _mouthStyles.Length == 0
-                || _hairColors.Length == 0 || _skinColors.Length == 0 || _outfits.Length == 0)
+                || _hairColors.Colors.Length == 0 || _skinColors.Colors.Length == 0 || _outfits.Length == 0)
             {
                 Debug.LogWarning("헤어·눈·입·머리색·피부색·의상은 하나 이상 있어야 한다.", this);
             }

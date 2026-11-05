@@ -38,18 +38,49 @@ MonoBehaviour:
   - Face_Mouth_B
   - Face_Mouth_C
   _hairColors:
-  - {r: 0.23127693, g: 0.16489014, b: 0.14098191, a: 1}
-  - {r: 0.1, g: 0.09, b: 0.11, a: 1}
-  - {r: 0.45, g: 0.25, b: 0.13, a: 1}
-  - {r: 0.85, g: 0.68, b: 0.36, a: 1}
-  - {r: 0.62, g: 0.2, b: 0.12, a: 1}
-  - {r: 0.62, g: 0.62, b: 0.66, a: 1}
+    BaseRow: 9
+    Colors:
+    - DisplayName: "\uC9D9\uC740 \uAC08\uC0C9"
+      Row: 9
+    - DisplayName: "\uAE08\uBC1C"
+      Row: 20
+    - DisplayName: "\uC801\uBC1C"
+      Row: 6
+    - DisplayName: "\uD751\uBC1C"
+      Row: 0
+    - DisplayName: "\uBC1D\uC740 \uAC08\uC0C9"
+      Row: 13
+    - DisplayName: "\uD770\uBA38\uB9AC"
+      Row: 3
   _skinColors:
-  - {r: 0.9647142, g: 0.8235409, b: 0.72155493, a: 1}
-  - {r: 0.99, g: 0.88, b: 0.8, a: 1}
-  - {r: 0.86, g: 0.66, b: 0.5, a: 1}
-  - {r: 0.66, g: 0.46, b: 0.32, a: 1}
-  - {r: 0.45, g: 0.3, b: 0.21, a: 1}
+    BaseRow: 16
+    Colors:
+    - DisplayName: "\uAE30\uBCF8"
+      Row: 16
+    - DisplayName: "\uD669\uAC08\uC0C9"
+      Row: 15
+    - DisplayName: "\uAC08\uC0C9"
+      Row: 12
+    - DisplayName: "\uCC3D\uBC31"
+      Row: 17
+  _skinParts:
+  - Body_Arm_L
+  - Body_Arm_R
+  - Body_Ear_L
+  - Body_Ear_R
+  - Body_Foot_L
+  - Body_Foot_R
+  - Body_Hand_L
+  - Body_Hand_R
+  - Body_Head
+  - Body_Joint_Shoulder_L
+  - Body_Joint_Shoulder_R
+  - Body_Leg_L
+  - Body_Leg_R
+  - Body_Neck
+  - Body_Thumb_L
+  - Body_Thumb_R
+  - Body_Trunk
   _outfits:
   - DisplayName: "\uD29C\uB2C9"
     Parts:
@@ -61,6 +92,8 @@ MonoBehaviour:
     - Outfit_A_Bottom
     - Outfit_A_Belt
     - Outfit_A_Buckle
+    - Outfit_A_Boot_L
+    - Outfit_A_Boot_R
   - DisplayName: "\uC55E\uCE58\uB9C8"
     Parts:
     - Outfit_B_Torso
@@ -73,6 +106,8 @@ MonoBehaviour:
     - Outfit_B_ApronSkirt
     - Outfit_B_ApronStrap_L
     - Outfit_B_ApronStrap_R
+    - Outfit_B_Boot_L
+    - Outfit_B_Boot_R
   _hats:
   - Part: Hat_Helmet
     HairVariant: 2
@@ -94,5 +129,3 @@ MonoBehaviour:
   _earParts:
   - Body_Ear_L
   - Body_Ear_R
-  _skinMaterial: M_Body_Skin
-  _hairMaterial: M_Hair_DarkBrown

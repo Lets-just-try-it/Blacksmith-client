@@ -5,32 +5,22 @@ using UnityEngine;
 namespace Blacksmith.Characters
 {
     // 인간형 모델 하나의 모습을 외형 번호와 착용 파츠에 맞춘다. 모델 루트(Hero)에 붙인다.
-    // 모든 파츠가 한 모델 안에 같은 리그로 들어 있어서, 파츠를 켜고 끄고 피부·머리 머티리얼만 칠한다.
+    // 모든 파츠가 한 모델 안에 같은 리그로 들어 있어서, 파츠를 켜고 끄고 피부·머리 파츠의 팔레트 행만 바꾼다.
     [DisallowMultipleComponent]
     public class HumanoidAppearanceView : MonoBehaviour
     {
-        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        // 팔레트 툰 셰이더(HumanoidPaletteToon)의 행 교체. 피부와 헤어는 렌더러가 겹치지 않아 첫 번째 쌍만 쓴다.
+        private static readonly int SwapFromId = Shader.PropertyToID("_Swap0From");
+        private static readonly int SwapToId = Shader.PropertyToID("_Swap0To");
 
         [SerializeField] private HumanoidLookData _look;
 
         private readonly Dictionary<string, GameObject> _parts = new Dictionary<string, GameObject>();
-        private readonly List<MaterialSlot> _skinSlots = new List<MaterialSlot>();
-        private readonly List<MaterialSlot> _hairSlots = new List<MaterialSlot>();
+        private readonly List<Renderer> _skinRenderers = new List<Renderer>();
+        private readonly List<Renderer> _hairRenderers = new List<Renderer>();
         private readonly HashSet<string> _warnedParts = new HashSet<string>();
         private MaterialPropertyBlock _block;
         private bool _isCached;
-
-        private readonly struct MaterialSlot
-        {
-            public readonly Renderer Renderer;
-            public readonly int Index;
-
-            public MaterialSlot(Renderer renderer, int index)
-            {
-                Renderer = renderer;
-                Index = index;
-            }
-        }
 
         private void Awake()
         {
@@ -68,8 +58,8 @@ namespace Blacksmith.Characters
                 SetPart(ear, !hideEars);
             }
 
-            Paint(_skinSlots, _look.GetSkinColor(appearance.SkinColor));
-            Paint(_hairSlots, _look.GetHairColor(appearance.HairColor));
+            SwapRow(_skinRenderers, _look.SkinBaseRow, _look.GetSkinRow(appearance.SkinColor));
+            SwapRow(_hairRenderers, _look.HairBaseRow, _look.GetHairRow(appearance.HairColor));
         }
 
         private HumanoidLookData.Hat FindHat(string hatPart)
@@ -101,53 +91,60 @@ namespace Blacksmith.Characters
                 _parts.TryAdd(child.name, child.gameObject);
             }
 
-            foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
-            {
-                Material[] materials = renderer.sharedMaterials;
-                for (int i = 0; i < materials.Length; i++)
-                {
-                    if (materials[i] == null)
-                    {
-                        continue;
-                    }
+            CollectRenderers(_look.SkinParts, _skinRenderers);
+            CollectRenderers(_look.GetHairParts(), _hairRenderers);
+        }
 
-                    if (materials[i].name == _look.SkinMaterial)
-                    {
-                        _skinSlots.Add(new MaterialSlot(renderer, i));
-                    }
-                    else if (materials[i].name == _look.HairMaterial)
-                    {
-                        _hairSlots.Add(new MaterialSlot(renderer, i));
-                    }
+        private void CollectRenderers(IEnumerable<string> parts, List<Renderer> renderers)
+        {
+            foreach (string part in parts)
+            {
+                if (TryFindPart(part, out GameObject target))
+                {
+                    renderers.AddRange(target.GetComponents<Renderer>());
                 }
             }
         }
 
         private void SetPart(string part, bool isActive)
         {
-            if (string.IsNullOrEmpty(part))
-            {
-                return;
-            }
-
-            if (_parts.TryGetValue(part, out GameObject target))
+            if (TryFindPart(part, out GameObject target))
             {
                 target.SetActive(isActive);
             }
-            else if (_warnedParts.Add(part))
+        }
+
+        // 비어 있는 파츠 이름은 "없음"이라 경고하지 않는다.
+        private bool TryFindPart(string part, out GameObject target)
+        {
+            target = null;
+            if (string.IsNullOrEmpty(part))
+            {
+                return false;
+            }
+
+            if (_parts.TryGetValue(part, out target))
+            {
+                return true;
+            }
+
+            if (_warnedParts.Add(part))
             {
                 Debug.LogWarning($"모델에 없는 파츠다: {part}", this);
             }
+
+            return false;
         }
 
-        private void Paint(List<MaterialSlot> slots, Color color)
+        private void SwapRow(List<Renderer> renderers, int fromRow, int toRow)
         {
             _block ??= new MaterialPropertyBlock();
-            foreach (MaterialSlot slot in slots)
+            foreach (Renderer renderer in renderers)
             {
-                slot.Renderer.GetPropertyBlock(_block, slot.Index);
-                _block.SetColor(BaseColorId, color);
-                slot.Renderer.SetPropertyBlock(_block, slot.Index);
+                renderer.GetPropertyBlock(_block);
+                _block.SetFloat(SwapFromId, fromRow);
+                _block.SetFloat(SwapToId, toRow);
+                renderer.SetPropertyBlock(_block);
             }
         }
     }

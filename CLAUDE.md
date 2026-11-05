@@ -83,6 +83,7 @@ Assets/
     Sprites/
     Animations/
     Materials/
+    Shaders/     # 셰이더 그래프와 Custom Function용 HLSL
     Fonts/       # 폰트 원본, 라이선스 문서(OFL.txt), TextMeshPro 폰트 에셋
 
   06.Audio/

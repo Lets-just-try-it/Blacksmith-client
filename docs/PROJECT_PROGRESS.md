@@ -220,10 +220,13 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 
 - 플레이어, 영입 후보, 손님, 모험가 전투 유닛이 같은 인간형 모델(Blender에서 만든 `05.Art/Models/Characters/Hero/Hero.fbx`, 애니메이션은 `05.Art/Animations/Hero`)을 쓴다. 모든 파츠가 한 모델에 같은 리그로 들어 있고, 외형에 맞춰 파츠를 켜고 끈다.
 - 외형 번호는 `Core/Characters`의 `HumanoidAppearance`(헤어·눈·입·머리색·피부색·의상)이고, 시드 기반으로 `HumanoidAppearanceGenerator`가 뽑는다. 모험가 생성(`AdventurerGenerator`)과 손님 생성(`ShopFlow`)이 같이 쓴다.
-- 외형 목록은 `03.ScriptableObjects/Characters/HumanoidLook` 데이터(`HumanoidLookData`)다. 헤어 4종(모자에 따른 일반·캡·헬멧 버전), 눈 3종, 입 3종, 머리색 6종, 피부색 5종, 의상 2종(튜닉, 앞치마), 모자 3종, 손에 드는 파츠 7개가 들어 있다. 개수는 목록 길이로 정해지므로 항목을 추가하면 생성 범위도 늘어난다. 번호가 목록 위치이므로 끝에만 추가한다.
-- `02.Scripts/Characters/`: 외형 적용(`HumanoidAppearanceView`: 파츠 켜기·끄기, 모자에 따른 헤어 버전과 귀 숨김, 피부·머리 머티리얼 색), 이동 속도에 맞춘 걷기·달리기(`HumanoidMotion`, 표시 전용), 고정 외형(`FixedHumanoidAppearance`, 플레이어), 동기화 형식(`NetworkHumanoidAppearance`), 모험가 외형과 장비 표시(`AdventurerLook`).
+- 외형 목록은 `03.ScriptableObjects/Characters/HumanoidLook` 데이터(`HumanoidLookData`)다. 헤어 4종(모자에 따른 일반·캡·헬멧 버전), 눈 3종, 입 3종, 머리색 6종(짙은 갈색·금발·적발·흑발·밝은 갈색·흰머리), 피부색 4종, 의상 2종(튜닉, 앞치마. 신발 포함, 기본 몸은 맨발), 모자 3종, 손에 드는 파츠 7개가 들어 있다. 개수는 목록 길이로 정해지므로 항목을 추가하면 생성 범위도 늘어난다. 번호가 목록 위치이므로 끝에만 추가한다.
+- `02.Scripts/Characters/`: 외형 적용(`HumanoidAppearanceView`: 파츠 켜기·끄기, 모자에 따른 헤어 버전과 귀 숨김, 피부·머리 파츠의 팔레트 행 교체), 이동 속도에 맞춘 걷기·달리기(`HumanoidMotion`, 표시 전용), 고정 외형(`FixedHumanoidAppearance`, 플레이어), 동기화 형식(`NetworkHumanoidAppearance`), 모험가 외형과 장비 표시(`AdventurerLook`).
 - 공용 프리팹 `04.Prefabs/Characters/Humanoid`(모델 1.8배, `Humanoid` 애니메이터: 대기·걷기·달리기 블렌드, 전투 이동, 공격). 궁수·마법사 공격 동작은 `Humanoid_Bow`·`Humanoid_Staff` 오버라이드 컨트롤러다.
-- 머티리얼은 Blender의 단색을 옮긴 URP Simple Lit(`05.Art/Materials/Characters/Hero`)이고, 낮·밤 조명을 받는다.
+- 모든 파츠가 머티리얼 하나(`05.Art/Materials/Characters/Hero/M_Hero_Palette`)와 팔레트 텍스처 한 장(`05.Art/Models/Characters/Hero/Hero_Palette.png`, 4열 × 64행, Point 필터·밉맵 없음)을 쓴다. 메쉬 UV의 v가 팔레트 행(색 램프)을 가리킨다. 행 구성과 색은 Blender 익스포트의 `palette.json`을 따르며, 팔레트는 Blender 원본과 함께 고친다.
+- 셰이더는 팔레트 램프 툰 셰이더 그래프(`05.Art/Shaders/HumanoidPaletteToon`, `Blacksmith/HumanoidPaletteToon`, Custom Function `HumanoidPaletteToon.hlsl`)다. 해 방향(NdotL)과 받는 그림자로 그림자·기본·하이라이트 열 중 하나를 계단식으로 고르고(`_T1` 0.45, `_T2` 0.85), 그 색에 해 색·세기와 환경광(`_SunWeight` 0.8, `_AmbientWeight` 0.5)을 곱해 밤에는 함께 어두워진다. Blender 사양은 조명을 곱하지 않는 출력이지만, 낮·밤 조명을 따르게 하려고 곱한다.
+- 피부색·머리색은 렌더러별 행 교체(`_Swap0From`→`_Swap0To`, MaterialPropertyBlock)로 바꾼다. 피부 파츠(기본 16행)와 헤어 파츠(기본 9행)의 목록과 색 후보 행은 `HumanoidLook` 데이터에 있다. 행 교체는 두 쌍(`_Swap0`, `_Swap1`)까지 있고 지금은 첫 쌍만 쓴다.
+- 모델은 Blender에서 만든 부드러운 노멀(면 사이 각도 60° 초과인 모서리만 각지게)을 그대로 쓴다(`Hero.fbx` 임포트 Normals = Import, Tangents = Mikktspace). 그래서 명암 경계가 모서리가 아니라 면 위를 지나간다. 눈·입 파츠는 얼굴에 그림자를 드리우지 않는다(`Humanoid` 프리팹에서 Cast Shadows 끔).
 - 애니메이션 FBX는 `Preserve Hierarchy`를 켜야 클립 경로(`Rig/Hips/...`)가 모델과 맞는다. 다시 익스포트한 파일을 덮어쓸 때도 임포트 설정(.meta)을 유지한다.
 - 플레이어는 의상 B(앞치마) 고정 외형이다. 손에 든 물건(`HeldItemView`)은 아직 모델 손이 아닌 캐릭터 앞쪽에 보인다. 대장장이 망치 파츠와 단조 동작(`Work_Smithing`)은 들여왔지만 쓰지 않는다.
 - 초상화(`AdventurerPortraitProvider`)는 아직 임시 이미지다.
@@ -265,6 +268,10 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
   - `ForgeTest`: 플레이어가 앞치마 차림으로 서서 대기 동작을 하는 것, 손님이 무작위 외형(피부·머리색, 의상)으로 서서 돌아다니는 것.
   - `PlazaTest`: 영입 후보가 무작위 외형과 직업의 기본무기(궁수는 낡은 활)를 든 모습으로 서 있는 것.
   - `BattleTest`: 모험가 4명이 각자 다른 머리색과 기본무기를 들고 보스를 향해 서서 싸우는 것.
+  - `ForgeTest`: 팔레트 툰 셰이더로 면 방향에 따라 명암 3단계가 나오는 것, 손님의 피부색·머리색 교체(창백한 피부·흰머리), 의상별 신발, 밤 조명(`DayNightLighting`의 밤 값을 직접 적용)에서 캐릭터 전체가 어둡고 푸르게 바뀌는 것.
+  - `ForgeTest`: 부드러운 노멀로 다시 가져온 뒤 머리·얼굴의 명암 경계가 모서리가 아닌 곡선으로 지나가는 것.
+  - `BattleTest`: 팔레트 셰이더로 모험가가 분홍색(셰이더 오류) 없이 그려지는 것.
+  - 실제 낮 마감 후 밤 전환, 몸에 받는 그림자가 그림자 단계로 바뀌는 것, 셰이더 그래프 창에서 그래프를 여는 것, 모바일 품질 설정(`Mobile_RPAsset`)에서의 모습은 확인하지 않았다.
   - 걷기·달리기 전환, 공격 동작이 직업별로 다른 것, 투구를 입힌 모습(헬멧 헤어·귀 숨김), 쓰러질 때 몸이 눕는 것, 장비 착용 창 미리보기, 두 명 접속은 화면으로 확인하지 않았다.
 - `PlazaTest` 씬 플레이 모드에서 호스트 자동 시작, 영입 후보 1~4명 생성, 후보에게 다가가면 "E 영입" 표시, E 입력으로 영입해 후보가 사라지고 목록에 들어가는 것, 슬롯이 가득 차면 영입되지 않는 것, 목록 창을 연 상태에서 바로 갱신되는 것, 버튼으로 창을 열고 닫는 것을 확인했다. 콘솔 오류 없음. 빌드한 실행 파일과 에디터로 두 명이 접속해 영입, 관리 목록 동기화, 클라이언트 화면의 후보 위치를 확인했다. 이때 로비가 `PlazaTest`를 불러오도록 로컬에서만 임시로 바꿔 테스트했다. (영입이 대화로 바뀌기 전에 확인한 내용이다.)
 - 대화: `PlazaTest` 씬에서 다음을 확인했다. 콘솔 오류 없음.
