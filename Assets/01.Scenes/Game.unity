@@ -4728,6 +4728,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: DispatchUI
       objectReference: {fileID: 0}
+    - target: {fileID: 4595491362898789361, guid: 4222f879142de1148b9495a134a92d37, type: 3}
+      propertyPath: _state
+      value: 
+      objectReference: {fileID: 181058527}
+    - target: {fileID: 4595491362898789361, guid: 4222f879142de1148b9495a134a92d37, type: 3}
+      propertyPath: _progress
+      value: 
+      objectReference: {fileID: 181058526}
     - target: {fileID: 8714192574101165593, guid: 4222f879142de1148b9495a134a92d37, type: 3}
       propertyPath: m_IsActive
       value: 0
