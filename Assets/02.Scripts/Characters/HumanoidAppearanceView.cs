@@ -62,6 +62,18 @@ namespace Blacksmith.Characters
             SwapRow(_hairRenderers, _look.HairBaseRow, _look.GetHairRow(appearance.HairColor));
         }
 
+        // 외형은 그대로 두고 손에 든 파츠만 바꾼다. 비우면 아무것도 들지 않는다.
+        public void SetHeldPart(string heldPart)
+        {
+            EnsureCache();
+            foreach (string part in _look.HeldParts)
+            {
+                SetPart(part, false);
+            }
+
+            SetPart(heldPart, true);
+        }
+
         private HumanoidLookData.Hat FindHat(string hatPart)
         {
             if (string.IsNullOrEmpty(hatPart))

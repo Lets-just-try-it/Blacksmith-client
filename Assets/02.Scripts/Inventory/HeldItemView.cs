@@ -1,3 +1,4 @@
+using Blacksmith.Characters;
 using Blacksmith.Core.Inventory;
 using Fusion;
 using UnityEngine;
@@ -20,6 +21,8 @@ namespace Blacksmith.Inventory
         [SerializeField] private Renderer _block;
         [Tooltip("물건을 감싸는 강조 껍데기. 반투명 머티리얼을 쓴다")]
         [SerializeField] private Renderer _highlight;
+        [Tooltip("물건을 들면 상반신 들기 자세를 취하게 할 캐릭터 모델. 비우면 자세를 바꾸지 않는다")]
+        [SerializeField] private HumanoidPose _pose;
         [SerializeField] private Color _highlightColor = new Color(1f, 0.85f, 0.3f, 0.6f);
         [SerializeField, Min(0f)] private float _pulseSpeed = 3f;
         [Tooltip("깜박일 때 가장 흐린 투명도 비율")]
@@ -27,6 +30,7 @@ namespace Blacksmith.Inventory
 
         private MaterialPropertyBlock _properties;
         private ItemStack _shown;
+        private bool _isHidden;
 
         public override void Spawned()
         {
@@ -50,6 +54,18 @@ namespace Blacksmith.Inventory
             }
         }
 
+        // 대장간 미니게임처럼 손이 다른 일을 하는 동안 든 물건과 들기 자세를 숨긴다. 든 칸은 그대로다.
+        public void SetHidden(bool isHidden)
+        {
+            if (_isHidden == isHidden)
+            {
+                return;
+            }
+
+            _isHidden = isHidden;
+            Show(_shown);
+        }
+
         private ItemStack GetHeldItem()
         {
             int slot = HasInputAuthority ? _channel.HeldSlot : _inventory.HeldSlot;
@@ -60,7 +76,13 @@ namespace Blacksmith.Inventory
         {
             _shown = stack;
             ItemData item = stack.IsEmpty ? null : _inventory.Catalog.Find(stack.ItemId);
-            _root.SetActive(item != null);
+            bool isVisible = item != null && !_isHidden;
+            _root.SetActive(isVisible);
+            if (_pose != null)
+            {
+                _pose.SetHolding(isVisible);
+            }
+
             if (item == null)
             {
                 return;

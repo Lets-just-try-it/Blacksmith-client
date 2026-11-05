@@ -17,6 +17,8 @@ namespace Blacksmith.Forge
     {
         [SerializeField] private CraftingStationKind _kind;
         [SerializeField] private CraftingRecipeData _recipe;
+        [Tooltip("Player 프리팹이 사용 중인 작업대를 찾을 수 있게 스폰되면 등록한다")]
+        [SerializeField] private ForgeStationRegistry _registry;
 
         [Networked] private ForgeStationStatus Status { get; set; }
         [Networked] private PlayerRef CurrentUser { get; set; }
@@ -34,6 +36,22 @@ namespace Blacksmith.Forge
         public PlayerRef User => CurrentUser;
         public int ActiveSessionId => SessionId;
         public int Slot => ReservedSlot;
+
+        public override void Spawned()
+        {
+            if (_registry != null)
+            {
+                _registry.Register(this);
+            }
+        }
+
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            if (_registry != null)
+            {
+                _registry.Unregister(this);
+            }
+        }
 
         // 호스트 전용. 사용 가능할 때만 사용권을 주고 새 세션 번호를 발급한다.
         public bool TryAcquire(PlayerRef user, int slot, out int sessionId)

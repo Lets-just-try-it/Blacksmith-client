@@ -27180,6 +27180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgeStationState
   _kind: 2
   _recipe: {fileID: 11400000, guid: 2ae3e5f1dd423624cb0ca1d83d296405, type: 2}
+  _registry: {fileID: 11400000, guid: 11e92f053312ff143badb94f1ac87730, type: 2}
 --- !u!114 &1461125022870425369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32043,6 +32044,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgeStationState
   _kind: 1
   _recipe: {fileID: 11400000, guid: 2ae3e5f1dd423624cb0ca1d83d296405, type: 2}
+  _registry: {fileID: 11400000, guid: 11e92f053312ff143badb94f1ac87730, type: 2}
 --- !u!114 &7708832084862774172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38341,6 +38343,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgeStationState
   _kind: 3
   _recipe: {fileID: 11400000, guid: 2ae3e5f1dd423624cb0ca1d83d296405, type: 2}
+  _registry: {fileID: 11400000, guid: 11e92f053312ff143badb94f1ac87730, type: 2}
 --- !u!114 &8208301808881222980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47471,6 +47474,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgeStationState
   _kind: 0
   _recipe: {fileID: 11400000, guid: 2ae3e5f1dd423624cb0ca1d83d296405, type: 2}
+  _registry: {fileID: 11400000, guid: 11e92f053312ff143badb94f1ac87730, type: 2}
 --- !u!114 &8612089552850801931
 MonoBehaviour:
   m_ObjectHideFlags: 0

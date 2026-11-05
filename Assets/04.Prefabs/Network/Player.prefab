@@ -416,6 +416,7 @@ GameObject:
   - component: {fileID: 8816945040071722879}
   - component: {fileID: 7781040051162245662}
   - component: {fileID: 3994268588077678658}
+  - component: {fileID: 489576047317289931}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -470,6 +471,7 @@ MonoBehaviour:
   - {fileID: 8816945040071722879}
   - {fileID: 7781040051162245662}
   - {fileID: 3994268588077678658}
+  - {fileID: 489576047317289931}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &928977346244656201
 CharacterController:
@@ -635,6 +637,7 @@ MonoBehaviour:
   _icon: {fileID: 3655484351116082234}
   _block: {fileID: 8555531557223728007}
   _highlight: {fileID: 4601442445516383734}
+  _pose: {fileID: 7135865843597799587}
   _highlightColor: {r: 1, g: 0.85, b: 0.3, a: 0.6}
   _pulseSpeed: 3
   _pulseMin: 0.3
@@ -651,6 +654,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.SalesPlayerActions
   _inventory: {fileID: 6428275539069939239}
+--- !u!114 &489576047317289931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6939742712899349512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dce916a13b15e2b42a81df55349d0bc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgeWorkPose
+  _registry: {fileID: 11400000, guid: 11e92f053312ff143badb94f1ac87730, type: 2}
+  _pose: {fileID: 7135865843597799587}
+  _view: {fileID: 2644766153934918400}
+  _heldItem: {fileID: 7781040051162245662}
+  _styles:
+  - Kind: 0
+    Pose: 1
+    HeldPart: Weapon_SmithHammer_Held
+  - Kind: 1
+    Pose: 1
+    HeldPart: Weapon_SmithHammer_Held
+  - Kind: 2
+    Pose: 1
+    HeldPart: Weapon_SmithHammer_Held
+  - Kind: 3
+    Pose: 1
+    HeldPart: Weapon_SmithHammer_Held
 --- !u!1 &9110488598716451685
 GameObject:
   m_ObjectHideFlags: 0
@@ -891,6 +923,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5638506488607987157, guid: d7ef99312e9baf7489f9ddac77d136f7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2594137935836637853}
+    - targetCorrespondingSourceObject: {fileID: 5638506488607987157, guid: d7ef99312e9baf7489f9ddac77d136f7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7135865843597799587}
   m_SourcePrefab: {fileID: 100100000, guid: d7ef99312e9baf7489f9ddac77d136f7, type: 3}
 --- !u!114 &2644766153934918400 stripped
 MonoBehaviour:
@@ -928,6 +963,20 @@ MonoBehaviour:
     HairColor: 0
     SkinColor: 0
     Outfit: 1
+--- !u!114 &7135865843597799587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3800440153164866782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33824843ef17e7b45a6b153eb58f2d33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Characters.HumanoidPose
+  _upperBodyLayer: UpperBody
+  _blendSeconds: 0.15
 --- !u!4 &4608924610496675428 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5004677219965374319, guid: d7ef99312e9baf7489f9ddac77d136f7, type: 3}
