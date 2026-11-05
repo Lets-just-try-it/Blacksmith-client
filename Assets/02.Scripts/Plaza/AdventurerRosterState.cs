@@ -124,6 +124,22 @@ namespace Blacksmith.Plaza
             return true;
         }
 
+        // 호스트 전용. 전투 보상으로 계산한 레벨과 현재 레벨에서 쌓은 경험치를 그대로 넣는다.
+        public bool TrySetLevel(int adventurerId, int level, int experience)
+        {
+            int index = IndexOf(adventurerId);
+            if (!HasStateAuthority || index < 0)
+            {
+                return false;
+            }
+
+            NetworkAdventurer adventurer = Adventurers[index];
+            adventurer.Level = level;
+            adventurer.Experience = experience;
+            Adventurers.Set(index, adventurer);
+            return true;
+        }
+
         // 호스트 전용. 대장간 업그레이드가 부른다. 이미 관리 중인 인원보다 줄이지 않는다.
         public void SetSlotCount(int slotCount)
         {
