@@ -709,8 +709,9 @@ MonoBehaviour:
     RawValue: 0
   _IsNight:
     RawValue: 0
+  _Screen: 0
   _TierIndex: 0
-  _LastStage: 0
+  _Stage: 0
   _PartyCount: 0
 --- !u!114 &181058528
 MonoBehaviour:
@@ -2333,6 +2334,51 @@ Canvas:
   m_CorrespondingSourceObject: {fileID: 2399225789225044935, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
   m_PrefabInstance: {fileID: 622512718}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &695428799
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 695428801}
+  - component: {fileID: 695428800}
+  m_Layer: 0
+  m_Name: MinigameFeedbackToggle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &695428800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 695428799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 464a544d499817d43b724b47cba60779, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.MinigameFeedbackToggle
+  _notice: {fileID: 2007931454}
+--- !u!4 &695428801
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 695428799}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &944958972
 GameObject:
   m_ObjectHideFlags: 0
@@ -4530,6 +4576,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2007931454 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3615486708826309771, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+  m_PrefabInstance: {fileID: 622512718}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6523f4bb39a76614b9a322e64ed58fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgeNotice
 --- !u!1 &2061304924
 GameObject:
   m_ObjectHideFlags: 0
@@ -4836,3 +4893,4 @@ SceneRoots:
   - {fileID: 1958198729}
   - {fileID: 563068612}
   - {fileID: 216139103}
+  - {fileID: 695428801}

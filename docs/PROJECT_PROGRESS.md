@@ -83,6 +83,7 @@ AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도�
 
 ### 장비 제작 미니게임·판매 (진행 중)
 
+- 미니게임 연출 끄기: `J` 키(`MinigameFeedbackToggle`)가 효과음, 카메라 흔들림·확대, 화면 번쩍임, 타격 입자를 한꺼번에 껐다 켠다(`MinigameFeedbackSwitch`). 효과음 도우미 4곳, 계속 나는 소리(`ForgeNoiseSynth`), `ForgeCameraFocus`의 `Shake`·`Punch`, 세 화면의 `Flash`, `ForgeGreybox.Burst`에서 스위치를 확인한다. 값은 `PlayerPrefs`에 기억한다. `ForgeTest` 씬에 연결했다.
 - `Core/Forge`에 미니게임 기반(`MiniGame`, `MiniInput`, `MiniEvent`)과 담금질 규칙(`QuenchGame`: 시드 기반 기준 시간, 정확도 계산).
 - 수치는 `QuenchRulesData`(`03.ScriptableObjects/Balance/QuenchRules.asset`).
 - 담금질은 `ForgeTest` 씬에서 한 명이 로컬로 해볼 수 있다.

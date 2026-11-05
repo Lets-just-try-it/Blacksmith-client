@@ -195,6 +195,11 @@ namespace Blacksmith.Forge
 
         private void Play(AudioClip clip, float volume, float pitch)
         {
+            if (!MinigameFeedbackSwitch.Enabled)
+            {
+                return;
+            }
+
             _sfx.pitch = pitch;
             _sfx.PlayOneShot(clip, volume);
         }
