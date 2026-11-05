@@ -84,21 +84,22 @@ namespace Blacksmith.Battle
         }
 
         // 호스트 전용. 이전 전투의 결과를 반영하기 전에는 새 전투를 시작하지 않는다.
-        // clearedStages는 파견을 확정할 때의 진행 상황이다. 그다음 스테이지부터 lastStage까지 싸운다.
-        public bool StartBattle(int seed, int dungeonId, int clearedStages, int lastStage, IReadOnlyList<int> partyIds)
+        // clearedStages는 파견을 확정할 때의 진행 상황이다. 고른 stage 하나를 싸운다.
+        // FirstStage·LastStage는 스테이지 안의 웨이브가 생기기 전까지 같은 값이다.
+        public bool StartBattle(int seed, int dungeonId, int clearedStages, int stage, IReadOnlyList<int> partyIds)
         {
             DungeonData dungeon = FindDungeon(dungeonId);
             if (!HasStateAuthority || HasPendingResult || dungeon == null
                 || partyIds.Count == 0 || partyIds.Count > MaxPartySize
-                || !DungeonProgressRules.CanSelectStage(clearedStages, dungeon.StageCount, lastStage))
+                || !DungeonProgressRules.CanSelectStage(clearedStages, dungeon.StageCount, stage))
             {
                 return false;
             }
 
             Seed = seed;
             DungeonId = dungeonId;
-            FirstStage = DungeonProgressRules.FirstStageToFight(clearedStages);
-            LastStage = lastStage;
+            FirstStage = stage;
+            LastStage = stage;
             PartyCount = partyIds.Count;
             for (int i = 0; i < partyIds.Count; i++)
             {

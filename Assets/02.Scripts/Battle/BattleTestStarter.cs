@@ -26,7 +26,7 @@ namespace Blacksmith.Battle
         [SerializeField] private int _partySeed;
         [Tooltip("파티 모험가별 레벨. 개수가 파티 인원이다.")]
         [SerializeField] private int[] _partyLevels = { 1, 1, 1, 1 };
-        [Tooltip("어느 스테이지까지 싸울지 (1부터 센 번호)")]
+        [Tooltip("싸울 스테이지 (1부터 센 번호). 아직 열리지 않았으면 다음 스테이지를 싸운다")]
         [SerializeField, Min(1)] private int _selectedStageNumber = 3;
 
         private readonly List<AdventurerData> _party = new List<AdventurerData>();
@@ -94,7 +94,7 @@ namespace Blacksmith.Battle
                 Seed = UnityEngine.Random.Range(0, int.MaxValue),
                 DungeonId = _dungeon.DungeonId,
                 ClearedStages = clearedStages,
-                LastStage = DispatchRules.ClampStage(clearedStages, _dungeon.StageCount, _selectedStageNumber - 1),
+                Stage = DispatchRules.ClampStage(clearedStages, _dungeon.StageCount, _selectedStageNumber - 1),
                 PartyIds = _party.ConvertAll(adventurer => adventurer.AdventurerId),
             });
         }

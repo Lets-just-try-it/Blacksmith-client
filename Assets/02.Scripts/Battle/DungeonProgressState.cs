@@ -90,13 +90,13 @@ namespace Blacksmith.Battle
             }
         }
 
-        // 호스트에서만 불린다. 패배해도 그 전투에서 클리어한 스테이지는 남긴다.
+        // 호스트에서만 불린다. 클리어한 스테이지를 다시 싸웠으면 진행 상황은 그대로다.
         private void ApplyResult(BattleOutcome outcome)
         {
             if (HasStateAuthority)
             {
                 ClearedStages.Set(outcome.DungeonId,
-                    DungeonProgressRules.ApplyResult(GetClearedStages(outcome.DungeonId), outcome.Result));
+                    DungeonProgressRules.ApplyResult(GetClearedStages(outcome.DungeonId), outcome.FirstStage, outcome.Result));
             }
         }
     }

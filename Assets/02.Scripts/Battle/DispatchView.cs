@@ -11,10 +11,10 @@ using UnityEngine.UI;
 
 namespace Blacksmith.Battle
 {
-    // 밤 파견 창. 관리 중인 모험가에서 파티(최대 5명)를 고르고, 장비 착용 창으로 장비를 입히고,
-    // 던전 단계와 어느 스테이지까지 싸울지 골라 파견한다 (docs/GAME_CONCEPT.md 5.3, 6.3, 7.3).
+    // 밤 파견 창. 던전 지도(DungeonMapView)에서 고른 스테이지로, 관리 중인 모험가에서 파티(최대 5명)를 고르고
+    // 장비 착용 창으로 장비를 입혀 파견한다 (docs/GAME_CONCEPT.md 5.3, 6.3, 7.3). 스테이지를 바꾸려면 지도로 돌아간다.
     // 모험가 능력치는 전투 유닛을 만드는 계산(AdventurerBattleData.ToSetup)으로 보여 주므로 장비 보정이 전투와 같다.
-    // 창은 DispatchState.IsOpen을 따라 모든 참가자에게 열리고, 고르기는 호스트만 한다.
+    // 창은 DispatchState가 열려 있고 파티 고르기 단계일 때 모든 참가자에게 열리고, 고르기는 호스트만 한다.
     public class DispatchView : MonoBehaviour
     {
         [SerializeField] private DispatchState _state;
@@ -35,10 +35,8 @@ namespace Blacksmith.Battle
         [SerializeField] private TMP_Text _dungeonText;
         [SerializeField] private TMP_Text _stageText;
         [SerializeField] private TMP_Text _hintText;
-        [SerializeField] private Button _previousTierButton;
-        [SerializeField] private Button _nextTierButton;
-        [SerializeField] private Button _previousStageButton;
-        [SerializeField] private Button _nextStageButton;
+        [Tooltip("던전 지도로 돌아가 스테이지를 다시 고른다")]
+        [SerializeField] private Button _mapButton;
         [SerializeField] private Button _dispatchButton;
         [SerializeField] private Button _closeButton;
         [Tooltip("밤에만 보인다. 파견하지 않고 다음 날로 넘긴다")]
@@ -62,10 +60,7 @@ namespace Blacksmith.Battle
             _state.Changed += Refresh;
             _roster.Changed += Refresh;
             _progress.Changed += Refresh;
-            _previousTierButton.onClick.AddListener(ShowPreviousTier);
-            _nextTierButton.onClick.AddListener(ShowNextTier);
-            _previousStageButton.onClick.AddListener(ShowPreviousStage);
-            _nextStageButton.onClick.AddListener(ShowNextStage);
+            _mapButton.onClick.AddListener(ShowMap);
             _dispatchButton.onClick.AddListener(Dispatch);
             _closeButton.onClick.AddListener(Close);
             _skipButton.onClick.AddListener(Skip);
@@ -80,10 +75,7 @@ namespace Blacksmith.Battle
             _state.Changed -= Refresh;
             _roster.Changed -= Refresh;
             _progress.Changed -= Refresh;
-            _previousTierButton.onClick.RemoveListener(ShowPreviousTier);
-            _nextTierButton.onClick.RemoveListener(ShowNextTier);
-            _previousStageButton.onClick.RemoveListener(ShowPreviousStage);
-            _nextStageButton.onClick.RemoveListener(ShowNextStage);
+            _mapButton.onClick.RemoveListener(ShowMap);
             _dispatchButton.onClick.RemoveListener(Dispatch);
             _closeButton.onClick.RemoveListener(Close);
             _skipButton.onClick.RemoveListener(Skip);
@@ -110,24 +102,9 @@ namespace Blacksmith.Battle
             _state.Skip();
         }
 
-        private void ShowPreviousTier()
+        private void ShowMap()
         {
-            _state.ChangeTier(-1);
-        }
-
-        private void ShowNextTier()
-        {
-            _state.ChangeTier(1);
-        }
-
-        private void ShowPreviousStage()
-        {
-            _state.ChangeStage(-1);
-        }
-
-        private void ShowNextStage()
-        {
-            _state.ChangeStage(1);
+            _state.ShowMap();
         }
 
         private void Dispatch()
@@ -139,13 +116,13 @@ namespace Blacksmith.Battle
         private void Refresh()
         {
             bool isOpen = _state.IsReady && _roster.IsReady && _progress.IsReady && _state.IsOpen;
-            SetShown(isOpen);
+            SetShown(isOpen && _state.Screen == DispatchScreen.Party);
             if (_openButton != null)
             {
                 _openButton.gameObject.SetActive(_state.CanEdit && !isOpen);
             }
 
-            if (!isOpen)
+            if (!_isShown)
             {
                 return;
             }
@@ -228,33 +205,19 @@ namespace Blacksmith.Battle
         private void ShowSelection(bool canEdit)
         {
             DungeonData dungeon = _state.SelectedDungeon;
-            int clearedStages = _state.GetClearedStages();
-            bool hasStage = _state.LastStage >= 0;
-            int firstStage = DungeonProgressRules.FirstStageToFight(clearedStages);
-
             _partyText.text = $"파티 {_state.PartyCount}/{BattleState.MaxPartySize}";
             _dungeonText.text = $"{_state.TierIndex + 1}단계 {dungeon.DisplayName}";
-            _stageText.text = !hasStage
-                ? "모두 클리어"
-                : firstStage == _state.LastStage
-                    ? $"스테이지 {_state.LastStage + 1}{GetBossMark(dungeon, _state.LastStage)}"
-                    : $"스테이지 {firstStage + 1} ~ {_state.LastStage + 1}{GetBossMark(dungeon, _state.LastStage)}";
+            _stageText.text = _state.Stage < 0
+                ? "고를 스테이지 없음"
+                : $"{DungeonMapLabels.GetStageName(dungeon, _state.Stage)}{(_state.IsReplay() ? " (다시 도전)" : "")}";
             _hintText.text = canEdit
                 ? "모험가를 눌러 파티에 넣고 빼기 · 장비 버튼으로 장비 입히기"
                 : "파견은 호스트가 고른다";
 
-            _previousTierButton.interactable = canEdit;
-            _nextTierButton.interactable = canEdit;
-            _previousStageButton.interactable = canEdit && hasStage && _state.LastStage > firstStage;
-            _nextStageButton.interactable = canEdit && hasStage && _state.LastStage < dungeon.StageCount - 1;
+            _mapButton.gameObject.SetActive(canEdit && _state.HasMap);
             _dispatchButton.interactable = _state.CanDispatch();
             _closeButton.gameObject.SetActive(canEdit && !_state.IsNight);
             _skipButton.gameObject.SetActive(canEdit && _state.IsNight);
-        }
-
-        private static string GetBossMark(DungeonData dungeon, int stage)
-        {
-            return stage == dungeon.StageCount - 1 ? " (보스)" : "";
         }
 
         private void EnsureRowCount(int count)
