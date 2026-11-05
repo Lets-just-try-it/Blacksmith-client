@@ -59,20 +59,18 @@ namespace Blacksmith.Battle
             _panel.SetActive(false);
         }
 
-        // 골드는 낮 씬의 골드 표시로 보여 주므로 결과창에는 재료만 적는다.
         // 장신구 효과로 늘어난 값은 괄호로 따로 보여 준다.
         private static string FormatRewards(BattleRewards rewards, Func<int, string> getItemName)
         {
-            if (rewards.Materials.Count == 0)
+            var text = new StringBuilder($"보상: 골드 {rewards.Gold}");
+            if (rewards.GoldBonus > 0)
             {
-                return "보상: 없음";
+                text.Append($"(토파즈 +{rewards.GoldBonus})");
             }
 
-            var text = new StringBuilder("보상: ");
-            for (int i = 0; i < rewards.Materials.Count; i++)
+            foreach (MaterialReward material in rewards.Materials)
             {
-                MaterialReward material = rewards.Materials[i];
-                text.Append(i == 0 ? "" : ", ").Append($"{getItemName(material.MaterialId)} ×{material.Count}");
+                text.Append($", {getItemName(material.MaterialId)} ×{material.Count}");
                 int bonus = FindCount(rewards.BonusMaterials, material.MaterialId);
                 if (bonus > 0)
                 {

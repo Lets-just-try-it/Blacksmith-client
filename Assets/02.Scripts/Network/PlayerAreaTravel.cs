@@ -59,8 +59,22 @@ namespace Blacksmith.Network
             RpcRequestTravel(position, rotation);
         }
 
+        // 호스트 전용. 화면이 이미 가려진 동안(전투 씬이 떠 있을 때 등) 페이드 없이 바로 옮긴다.
+        public void TravelByHost(Vector3 position, Quaternion rotation)
+        {
+            if (HasStateAuthority)
+            {
+                QueueTravel(position, rotation);
+            }
+        }
+
         [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
         private void RpcRequestTravel(Vector3 position, Quaternion rotation)
+        {
+            QueueTravel(position, rotation);
+        }
+
+        private void QueueTravel(Vector3 position, Quaternion rotation)
         {
             _pendingPosition = position;
             _pendingRotation = rotation;
