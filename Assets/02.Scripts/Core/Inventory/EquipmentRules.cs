@@ -35,6 +35,12 @@ namespace Blacksmith.Core.Inventory
             return target != EquipmentSlot.Weapon || (itemWeapon != WeaponType.None && itemWeapon == jobWeapon);
         }
 
+        // 무기는 벗길 수 없고 다른 무기로 바꾸기만 한다. 모험가는 늘 기본무기나 플레이어가 준 무기를 든다.
+        public static bool CanUnequip(EquipmentSlot slot)
+        {
+            return slot != EquipmentSlot.None && slot != EquipmentSlot.Weapon;
+        }
+
         // 모험가가 그 칸에 입은 장비. 없으면 Empty다.
         public static ItemStack GetEquipped(AdventurerData adventurer, EquipmentSlot slot)
         {
