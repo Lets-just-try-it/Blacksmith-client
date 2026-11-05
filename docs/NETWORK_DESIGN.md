@@ -82,6 +82,7 @@
 3. 호스트는 다음 틱의 `FixedUpdateNetwork`에서 `NetworkCharacterController.Teleport`로 옮기고 속도를 0으로 만든 뒤, `[Networked] TravelCount`를 1 늘린다. 속도를 남기면 도착한 뒤 미끄러져 반대편 포털에 다시 닿는다.
 4. 요청한 클라이언트는 `TravelCount`가 바뀐 것을 `ChangeDetector`로 받으면 잠금을 풀고 화면을 밝힌다. 카메라(`ForgeTestCameraFollow`)는 대상이 일정 거리 이상 떨어지면 따라가지 않고 바로 옮긴다.
 
+- 호스트가 옮기는 경우(전투 결과를 반영한 뒤 모든 플레이어를 대장간으로 모을 때)는 `PlayerAreaTravel.TravelByHost`로 3단계만 한다. 화면은 전투 씬 전환 페이드가 이미 가리고 있어 따로 어둡게 하지 않는다.
 - 도착 지점은 반대편 포털의 트리거 바깥에 캐릭터 반지름 이상 떨어뜨려 둔다.
 - 화면 페이드는 씬마다 하나 두는 `ScreenFader`(`UI/`, 프리팹 `04.Prefabs/UI/ScreenFader`)가 하고, Player 프리팹이나 Additive 씬처럼 인스펙터로 참조할 수 없는 쪽도 Runtime 에셋 `ScreenFadeChannel`로 요청한다. 페이더가 없는 테스트 씬에서는 요청이 바로 끝난다.
 - 로비에서 세션을 시작하면 화면을 어둡게 한 채 `Game` 씬으로 넘어가고, `Game`의 페이더는 검은 화면으로 시작해 내 플레이어가 스폰되면(`NetworkPlayer.Spawned`) 밝아진다.

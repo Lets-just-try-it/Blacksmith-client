@@ -1062,6 +1062,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1871294434427335442, guid: e8e58453b688bfd4fb1e24a0b502c16e, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 3108326287969448777, guid: e8e58453b688bfd4fb1e24a0b502c16e, type: 3}
       propertyPath: m_Name
       value: DialogueUI
@@ -4079,6 +4083,7 @@ MonoBehaviour:
   _dispatch: {fileID: 181058527}
   _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
   _loader: {fileID: 181058528}
+  _spawner: {fileID: 1919108255}
 --- !u!4 &1387332721
 Transform:
   m_ObjectHideFlags: 0
@@ -4526,7 +4531,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22
+  m_fontSize: 21.3
   m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -5775,6 +5780,7 @@ MonoBehaviour:
   - {fileID: 1305788960}
   - {fileID: 482089560}
   - {fileID: 358471600}
+  - {fileID: 216139102}
   _lights:
   - {fileID: 1306803587}
 --- !u!4 &1958198729

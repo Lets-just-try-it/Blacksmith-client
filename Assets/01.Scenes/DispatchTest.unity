@@ -1982,6 +1982,7 @@ MonoBehaviour:
   _dispatch: {fileID: 1342970124}
   _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
   _loader: {fileID: 1342970125}
+  _spawner: {fileID: 1280634058}
 --- !u!4 &1522894288
 Transform:
   m_ObjectHideFlags: 0

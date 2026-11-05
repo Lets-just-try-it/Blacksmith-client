@@ -44,6 +44,25 @@ namespace Blacksmith.Network
             Runner.Despawn(playerObject);
         }
 
+        // 호스트 전용. 모든 플레이어를 처음 스폰한 위치(대장간)로 돌려보낸다.
+        public void ReturnAllToSpawnPoints()
+        {
+            if (!HasStateAuthority)
+            {
+                return;
+            }
+
+            int index = 0;
+            foreach (NetworkObject playerObject in _players.Values)
+            {
+                Transform spawnPoint = _spawnPoints[index++ % _spawnPoints.Length];
+                if (playerObject != null && playerObject.TryGetComponent(out PlayerAreaTravel travel))
+                {
+                    travel.TravelByHost(spawnPoint.position, spawnPoint.rotation);
+                }
+            }
+        }
+
         private void SpawnPlayer(PlayerRef player)
         {
             if (_players.ContainsKey(player))
