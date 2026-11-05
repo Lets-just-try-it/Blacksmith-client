@@ -8,7 +8,14 @@ using UnityEngine;
 
 namespace Blacksmith.Battle
 {
-    // 밤 파견 창에서 호스트가 고른 내용(창 열림, 파티, 던전 단계, 스테이지)이다. 낮 씬 오브젝트이며 호스트가 소유한다.
+    // 파견할 때 보이는 창. 던전 지도에서 단계와 스테이지를 고른 뒤 파견 창에서 파티를 꾸린다.
+    public enum DispatchScreen
+    {
+        Map,
+        Party,
+    }
+
+    // 밤 파견에서 호스트가 고른 내용(창 열림, 보이는 창, 던전 단계, 스테이지, 파티)이다. 낮 씬 오브젝트이며 호스트가 소유한다.
     // 고르기는 호스트만 하고, 다른 참가자는 같은 창을 보기만 한다 (docs/GAME_CONCEPT.md 8절).
     // 호스트가 직접 값을 바꾸므로 RPC를 두지 않는다.
     public class DispatchState : NetworkBehaviour
@@ -19,13 +26,16 @@ namespace Blacksmith.Battle
         [SerializeField] private BattleSceneLoader _loader;
 
         private ChangeDetector _changes;
+        // 이 참가자의 씬에 연결된 던전 지도 창이 있는지. 없으면 지도를 건너뛰고 파견 창부터 연다.
+        private bool _hasMap;
 
         [Networked] public NetworkBool IsOpen { get; private set; }
         // 밤에 열린 창은 닫을 수 없고, 파견하거나 파견하지 않고 다음 날로 넘겨야 한다.
         [Networked] public NetworkBool IsNight { get; private set; }
+        [Networked] public DispatchScreen Screen { get; private set; }
         [Networked] public int TierIndex { get; private set; }
-        // 0부터 센 번호. 고를 스테이지가 없으면 -1이다.
-        [Networked] public int LastStage { get; private set; }
+        // 한 번 파견하면 싸우는 스테이지 하나. 0부터 센 번호이고, 고를 스테이지가 없으면 -1이다.
+        [Networked] public int Stage { get; private set; }
         [Networked] public int PartyCount { get; private set; }
         [Networked, Capacity(BattleState.MaxPartySize)] private NetworkArray<int> PartyIds => default;
 
@@ -37,6 +47,7 @@ namespace Blacksmith.Battle
         public bool IsReady => Object != null && Object.IsValid;
         public bool CanEdit => IsReady && HasStateAuthority;
         public DungeonData SelectedDungeon => _progress.GetDungeon(TierIndex);
+        public bool HasMap => _hasMap;
 
         // 모든 참가자의 전투 씬이 관리 목록에서 파티를 찾는다. 입은 장비가 함께 담겨 전투 유닛에 장비 보정이 들어간다.
         private void Awake()
@@ -61,8 +72,9 @@ namespace Blacksmith.Battle
             _changes = GetChangeDetector(ChangeDetector.Source.SimulationState);
             if (HasStateAuthority)
             {
-                // 처음에는 단계의 마지막(보스) 스테이지까지 싸우도록 고른다.
-                LastStage = int.MaxValue;
+                // 처음에는 열린 가장 깊은 단계의 다음 스테이지를 골라 둔다.
+                TierIndex = FindDeepestUnlockedTier();
+                Stage = -1;
             }
 
             ClampSelection();
@@ -91,6 +103,12 @@ namespace Blacksmith.Battle
         public int GetClearedStages()
         {
             return _progress.GetClearedStages(SelectedDungeon.DungeonId);
+        }
+
+        // 고른 스테이지를 이미 클리어했는지. 다시 싸워도 진행 상황은 늘지 않는다.
+        public bool IsReplay()
+        {
+            return Stage >= 0 && DungeonProgressRules.IsStageCleared(GetClearedStages(), Stage);
         }
 
         // 호스트 전용. 테스트 씬의 버튼이 낮에 연다. 낮에 연 창은 닫을 수 있다.
@@ -148,41 +166,59 @@ namespace Blacksmith.Battle
             }
         }
 
-        // 호스트 전용. 고를 수 있는 단계 중 offset만큼 떨어진 단계로 옮긴다.
-        public void ChangeTier(int offset)
+        // 던전 지도 창이 씬에 연결되어 있으면 켜질 때 알린다. 지도를 아직 붙이지 않은 씬은 예전처럼 파견 창부터 연다.
+        public void RegisterMap()
         {
-            if (!CanEdit)
+            _hasMap = true;
+        }
+
+        public void UnregisterMap()
+        {
+            _hasMap = false;
+        }
+
+        // 호스트 전용. 지도의 거점을 눌러 던전 단계와 스테이지를 함께 고른다.
+        // 열린 단계에서 클리어한 스테이지나 다음 스테이지만 고를 수 있다.
+        public void Select(int tierIndex, int stage)
+        {
+            if (!CanEdit || !_progress.IsTierSelectable(tierIndex))
             {
                 return;
             }
 
-            for (int tier = TierIndex + offset; tier >= 0 && tier < _progress.TierCount; tier += offset)
+            DungeonData dungeon = _progress.GetDungeon(tierIndex);
+            if (DungeonProgressRules.CanSelectStage(_progress.GetClearedStages(dungeon.DungeonId), dungeon.StageCount, stage))
             {
-                if (_progress.IsTierSelectable(tier))
-                {
-                    TierIndex = tier;
-                    LastStage = int.MaxValue;
-                    ClampSelection();
-                    return;
-                }
+                TierIndex = tierIndex;
+                Stage = stage;
             }
         }
 
-        public void ChangeStage(int offset)
+        // 호스트 전용. 지도에서 고른 스테이지로 파티를 꾸리러 간다.
+        public void ShowParty()
         {
-            if (CanEdit && LastStage >= 0)
+            if (CanEdit && IsOpen && Stage >= 0)
             {
-                LastStage = DispatchRules.ClampStage(GetClearedStages(), SelectedDungeon.StageCount, LastStage + offset);
+                Screen = DispatchScreen.Party;
+            }
+        }
+
+        // 호스트 전용. 파견 창에서 지도로 돌아가 스테이지를 다시 고른다. 고른 파티는 그대로 둔다.
+        public void ShowMap()
+        {
+            if (CanEdit && IsOpen && _hasMap)
+            {
+                Screen = DispatchScreen.Map;
             }
         }
 
         public bool CanDispatch()
         {
-            return CanEdit && _loader.CanDispatch && LastStage >= 0
+            return CanEdit && _loader.CanDispatch && Screen == DispatchScreen.Party && Stage >= 0
                 && DispatchRules.IsValidPartySize(PartyCount, BattleState.MaxPartySize);
         }
 
-        // 호스트 전용. 고른 파티로 전투 씬을 불러오고 창을 닫는다.
+        // 호스트 전용. 고른 파티로 고른 스테이지의 전투 씬을 불러오고 창을 닫는다.
         public bool Dispatch()
         {
             if (!CanDispatch())
@@ -201,7 +237,7 @@ namespace Blacksmith.Battle
                 Seed = UnityEngine.Random.Range(0, int.MaxValue),
                 DungeonId = SelectedDungeon.DungeonId,
                 ClearedStages = GetClearedStages(),
-                LastStage = LastStage,
+                Stage = Stage,
                 PartyIds = partyIds,
             });
 
@@ -220,6 +256,14 @@ namespace Blacksmith.Battle
             {
                 // 밤에 열린 창을 낮용으로 다시 열어도 밤 창(닫을 수 없음)으로 남긴다.
                 IsNight = isNight || (IsOpen && IsNight);
+                if (!IsOpen)
+                {
+                    // 창을 새로 열 때마다 열린 가장 깊은 단계의 다음 스테이지부터 보여 준다.
+                    TierIndex = FindDeepestUnlockedTier();
+                    Stage = -1;
+                    Screen = _hasMap ? DispatchScreen.Map : DispatchScreen.Party;
+                }
+
                 IsOpen = true;
                 ClampSelection();
             }
@@ -272,7 +316,7 @@ namespace Blacksmith.Battle
             }
         }
 
-        // 진행 상황이 바뀌어 고른 단계나 스테이지를 더는 고를 수 없으면 가까운 곳으로 옮긴다.
+        // 진행 상황이 바뀌어 고른 단계나 스테이지를 더는 고를 수 없으면 기본값으로 옮긴다.
         private void ClampSelection()
         {
             if (!CanEdit || _progress.TierCount == 0)
@@ -282,16 +326,16 @@ namespace Blacksmith.Battle
 
             if (!_progress.IsTierSelectable(TierIndex))
             {
-                TierIndex = FindSelectableTier();
+                TierIndex = FindDeepestUnlockedTier();
             }
 
-            LastStage = DispatchRules.ClampStage(GetClearedStages(), SelectedDungeon.StageCount, LastStage);
+            Stage = DispatchRules.ClampStage(GetClearedStages(), SelectedDungeon.StageCount, Stage);
         }
 
-        // 고를 수 있는 가장 앞 단계. 모두 클리어했으면 마지막 단계다.
-        private int FindSelectableTier()
+        // 열린 단계 중 가장 깊은 단계. 아직 진행 중인 곳이 기본으로 골라진다.
+        private int FindDeepestUnlockedTier()
         {
-            for (int tier = 0; tier < _progress.TierCount; tier++)
+            for (int tier = _progress.TierCount - 1; tier > 0; tier--)
             {
                 if (_progress.IsTierSelectable(tier))
                 {
@@ -299,7 +343,7 @@ namespace Blacksmith.Battle
                 }
             }
 
-            return _progress.TierCount - 1;
+            return 0;
         }
     }
 }

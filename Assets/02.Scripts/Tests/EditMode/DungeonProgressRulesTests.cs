@@ -26,48 +26,58 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Battle_StartsFromFirstUnclearedStage()
+        public void ClearedStagesAndNextStage_CanBeSelected()
         {
-            // 1스테이지까지 클리어한 뒤 3스테이지를 고르면 2·3스테이지를 싸운다.
-            Assert.AreEqual(1, DungeonProgressRules.FirstStageToFight(1));
-            Assert.IsTrue(DungeonProgressRules.CanSelectStage(1, StageCount, 2));
+            // 1스테이지까지 클리어했으면 1·2스테이지(번호 0·1)를 고를 수 있고 3스테이지는 잠겨 있다.
+            Assert.AreEqual(1, DungeonProgressRules.NextStage(1));
+            Assert.IsTrue(DungeonProgressRules.CanSelectStage(1, StageCount, 0));
+            Assert.IsTrue(DungeonProgressRules.CanSelectStage(1, StageCount, 1));
+            Assert.IsFalse(DungeonProgressRules.CanSelectStage(1, StageCount, 2));
         }
 
         [Test]
-        public void ClearedStage_CannotBeSelected()
+        public void FreshTier_AllowsOnlyFirstStage()
         {
-            Assert.IsFalse(DungeonProgressRules.CanSelectStage(2, StageCount, 0));
-            Assert.IsFalse(DungeonProgressRules.CanSelectStage(2, StageCount, 1));
-            Assert.IsTrue(DungeonProgressRules.CanSelectStage(2, StageCount, 2));
+            Assert.IsTrue(DungeonProgressRules.CanSelectStage(0, StageCount, 0));
+            Assert.IsFalse(DungeonProgressRules.CanSelectStage(0, StageCount, 1));
+            Assert.IsFalse(DungeonProgressRules.CanSelectStage(0, StageCount, -1));
         }
 
         [Test]
-        public void UnlockedTier_AllowsAnyStage()
+        public void ClearedTier_AllowsEveryStage()
         {
             for (int stage = 0; stage < StageCount; stage++)
             {
-                Assert.IsTrue(DungeonProgressRules.CanSelectStage(0, StageCount, stage));
+                Assert.IsTrue(DungeonProgressRules.CanSelectStage(StageCount, StageCount, stage));
             }
 
-            Assert.IsFalse(DungeonProgressRules.CanSelectStage(0, StageCount, StageCount));
+            Assert.IsFalse(DungeonProgressRules.CanSelectStage(StageCount, StageCount, StageCount));
         }
 
         [Test]
-        public void DefeatInFirstStage_KeepsProgress()
+        public void DefaultStage_IsNextStageOrBossWhenCleared()
         {
-            Assert.AreEqual(0, DungeonProgressRules.ApplyResult(0, Result(false, 0)));
+            Assert.AreEqual(0, DungeonProgressRules.DefaultStage(0, StageCount));
+            Assert.AreEqual(2, DungeonProgressRules.DefaultStage(2, StageCount));
+            Assert.AreEqual(2, DungeonProgressRules.DefaultStage(StageCount, StageCount));
         }
 
         [Test]
-        public void StagesClearedBeforeDefeat_AreKept()
+        public void DefeatInNextStage_KeepsProgress()
         {
-            Assert.AreEqual(2, DungeonProgressRules.ApplyResult(1, Result(false, 1)));
+            Assert.AreEqual(1, DungeonProgressRules.ApplyResult(1, 1, Result(false, 0)));
         }
 
         [Test]
-        public void Victory_AddsAllFoughtStages()
+        public void VictoryInNextStage_OpensFollowingStage()
         {
-            Assert.AreEqual(3, DungeonProgressRules.ApplyResult(1, Result(true, 2)));
+            Assert.AreEqual(2, DungeonProgressRules.ApplyResult(1, 1, Result(true, 1)));
+        }
+
+        [Test]
+        public void VictoryInClearedStage_DoesNotAddProgress()
+        {
+            Assert.AreEqual(2, DungeonProgressRules.ApplyResult(2, 0, Result(true, 1)));
         }
     }
 }

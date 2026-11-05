@@ -11,15 +11,18 @@ namespace Blacksmith.Battle
     {
         public int Seed { get; set; }
         public int DungeonId { get; set; }
-        // 파견을 확정할 때의 진행 상황. 전투는 이 값 다음 스테이지부터 싸운다.
+        // 파견을 확정할 때의 진행 상황. 고른 스테이지를 지금 고를 수 있는지 확인하는 데 쓴다.
         public int ClearedStages { get; set; }
-        public int LastStage { get; set; }
+        // 한 번 파견하면 이 스테이지 하나를 싸운다.
+        public int Stage { get; set; }
         public IReadOnlyList<int> PartyIds { get; set; } = Array.Empty<int>();
     }
 
     public sealed class BattleOutcome
     {
         public int DungeonId { get; set; }
+        // 싸운 첫 스테이지. 진행 상황은 여기에 클리어한 스테이지 수를 더해 정한다.
+        public int FirstStage { get; set; }
         public BattleResult Result { get; set; }
         public BattleRewards Rewards { get; set; }
     }

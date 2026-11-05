@@ -1,7 +1,9 @@
 namespace Blacksmith.Core.Battle
 {
-    // 던전 단계별 진행 상황(클리어한 스테이지 수)으로 파견할 스테이지 범위를 정한다. (docs/GAME_CONCEPT.md 7.3)
+    // 던전 단계별 진행 상황(클리어한 스테이지 수)으로 파견할 수 있는 스테이지를 정한다. (docs/GAME_CONCEPT.md 7.3)
     // 스테이지 번호는 0부터 센다. 진행 상황 자체는 호스트의 게임 상태에 둔다.
+    // 한 번 파견하면 스테이지 하나를 싸운다. 스테이지를 클리어하면 다음 스테이지가 열리고,
+    // 이미 클리어한 스테이지와 다음 스테이지 중에서 고를 수 있다.
     public static class DungeonProgressRules
     {
         public static bool IsTierUnlocked(int tierIndex, int previousTierClearedStages, int previousTierStageCount)
@@ -14,21 +16,35 @@ namespace Blacksmith.Core.Battle
             return clearedStages >= stageCount;
         }
 
-        public static int FirstStageToFight(int clearedStages)
+        // 아직 클리어하지 않은 첫 스테이지. 단계를 모두 클리어했으면 stageCount와 같다.
+        public static int NextStage(int clearedStages)
         {
             return clearedStages;
         }
 
-        // [미정] 보스까지 클리어한 단계를 다시 고를 수 있는지. 지금은 고를 수 없다.
-        public static bool CanSelectStage(int clearedStages, int stageCount, int selectedStage)
+        public static bool IsStageCleared(int clearedStages, int stage)
         {
-            return selectedStage >= FirstStageToFight(clearedStages) && selectedStage < stageCount;
+            return stage < clearedStages;
         }
 
-        // 패배해도 그 전투에서 클리어한 스테이지는 진행 상황에 남긴다.
-        public static int ApplyResult(int clearedStages, BattleResult result)
+        // 열린 단계 안에서 클리어한 스테이지와 다음 스테이지를 고를 수 있다.
+        public static bool CanSelectStage(int clearedStages, int stageCount, int selectedStage)
         {
-            return clearedStages + result.StagesCleared;
+            return selectedStage >= 0 && selectedStage < stageCount && selectedStage <= NextStage(clearedStages);
+        }
+
+        // 지도에서 단계를 고르면 처음 골라 두는 스테이지. 다음 스테이지이고, 단계를 모두 클리어했으면 보스 스테이지다.
+        public static int DefaultStage(int clearedStages, int stageCount)
+        {
+            int next = NextStage(clearedStages);
+            return next < stageCount ? next : stageCount - 1;
+        }
+
+        // firstStage부터 싸워 클리어한 만큼 진행 상황을 늘린다. 클리어한 스테이지를 다시 싸우면 진행 상황은 그대로다.
+        public static int ApplyResult(int clearedStages, int firstStage, BattleResult result)
+        {
+            int reached = firstStage + result.StagesCleared;
+            return reached > clearedStages ? reached : clearedStages;
         }
     }
 }
