@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e59036c743440542a8abed1fbc6a3f4, type: 3}
+  m_Name: TopazNecklace2Recipe
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.CraftingRecipeData
+  _displayName: "\uD1A0\uD30C\uC988 \uBAA9\uAC78\uC774 II"
+  _steps:
+  - Station: 6
+    Input: {fileID: 11400000, guid: 0e78e989cac91b6408021d22013343a1, type: 2}
+    InputCount: 3
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: 5298227610d0c7d44944d926e6cf6adf, type: 2}
+    Variant: 0

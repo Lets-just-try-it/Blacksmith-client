@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e59036c743440542a8abed1fbc6a3f4, type: 3}
+  m_Name: SapphireNecklace3Recipe
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.CraftingRecipeData
+  _displayName: "\uC0AC\uD30C\uC774\uC5B4 \uBAA9\uAC78\uC774 III"
+  _steps:
+  - Station: 6
+    Input: {fileID: 11400000, guid: 2e75531f14b1367428ea3db17437d230, type: 2}
+    InputCount: 5
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: b78be650cc0ffaf4f924ff58f6ecb980, type: 2}
+    Variant: 0
