@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Blacksmith.Core.Forge;
 using Blacksmith.Core.Inventory;
 using Blacksmith.Forge;
 using TMPro;
@@ -70,6 +71,7 @@ namespace Blacksmith.Inventory
             _inventory = inventory;
             _inventory.Changed += Refresh;
             _channel.HeldSlotChanged += Refresh;
+            _channel.ReservationChanged += Refresh;
             _panel.SetActive(true);
             Refresh();
         }
@@ -80,6 +82,7 @@ namespace Blacksmith.Inventory
             {
                 _inventory.Changed -= Refresh;
                 _channel.HeldSlotChanged -= Refresh;
+                _channel.ReservationChanged -= Refresh;
                 _channel.CloseSplit(_inventory);
                 _inventory = null;
             }
@@ -112,10 +115,19 @@ namespace Blacksmith.Inventory
                 _sizeText.text = $"{_inventory.Columns} x {_inventory.Rows}";
             }
             EnsureSlotCount(_inventory.SlotCount);
-            int heldSlot = _inventory == _channel.LocalPlayerInventory ? _channel.HeldSlot : -1;
+            bool isLocal = _inventory == _channel.LocalPlayerInventory;
+            int heldSlot = isLocal ? _channel.HeldSlot : -1;
+            CraftingReservation reservation = isLocal ? _channel.Reservation : null;
             for (int i = 0; i < _slots.Count; i++)
             {
                 ItemStack stack = _inventory.Get(i);
+                // 제작 목록이 예약한 재료는 작업대 슬롯에 놓인 것처럼 보이도록 개인 슬롯에서 뺀 개수로 그린다.
+                int reserved = reservation != null ? reservation.GetReserved(i) : 0;
+                if (reserved > 0 && !stack.IsEmpty)
+                {
+                    stack = stack.WithCount(stack.Count - reserved);
+                }
+
                 ItemData item = stack.IsEmpty ? null : _inventory.Catalog.Find(stack.ItemId);
                 _slots[i].Show(stack, item, ItemLabels.Get(stack, item, _grades));
                 _slots[i].SetHeld(i == heldSlot);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Blacksmith.Core.Forge;
 using Blacksmith.Core.Inventory;
 using Blacksmith.Plaza;
 using UnityEngine;
@@ -37,6 +38,14 @@ namespace Blacksmith.Inventory
 
         public event Action HudVisibilityChanged;
 
+        // 제작 목록이 예약한 재료. 내 개인 슬롯 화면은 예약한 만큼을 뺀 것처럼 보여 준다. 아이템은 개인 슬롯에 그대로 있다. 없으면 null이다.
+        public CraftingReservation Reservation { get; private set; }
+
+        public event Action ReservationChanged;
+
+        // 빠른 이동(Shift+클릭, 더블 클릭)을 먼저 받아 갈 곳. 처리했으면 true를 돌려준다. 제작 목록이 열려 있는 동안 쓴다.
+        public Func<NetworkInventory, int, bool> QuickMoveOverride { get; set; }
+
         // 지금 내 화면에 열려 있는 공용 창고. 빠른 이동으로 내 슬롯의 물건을 보낼 곳이다. 닫혀 있으면 null이다.
         public NetworkInventory OpenStorage { get; private set; }
 
@@ -67,6 +76,18 @@ namespace Blacksmith.Inventory
 
                 HeldSlotChanged?.Invoke();
             }
+        }
+
+        public void SetReservation(CraftingReservation reservation)
+        {
+            Reservation = reservation;
+            ReservationChanged?.Invoke();
+        }
+
+        // 예약한 개수가 바뀌었다고 알린다. 개인 슬롯 화면이 다시 그린다.
+        public void NotifyReservationChanged()
+        {
+            ReservationChanged?.Invoke();
         }
 
         public void SetOpenStorage(NetworkInventory storage)
@@ -177,6 +198,11 @@ namespace Blacksmith.Inventory
         // 내 슬롯과 열려 있는 공용 창고 사이에서 칸의 물건을 반대쪽으로 보낸다. 반대쪽이 없으면 아무것도 하지 않는다.
         public void QuickMove(NetworkInventory source, int slot)
         {
+            if (QuickMoveOverride != null && QuickMoveOverride(source, slot))
+            {
+                return;
+            }
+
             NetworkInventory target = source == LocalPlayerInventory ? OpenStorage
                 : source == OpenStorage ? LocalPlayerInventory
                 : null;

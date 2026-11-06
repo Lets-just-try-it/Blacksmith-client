@@ -44,12 +44,16 @@ namespace Blacksmith.Forge
         private void OnEnable()
         {
             _link.Approved += Begin;
+            _link.Opened += OnMenuOpened;
+            _link.Closed += OnMenuClosed;
             _interact.action.Enable();
         }
 
         private void OnDisable()
         {
             _link.Approved -= Begin;
+            _link.Opened -= OnMenuOpened;
+            _link.Closed -= OnMenuClosed;
             if (_game != null)
             {
                 End();
@@ -65,7 +69,7 @@ namespace Blacksmith.Forge
             }
 
             _localPlayer = player;
-            _view.ShowPrompt(_game == null);
+            _view.ShowPrompt(_game == null && !_link.IsOpen);
         }
 
         private void OnTriggerExit(Collider other)
@@ -84,14 +88,14 @@ namespace Blacksmith.Forge
             if (_game == null)
             {
                 // OnTriggerExit가 오지 않는 경우(순간이동 등)에도 범위를 벗어나면 시작하지 못하도록 직접 확인한다.
-                if (_localPlayer != null && !IsInRange(_localPlayer.transform.position))
+                if (_localPlayer != null && !_link.IsOpen && !IsInRange(_localPlayer.transform.position))
                 {
                     LeaveRange();
                 }
 
-                if (_localPlayer != null && _interact.action.WasPressedThisFrame())
+                if (_localPlayer != null && !_link.IsOpen && _interact.action.WasPressedThisFrame())
                 {
-                    _link.RequestStart();
+                    _link.RequestOpen();
                 }
                 return;
             }
@@ -143,6 +147,17 @@ namespace Blacksmith.Forge
             _view.ShowPrompt(false);
         }
 
+        // 제작 목록이 열려 있는 동안에는 "[E] 키를 눌러 시작" 안내를 숨긴다.
+        private void OnMenuOpened()
+        {
+            _view.ShowPrompt(false);
+        }
+
+        private void OnMenuClosed()
+        {
+            _view.ShowPrompt(_localPlayer != null && _game == null);
+        }
+
         private void Begin()
         {
             _game = new ForgingGame(_rules, Environment.TickCount, _link.Difficulty);
@@ -180,7 +195,7 @@ namespace Blacksmith.Forge
             _feedback.End();
             _blade.SetVisible(false);
             _view.HidePanel();
-            _view.ShowPrompt(_localPlayer != null);
+            _view.ShowPrompt(_localPlayer != null && !_link.IsOpen);
         }
 
         // 내 캐릭터가 작업대와 카메라 사이에 서 있으면 칼날과 망치를 가리므로, 하는 동안 내 화면에서만 숨긴다.
