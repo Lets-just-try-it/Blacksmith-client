@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d1d8728ee6440f43ade308c7f44da4b, type: 3}
+  m_Name: NecklaceRules
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.NecklaceRulesData
+  _introTime: 0.6
+  _stepDoneTime: 0.9
+  _endTime: 1.2
+  _gemCm: 12
+  _coarseRate: 0.24
+  _fineRate: 0.08
+  _polishSmoothRate: 0.7
+  _seatTime: 0.7
+  _cutBaseTime: 20
+  _cutTimePerFacet: 6
+  _chainWeight: 0.3
+  _cutWeight: 0.3
+  _setWeight: 0.15
+  _polishWeight: 0.25
+  _successScore: 0.6
+  _difficulties:
+  - ChainBaseTime: 10
+    ChainTimePerPiece: 4.5
+    CutTolCm: 0.08
+    CutMatchSpan: 0.14
+    CutTimeMul: 1
+    FacetCount: 4
+    FacetSpread: 0.03
+    SetPosTol: 0.26
+    SetLimit: 30
+    PolishBaseTime: 10
+    PolishTimePerFacet: 3
+    PolishNeedMul: 1
+  - ChainBaseTime: 9
+    ChainTimePerPiece: 4
+    CutTolCm: 0.05
+    CutMatchSpan: 0.1
+    CutTimeMul: 0.95
+    FacetCount: 6
+    FacetSpread: 0.05
+    SetPosTol: 0.19
+    SetLimit: 30
+    PolishBaseTime: 9
+    PolishTimePerFacet: 2.8
+    PolishNeedMul: 1.25
+  - ChainBaseTime: 8
+    ChainTimePerPiece: 3.5
+    CutTolCm: 0.03
+    CutMatchSpan: 0.07
+    CutTimeMul: 0.9
+    FacetCount: 8
+    FacetSpread: 0.07
+    SetPosTol: 0.15
+    SetLimit: 28
+    PolishBaseTime: 8
+    PolishTimePerFacet: 2.6
+    PolishNeedMul: 1.5

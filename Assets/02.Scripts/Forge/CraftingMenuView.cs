@@ -31,6 +31,8 @@ namespace Blacksmith.Forge
         [SerializeField] private TMP_Text _titleText;
         [SerializeField] private RectTransform _listRoot;
         [SerializeField] private CraftingListRow _rowPrefab;
+        [Tooltip("목록이 창보다 길 때 스크롤한다")]
+        [SerializeField] private ScrollRect _listScroll;
         [Tooltip("창 안의 작업대 슬롯 칸")]
         [SerializeField] private CraftingStagingView _staging;
 
@@ -309,7 +311,34 @@ namespace Blacksmith.Forge
                 _rows[i].SetSelected(i == _selected);
             }
 
+            EnsureVisible(_selected);
             RefreshDetail();
+        }
+
+        // 고른 줄이 스크롤 창 밖이면 보이는 곳까지 스크롤한다.
+        private void EnsureVisible(int index)
+        {
+            if (_listScroll == null || index < 0 || index >= _rows.Count)
+            {
+                return;
+            }
+
+            Canvas.ForceUpdateCanvases();
+            var row = (RectTransform)_rows[index].transform;
+            float top = -row.anchoredPosition.y - row.rect.height * 0.5f;
+            float bottom = top + row.rect.height;
+            float viewHeight = ((RectTransform)_listScroll.transform).rect.height;
+            Vector2 position = _listRoot.anchoredPosition;
+            if (top < position.y)
+            {
+                position.y = top;
+            }
+            else if (bottom > position.y + viewHeight)
+            {
+                position.y = bottom - viewHeight;
+            }
+
+            _listRoot.anchoredPosition = position;
         }
 
         // 작업대 슬롯이 받을 재료: 지금 고른 항목의 재료
@@ -440,6 +469,8 @@ namespace Blacksmith.Forge
                     return "판 성형";
                 case CraftingStationKind.Assembly:
                     return "조립";
+                case CraftingStationKind.Jewelry:
+                    return "장신구";
                 default:
                     return kind.ToString();
             }

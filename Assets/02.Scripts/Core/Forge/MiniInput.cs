@@ -11,5 +11,13 @@ namespace Blacksmith.Core.Forge
         public bool PointerHeld;
         public float PointerX;
         public float PointerY;
+        // 오른쪽 마우스 버튼(뒤집기 등)을 이번 프레임에 눌렀는지
+        public bool SecondaryPressed;
+        // 이번 프레임에 누른 좌우 방향. -1 왼쪽, 1 오른쪽, 0 없음
+        public int Arrow;
+        // 이번 프레임에 누른 숫자 키(1부터). 0이면 누르지 않았다
+        public int ToolNumber;
+        // 마무리 키(F)를 이번 프레임에 눌렀는지
+        public bool FinishPressed;
     }
 }
