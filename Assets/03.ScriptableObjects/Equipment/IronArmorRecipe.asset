@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e59036c743440542a8abed1fbc6a3f4, type: 3}
+  m_Name: IronArmorRecipe
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.CraftingRecipeData
+  _displayName: "\uCCA0 \uAC11\uC637"
+  _steps:
+  - Station: 0
+    Input: {fileID: 11400000, guid: aea1a5cef7898394e83cbc803ed180ce, type: 2}
+    InputCount: 1
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: 610fbc0ce5fa3a04a8286aba074dd77a, type: 2}
+    Variant: 0
+  - Station: 4
+    Input: {fileID: 11400000, guid: 610fbc0ce5fa3a04a8286aba074dd77a, type: 2}
+    InputCount: 4
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: cd4fef3e545905347ae49f8608acfa8f, type: 2}
+    Variant: 1
+  - Station: 5
+    Input: {fileID: 11400000, guid: cd4fef3e545905347ae49f8608acfa8f, type: 2}
+    InputCount: 1
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: 14e07c432423bd34bb98dfe4cd9bf6d2, type: 2}
+    Variant: 0

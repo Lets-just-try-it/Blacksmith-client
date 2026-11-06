@@ -96,22 +96,25 @@
 | 상태 | 의미 |
 | --- | --- |
 | `Available` | 사용 가능한 상태 |
-| `InProgress` | 플레이어가 사용 중인 상태 |
+| `InProgress` | 플레이어가 열어 둔 상태(제작 목록을 보거나 미니게임을 하는 중) |
 
 작업대는 다음 정보를 관리한다.
 
 - `State`: 현재 작업대 상태
 - `CurrentUser`: 현재 작업대 사용자의 `PlayerRef`
-- `SessionId`: 현재 미니게임 세션 식별자. 호스트가 사용권을 줄 때 새로 발급한다.
+- `SessionId`: 현재 미니게임 세션 식별자. 0이면 미니게임 중이 아니다. 호스트가 제작을 승인할 때 새로 발급하고, 결과를 처리하면 0으로 되돌린다.
+- `CraftEntry`: 지금 미니게임이 만드는 제작 항목 번호
+- `PendingReserved`: 지금 미니게임이 쓰는 재료의 예약. 개인 슬롯 칸마다 개수를 1바이트씩 담은 64비트 값이다(`CraftingReservation.Pack`).
 
 ### 4.2 사용 요청 처리
 
-1. 클라이언트가 호스트에 작업대 사용을 요청한다.
+1. 클라이언트가 호스트에 작업대 열기를 요청한다.
 2. 호스트는 낮인지(`ForgeChannel.IsOpen`, 낮·밤 단계에 맞춰 `ForgeDayCycleLink`가 정함)와 작업대가 `Available` 상태인지 확인한다. 낮이 아니면 "영업 끝"(`ForgeRejectReason.Closed`)으로 거절한다.
-3. 사용 가능하면 요청한 플레이어를 `CurrentUser`로 설정하고 새 `SessionId`를 발급한다.
-4. 작업대 상태를 `InProgress`로 바꾼다.
-5. 호스트가 해당 클라이언트에 사용 승인과 `SessionId`를 전달한다.
-6. 클라이언트는 승인받은 뒤 미니게임을 시작한다.
+3. 사용 가능하면 요청한 플레이어를 `CurrentUser`로 설정하고 작업대 상태를 `InProgress`로 바꾼다.
+4. 호스트가 해당 클라이언트에 열림을 알리면 클라이언트는 제작 목록 창을 연다. 작업대 슬롯에 재료를 놓는 일은 화면에서만 한다. 아이템은 옮기지 않고 개인 슬롯 칸마다 몇 개를 쓸지 예약하는 것이며, 예약은 클라이언트 안에만 있다(`CraftingReservation`). 개인 슬롯 화면은 예약한 만큼을 뺀 것처럼 그린다.
+5. 클라이언트가 제작을 요청하면 항목 번호와 예약을 함께 보낸다. 호스트는 요청자가 작업대를 연 사람인지, 항목이 이 작업대의 것인지, 예약한 개수가 요청자의 개인 슬롯에 실제로 있는지(`CraftingReservation.TryBuildStacks`), 그 재료가 항목의 재료를 채우는지(`CraftingRequirements.TryPlan`) 확인한다.
+6. 통과하면 새 `SessionId`를 발급하고 예약을 `PendingReserved`에 기록한 뒤 제작 승인과 `SessionId`를 전달한다. 클라이언트는 승인받은 뒤 미니게임을 시작한다. 이때까지 재료는 개인 슬롯에 그대로 있다.
+7. 닫기를 요청하면 호스트는 미니게임 중이 아닐 때 사용권을 푼다. 클라이언트는 닫기 버튼(Esc), 미니게임 종료, 영업 종료(`ForgeChannel.OpenChanged`가 false) 때 닫기를 요청한다.
 
 여러 플레이어가 동시에 요청해도 호스트가 먼저 처리한 유효한 요청만 승인한다. 이를 통해 작업대의 동시 사용을 막는다.
 
@@ -135,8 +138,8 @@
 1. 결과를 보낸 플레이어가 현재 작업대 사용자인지 확인한다.
 2. 전달된 `SessionId`가 현재 세션과 일치하는지 확인한다.
 3. 해당 세션의 결과를 이미 처리했는지 확인한다.
-4. 아직 처리하지 않았다면 정확도를 반영해 아이템을 다음 단계 형태로 교체한다.
-5. 작업대를 `Available` 상태로 바꾸고 사용권을 해제한다.
+4. 아직 처리하지 않았다면 기록해 둔 예약의 재료가 개인 슬롯에 아직 있는지 한 번 더 확인한 뒤 그 칸에서 소모하고, 정확도를 반영해 결과물을 만들어 개인 슬롯에 넣는다. 재료가 사라졌으면 아무것도 바꾸지 않는다.
+5. `SessionId`를 0으로 되돌린다. 클라이언트는 결과를 보낸 직후 제작 목록을 닫는 요청(`RpcRequestClose`)을 이어서 보내 작업대를 푼다.
 6. 변경된 상태를 모든 클라이언트에 동기화한다.
 
 이미 처리한 세션의 결과가 중복으로 도착하면 무시한다. 이는 치팅 방지가 아니라 중복 보상 지급이나 작업대 상태의 중복 변경을 막기 위한 처리다.
@@ -145,13 +148,18 @@
 
 ### 5.1 구현
 
-- 작업대마다 씬 네트워크 오브젝트인 `ForgeStationState`가 `Status`, `CurrentUser`, `SessionId`, `LastProcessedSession`, 사용자가 쓰는 슬롯을 `[Networked]`로 둔다. 사용권을 줄 때 `SessionId`를 1씩 늘려 발급하고, 사용자가 나가면(`IPlayerLeft`) 사용권을 푼다.
+- 작업대마다 씬 네트워크 오브젝트인 `ForgeStationState`가 `Status`, `CurrentUser`, `SessionId`, `LastProcessedSession`, `CraftEntry`를 `[Networked]`로 둔다. 제작을 승인할 때 `SessionId`를 1씩 늘려 발급하고, 사용자가 나가면(`IPlayerLeft`) 사용권을 푼다.
+- 작업대가 하는 제작 항목은 작업대의 레시피 목록에서 이 작업대의 단계만 골라 같은 순서로 만든다(`ForgeStationState.Entries`). 호스트와 클라이언트가 같은 데이터에서 만들므로 항목 번호만 주고받는다.
+- 예약한 재료를 개인 슬롯 화면에서 빼 보이는 일과 Shift+클릭·더블 클릭을 예약으로 바꾸는 일은 `InventoryChannel`의 `Reservation`, `QuickMoveOverride`가 `InventoryView`에 알린다. 호스트와 다른 참가자는 예약을 모르고 개인 슬롯은 실제 값 그대로 복제된다.
 - 요청과 결과 RPC는 Player 프리팹의 `ForgePlayerActions`에 둔다. 작업대 화면은 `ForgeChannel` 에셋으로 내 플레이어를 몰라도 요청한다.
-  1. 클라이언트: `RpcRequestStart(작업대, 손에 든 슬롯)` (`InputAuthority` → `StateAuthority`)
-  2. 호스트: 그 슬롯의 물건이 이 작업대가 받는 재료인지(`CraftingRecipeData.TryFindStep`)와 작업대가 비었는지 확인하고, 사용권을 주면 `RpcStartApproved(작업대, SessionId)`, 아니면 `RpcStartRejected(작업대, 이유)`를 해당 클라이언트에 보낸다.
-  3. 클라이언트: 승인을 받으면 미니게임을 시작하고(`ForgeStationLink.Approved`), 끝나면 `RpcSubmitResult(작업대, SessionId, Accuracy)`를 보낸다.
-  4. 호스트: `ForgeStationState.TryFinish`가 사용자, 세션, 중복 여부를 확인하고 사용권을 풀면, `Core/Forge/CraftingRules`로 결과물을 만들어 `PlayerInventoryState.TryReplaceOne`으로 바꾼다.
-- 호스트가 자기 요청을 보낼 때는 RPC가 바로 실행되어 승인이 요청 호출 안에서 돌아온다. 그래서 요청 쪽(`ForgeStationLink`)은 보내기 전에 기다림 상태로 바꿔 둔다.
+  1. 클라이언트: `RpcRequestOpen(작업대)` (`InputAuthority` → `StateAuthority`)
+  2. 호스트: 영업 중인지, 작업대가 비었는지 확인하고, 사용권을 주면 `RpcOpened(작업대)`, 아니면 `RpcRejected(작업대, 이유)`를 해당 클라이언트에 보낸다.
+  3. 클라이언트: 열림을 받으면 제작 목록 창(`CraftingMenuView`)을 열고, 제작을 누르면 `RpcRequestCraft(작업대, 항목 번호, 예약)`를 보낸다.
+  4. 호스트: 요청자, 항목, 예약한 재료가 개인 슬롯에 있는지(`Core/Forge/CraftingReservation`, `CraftingRequirements`)를 확인하고 통과하면 `ForgeStationState.TryBeginCraft`로 `SessionId`를 발급해 `RpcCraftApproved(작업대, SessionId, 항목 번호)`를 보낸다. 재료가 모자라면 거절한다.
+  5. 클라이언트: 승인을 받으면 미니게임을 시작하고(`ForgeStationLink.Approved`), 끝나면 `RpcSubmitResult(작업대, SessionId, Accuracy)`를 보낸다.
+  6. 호스트: `ForgeStationState.TryFinish`가 사용자, 세션, 중복 여부를 확인하면, 기록해 둔 예약을 다시 확인해 개인 슬롯에서 빼고 `Core/Forge/CraftingRules`로 결과물을 만들어 개인 슬롯에 넣는다.
+  7. 닫기: `RpcRequestClose(작업대)`. 호스트는 `TryClose`로 사용권을 푼다.
+- 호스트가 자기 요청을 보낼 때는 RPC가 바로 실행되어 응답이 요청 호출 안에서 돌아온다. 그래서 요청 쪽(`ForgeStationLink`)은 보내기 전에 기다림 상태로 바꿔 둔다.
 
 ## 5.5 판매
 
@@ -171,7 +179,7 @@
 4. 작업대를 `Available` 상태로 바꾼다.
 5. 변경된 상태를 다른 클라이언트에 동기화한다.
 
-이를 통해 비정상적인 연결 종료로 작업대가 계속 사용 중 상태에 머무는 문제를 막는다. 결과를 반영하지 않았으므로 재료 아이템은 원래 형태로 플레이어 슬롯에 남는다.
+이를 통해 비정상적인 연결 종료로 작업대가 계속 사용 중 상태에 머무는 문제를 막는다. 결과를 반영하지 않았으므로 재료는 소모되지 않고 개인 슬롯에 그대로 있다.
 
 ### 6.2 미니게임 결과가 중복으로 도착한 경우
 
