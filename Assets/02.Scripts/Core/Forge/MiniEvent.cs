@@ -29,6 +29,9 @@ namespace Blacksmith.Core.Forge
         Solidify,
         // 연마: 날이 탔다(Hazard, Index는 닿은 칸, Value는 지금까지의 탄 벌점). 칸을 다 갈면 Good, 물에 담그면 Hit, 열이 경고 구간을 넘으면 Warn
         Hazard,
+        // 판 성형: 다음 조각이 나왔다(Index는 조각 번호), 녹색 점을 잡고 오리기 시작했다(Grip)
+        Spawn,
+        Grip,
     }
 
     // 화면이 효과음과 연출을 만들 수 있도록 미니게임이 알려 주는 사건이다.

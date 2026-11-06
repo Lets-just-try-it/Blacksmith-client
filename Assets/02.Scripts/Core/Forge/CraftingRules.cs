@@ -10,6 +10,9 @@ namespace Blacksmith.Core.Forge
         Forging,
         Quench,
         Polish,
+        // 방어구: 판 성형, 조립
+        PlateForming,
+        Assembly,
     }
 
     // 미니게임 하나가 끝났을 때 재료가 다음 형태로 바뀌는 규칙이다. 네트워크와 Unity에 의존하지 않는다.

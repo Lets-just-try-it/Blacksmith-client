@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e59036c743440542a8abed1fbc6a3f4, type: 3}
+  m_Name: CopperArmorRecipe
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.CraftingRecipeData
+  _displayName: "\uAD6C\uB9AC \uAC11\uC637"
+  _steps:
+  - Station: 0
+    Input: {fileID: 11400000, guid: 06a4ba720df9b634080e6cd430474cfd, type: 2}
+    InputCount: 1
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: a6b9c544fb1db6e43b6673b369be3f84, type: 2}
+    Variant: 0
+  - Station: 4
+    Input: {fileID: 11400000, guid: a6b9c544fb1db6e43b6673b369be3f84, type: 2}
+    InputCount: 4
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: 0c67f96e608e11545ba125bf5b6242cc, type: 2}
+    Variant: 1
+  - Station: 5
+    Input: {fileID: 11400000, guid: 0c67f96e608e11545ba125bf5b6242cc, type: 2}
+    InputCount: 1
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: 916bec35b5bfe6746955674bbdb596bb, type: 2}
+    Variant: 0

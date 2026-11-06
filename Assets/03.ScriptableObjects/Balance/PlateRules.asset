@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b9e72eccd02d334986953a255504854, type: 3}
+  m_Name: PlateRules
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.PlateRulesData
+  _partPause: 0.9
+  _endDelay: 1.2
+  _ahead: 30
+  _narrowMul: 0.7
+  _narrowLen: 18
+  _startReachScale: 1.8
+  _startReachPad: 0.3
+  _startErr: 0.3
+  _slipPenalty: 0.02
+  _maxSlipPenalty: 0.15
+  _timeBonus: 0.05
+  _fitLoss: 0.6
+  _successScore: 0.6
+  _priorMin: 0.9
+  _priorSpan: 0.2
+  _difficulties:
+  - BandWidth: 0.55
+    NarrowCount: 0
+    ExtraParts: 0
+    PerimeterPerSecond: 2.2
+    BaseTime: 20
+  - BandWidth: 0.42
+    NarrowCount: 1
+    ExtraParts: 1
+    PerimeterPerSecond: 2
+    BaseTime: 20
+  - BandWidth: 0.32
+    NarrowCount: 2
+    ExtraParts: 2
+    PerimeterPerSecond: 1.8
+    BaseTime: 20
