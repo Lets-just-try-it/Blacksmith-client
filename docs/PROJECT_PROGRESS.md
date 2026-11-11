@@ -24,11 +24,10 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 시험: `ForgeTest`와 `Game`에서 공용 창고의 시험용 광석으로 대검까지 만들 수 있다. 티어별 난이도·판매 기준가 `TierRules`.
 - 연출 끄기: `J` 키(`MinigameFeedbackToggle`, `MinigameFeedbackSwitch`).
 - 작업 자세: Player 프리팹의 `Forge/ForgeWorkPose`가 `ForgeStationRegistry`에서 사용 중인 작업대를 찾아 망치질 자세를 켠다.
-- 판매 구역(`DisplayShelfState`, `Customer`, `ShopFlow`, `ShopHud`)은 기획에서 빠져 제거할 대상이다.
 
 ### 대장간 맵 (진행 중)
 
-- `04.Prefabs/Town/ForgeRoom` 그레이박스(판매·관리·제작 구역, 작업대 7개, `ForgeDoor`). `ForgeTest`에서 F1~F6 시점, V 1인칭(`ForgeTestCameraFollow`).
+- `04.Prefabs/Town/ForgeRoom` 그레이박스(제작 구역 하나, 작업대 6개와 조립 자리 소품, `ForgeDoor`). `ForgeTest`에서 F1~F6 시점, V 1인칭(`ForgeTestCameraFollow`).
 - 실제 에셋 적용은 남았다. `ForgeTest`는 대장간 담당 영역이다.
 
 ### 인벤토리 (진행 중)
@@ -112,7 +111,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
    - 대화: 튜토리얼·클리어 컷씬에서 `SharedDialogue` 사용, 명성 등 조건 값, `Game` 씬 배치 확인.
    - 공통: `ForgeTest`에 던전 지도 연결(대장간 담당), 밤 연출과 `DaySceneBattleCover`(임시)를 합칠지, 저장 구조(`DungeonProgressState` 포함)와 `GameState` 스폰 시점, 장비 보정과 직업별 공격 방식(`AdventurerSetupRules`, `AdventurerBattle`).
 3. 데모 1을 위해 2026-11-10 기획(`docs/GAME_CONCEPT.md`)과 지금 구현이 다른 부분을 맞춘다. 담당자는 팀에서 정한다(기획 13절).
-   - 제거: 판매 구역·진열대(`DisplayShelfState`)·손님(`Customer`, `ShopFlow`), 대장간의 모험가 관리 구역, 전투 보상의 재료·보석 드랍(`BattleDropRules`, 결과창 재료 표시, 드랍 연출), 치료비 회복.
+   - 제거: 전투 보상의 재료·보석 드랍(`BattleDropRules`, 결과창 재료 표시, 드랍 연출), 치료비 회복.
    - 변경: 주괴는 등급 없이 쌓이고 정제 정확도가 주괴 개수를 정함(지금은 주괴 1개에 정확도를 담음), 장비 등급에서 정제 점수를 빼고 연마의 처음 날 상태는 단조·담금질 평균으로, 재료 한 칸 최대 32개(지금 99), 1티어 광석 이름 청동(데이터는 구리), 부산물 이름(짐승 가죽 → 가죽, 질긴 힘줄 → 힘줄, 마석 조각 → 마석)과 뼈·목재 추가, 웨이브를 8방향 이동 맵의 몬스터 무리로, 부상 상태를 부상수치로, 에메랄드 효과 대상.
    - 추가: 던전 채집(절차적 맵, 자원 스폰, 묻힌 보물 상자, 어두운 던전 시야), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 여관, 친밀도, 장비 내구도와 녹이기, 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
 4. 가격 등 다른 `Core` 규칙에도 시드 결정성 EditMode 테스트를 추가한다.
