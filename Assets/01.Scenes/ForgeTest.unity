@@ -2205,6 +2205,10 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 9208903962378117955, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: _smeltingRules
+      value: 
+      objectReference: {fileID: 11400000, guid: 350353eac904bae489a04c8053e6c89d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

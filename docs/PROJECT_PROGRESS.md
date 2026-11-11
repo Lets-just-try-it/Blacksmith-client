@@ -19,7 +19,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 - 미니게임: 정제(`SmeltingGame`), 단조(`ForgingGame`), 담금질(`QuenchGame`), 연마(`PolishGame`), 판 성형(`PlateGame`), 조립(`AssembleGame`, 규칙만 있고 작업대·화면은 아직 없다), 장신구(`NecklaceGame`). 규칙은 `Core/Forge`, 수치는 `03.ScriptableObjects/Balance/*Rules.asset`.
 - 제작 흐름: 작업대 사용권 `ForgeStationState`(호스트) + `ForgeStationLink`, 결과 RPC `ForgePlayerActions`. 공용 제작 목록 창 `CraftingMenuView`, 재료 예약 `Core/Forge/CraftingReservation`, 재료 판정 `Core/Forge/CraftingRequirements`, 정확도 누적·등급 환산 `Core/Forge/CraftingRules`, 레시피 `CraftingRecipeData`.
-- 레시피: 구리 대검, 철 대검, 구리·철 투구/갑옷(판 성형까지, 조립 작업대가 없어 완성 안 됨), 목걸이 12개. 레시피는 아직 재료 1개 → 장비 1개이고 부재료를 받지 않는다.
+- 정제: 광석 1개 → 주괴 1~4개(정확도별, `SmeltingRules.YieldTiers`, 구간은 임시이며 밸런스 테스트 후 확정). 주괴는 등급·정확도 없이 쌓이고(`ItemKind.Material`), 정제 점수는 장비 등급에 들어가지 않는다(`CraftingEntry.ScoredStepsDone`). 레시피: 구리 대검, 철 대검, 구리·철 투구/갑옷(판 성형까지, 조립 작업대가 없어 완성 안 됨), 목걸이 12개. 레시피는 아직 재료 1개 → 장비 1개이고 부재료를 받지 않는다.
 - 등급: `Core/GradeRule` + `GradeThresholds` (구현).
 - 시험: `ForgeTest`와 `Game`에서 공용 창고의 시험용 광석으로 대검까지 만들 수 있다. 티어별 난이도·판매 기준가 `TierRules`.
 - 연출 끄기: `J` 키(`MinigameFeedbackToggle`, `MinigameFeedbackSwitch`).
@@ -114,7 +114,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
    - 공통: `ForgeTest`에 던전 지도 연결(대장간 담당), 밤 연출과 `DaySceneBattleCover`(임시)를 합칠지, 저장 구조(`DungeonProgressState` 포함)와 `GameState` 스폰 시점, 장비 보정과 직업별 공격 방식(`AdventurerSetupRules`, `AdventurerBattle`).
 3. 데모 1을 위해 2026-11-10 기획(`docs/GAME_CONCEPT.md`)과 지금 구현이 다른 부분을 맞춘다. 담당자는 팀에서 정한다(기획 13절).
    - 제거: 전투 보상의 재료·보석 드랍(`BattleDropRules`, 결과창 재료 표시, 드랍 연출), 치료비 회복.
-   - 변경: 주괴는 등급 없이 쌓이고 정제 정확도가 주괴 개수를 정함(지금은 주괴 1개에 정확도를 담음), 장비 등급에서 정제 점수를 빼고 연마의 처음 날 상태는 단조·담금질 평균으로, 재료 한 칸 최대 32개(지금 99), 1티어 광석 이름 청동(데이터는 구리), 부산물 이름(짐승 가죽 → 가죽, 질긴 힘줄 → 힘줄, 마석 조각 → 마석)과 뼈·목재 추가, 웨이브를 8방향 이동 맵의 몬스터 무리로, 부상 상태를 부상수치로, 에메랄드 효과 대상.
+   - 변경: 재료 한 칸 최대 32개(지금 99), 1티어 광석 이름 청동(데이터는 구리), 부산물 이름(짐승 가죽 → 가죽, 질긴 힘줄 → 힘줄, 마석 조각 → 마석)과 뼈·목재 추가, 웨이브를 8방향 이동 맵의 몬스터 무리로, 부상 상태를 부상수치로, 에메랄드 효과 대상.
    - 추가: 던전 채집(절차적 맵, 자원 스폰, 묻힌 보물 상자, 어두운 던전 시야), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 여관, 친밀도, 장비 내구도와 녹이기, 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
 4. 가격 등 다른 `Core` 규칙에도 시드 결정성 EditMode 테스트를 추가한다.
 5. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 임시 폰트다(SIL OFL 1.1, `05.Art/Fonts`).

@@ -24,7 +24,7 @@ namespace Blacksmith.Core.Forge
     {
         public const int MaxPercent = 100;
 
-        // stagesDone: 이번 단계 전에 끝낸 단계 수. 첫 단계(0)면 재료에는 점수가 없으므로 이전 값을 무시한다.
+        // stagesDone: 이번 단계 전에 점수를 낸 단계 수(정제는 세지 않는다). 0이면 재료에는 점수가 없으므로 이전 값을 무시한다.
         public static int AccumulatePercent(int previousPercent, int stagesDone, float accuracy)
         {
             float current = Clamp01(accuracy) * MaxPercent;
@@ -47,6 +47,12 @@ namespace Blacksmith.Core.Forge
             }
 
             return new ItemStack(outputItemId, 0, 1, percent);
+        }
+
+        // 정제를 끝낸 결과물이다. 주괴는 등급과 정확도 없이 쌓이고, 정확도는 주괴 수만 정한다.
+        public static ItemStack MakeIngots(int ingotItemId, int count)
+        {
+            return new ItemStack(ingotItemId, 0, count);
         }
 
         private static float Clamp01(float value)

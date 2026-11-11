@@ -620,6 +620,7 @@ MonoBehaviour:
   _channel: {fileID: 11400000, guid: d26ad886b27a9294bb323e81b803fb34, type: 2}
   _inventory: {fileID: 6428275539069939239}
   _grades: {fileID: 11400000, guid: 12b1db5cf68f4cc439394520aa675613, type: 2}
+  _smeltingRules: {fileID: 11400000, guid: 350353eac904bae489a04c8053e6c89d, type: 2}
 --- !u!114 &7781040051162245662
 MonoBehaviour:
   m_ObjectHideFlags: 0

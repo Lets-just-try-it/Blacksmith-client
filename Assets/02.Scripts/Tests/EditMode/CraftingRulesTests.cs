@@ -75,5 +75,13 @@ namespace Blacksmith.Tests
             Assert.AreEqual(13, item.ItemId);
             Assert.AreEqual(4, item.Grade);
         }
+
+        // 정제는 주괴 수만 정하므로, 정제를 뺀 첫 점수 단계(stagesDone 0)는 앞 단계 값을 무시하고 자기 점수로 시작한다.
+        [Test]
+        public void FirstScoredStageAfterSmelting_IgnoresIngotAndStartsFromOwnScore()
+        {
+            Assert.AreEqual(70, CraftingRules.AccumulatePercent(0, 0, 0.70f));
+            Assert.AreEqual(75, CraftingRules.AccumulatePercent(70, 1, 0.80f));
+        }
     }
 }

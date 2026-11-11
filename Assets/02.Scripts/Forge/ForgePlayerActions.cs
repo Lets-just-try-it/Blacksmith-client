@@ -16,6 +16,7 @@ namespace Blacksmith.Forge
         [SerializeField] private ForgeChannel _channel;
         [SerializeField] private PlayerInventoryState _inventory;
         [SerializeField] private GradeThresholdData _grades;
+        [SerializeField] private SmeltingRulesData _smeltingRules;
 
         // 호스트에서 재료를 확인할 때 쓰는 작업 목록. 매번 새로 만들지 않는다.
         private readonly int[] _reservedCounts = new int[CraftingReservation.MaxSlots];
@@ -190,7 +191,9 @@ namespace Blacksmith.Forge
                 _inventory.TryRemove(removal.Slot, removal.Count, out _);
             }
 
-            ItemStack output = CraftingRules.MakeOutput(entry.Output.ItemId, entry.StepIndex, entry.IsFinal, previousPercent, accuracy, _grades.LowerBounds);
+            ItemStack output = entry.IsSmelting
+                ? CraftingRules.MakeIngots(entry.Output.ItemId, _smeltingRules.ToRules().IngotCount(accuracy))
+                : CraftingRules.MakeOutput(entry.Output.ItemId, entry.ScoredStepsDone, entry.IsFinal, previousPercent, accuracy, _grades.LowerBounds);
             if (!_inventory.TryAdd(output))
             {
                 Debug.LogWarning($"결과물 {entry.Output.DisplayName}을(를) 둘 자리가 없어 사라졌다.");

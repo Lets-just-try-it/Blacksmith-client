@@ -86,6 +86,34 @@ namespace Blacksmith.Core.Forge
         public float PourWeight { get; set; }
 
         public SmeltingDifficulty[] Difficulties { get; set; }
+
+        // 정확도에 따라 나오는 주괴 수. MinAccuracy가 낮은 순서이고 첫 칸의 MinAccuracy는 0이다.
+        public SmeltingYieldTier[] YieldTiers { get; set; }
+
+        // 정확도(0~1)로 광석 하나에서 나오는 주괴 수를 정한다.
+        public int IngotCount(float accuracy)
+        {
+            int count = 1;
+            foreach (SmeltingYieldTier tier in YieldTiers)
+            {
+                if (accuracy >= tier.MinAccuracy)
+                {
+                    count = tier.IngotCount;
+                }
+            }
+            return count;
+        }
+
+        public int MinIngots => IngotCount(0f);
+        public int MaxIngots => IngotCount(1f);
+    }
+
+    // 정확도가 MinAccuracy 이상일 때 나오는 주괴 수. 주괴에는 등급이 없고, 정확도는 이 수만 정한다.
+    [Serializable]
+    public struct SmeltingYieldTier
+    {
+        public float MinAccuracy;
+        public int IngotCount;
     }
 
     // 광석 등급 하나의 수치. 귀한 광석일수록 판정이 좁고 쇳물이 빨리 식는다.

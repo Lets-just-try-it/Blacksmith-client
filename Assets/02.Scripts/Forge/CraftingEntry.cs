@@ -21,6 +21,24 @@ namespace Blacksmith.Forge
         public CraftingRecipeData.Step Step => Recipe.GetStep(StepIndex);
         public ItemData Output => Step.Output;
         public bool IsFinal => Recipe.IsFinalStep(StepIndex);
+        public bool IsSmelting => Step.Station == CraftingStationKind.Smelting;
+
+        // 이 단계 전에 점수를 낸 단계 수. 정제는 주괴 수만 정하고 점수에 들어가지 않는다.
+        public int ScoredStepsDone
+        {
+            get
+            {
+                int count = 0;
+                for (int i = 0; i < StepIndex; i++)
+                {
+                    if (Recipe.GetStep(i).Station != CraftingStationKind.Smelting)
+                    {
+                        count++;
+                    }
+                }
+                return count;
+            }
+        }
 
         // 미니게임이 모양을 고르는 데 쓰는 번호(판 성형의 투구/갑옷 등)
         public int Variant => Step.Variant;

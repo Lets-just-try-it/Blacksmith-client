@@ -65,6 +65,15 @@ MonoBehaviour:
   _crackWeight: 0.28
   _fluidityWeight: 0.12
   _pourWeight: 0.6
+  _yieldTiers:
+  - MinAccuracy: 0
+    IngotCount: 1
+  - MinAccuracy: 0.4
+    IngotCount: 2
+  - MinAccuracy: 0.85
+    IngotCount: 3
+  - MinAccuracy: 0.95
+    IngotCount: 4
   _difficulties:
   - WindowScale: 1.25
     HitRadius: 0.21

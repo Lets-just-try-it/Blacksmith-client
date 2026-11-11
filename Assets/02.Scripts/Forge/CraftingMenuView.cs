@@ -25,6 +25,7 @@ namespace Blacksmith.Forge
         [SerializeField] private PlayerNetworkInputLock _inputLock;
         [SerializeField] private InputActionReference _cancel;
         [SerializeField] private TierRulesData _tiers;
+        [SerializeField] private SmeltingRulesData _smeltingRules;
 
         [Header("창")]
         [SerializeField] private GameObject _panelRoot;
@@ -419,7 +420,10 @@ namespace Blacksmith.Forge
             _outputText.text = output.DisplayName;
             _infoText.text = $"{entry.Tier}티어 · 난이도 {DifficultyNames[Mathf.Clamp(difficulty, 0, DifficultyNames.Length - 1)]} · {StationName(_station.Kind)} 미니게임";
             _ingredientsText.text = BuildIngredientsText(entry);
-            _resultText.text = entry.IsFinal
+            SmeltingRules smelting = entry.IsSmelting ? _smeltingRules.ToRules() : null;
+            _resultText.text = smelting != null
+                ? $"결과: {output.DisplayName} {smelting.MinIngots}~{smelting.MaxIngots}개\n<size=80%>정확도가 높을수록 주괴가 많이 나온다</size>"
+                : entry.IsFinal
                 ? $"완성품: {entry.Recipe.FinalItem.DisplayName}\n<size=80%>등급은 미니게임 점수의 평균으로 정해진다</size>"
                 : $"결과: {output.DisplayName}\n<size=80%>다음 단계: {NextStationName(entry)}</size>";
             RefreshCraftButton();

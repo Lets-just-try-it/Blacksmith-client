@@ -67,6 +67,16 @@ namespace Blacksmith.Forge
         [SerializeField, Range(0f, 1f)] private float _fluidityWeight = 0.12f;
         [SerializeField, Range(0f, 1f)] private float _pourWeight = 0.6f;
 
+        [Header("정제 결과")]
+        [Tooltip("광석 하나를 정제했을 때 정확도별로 나오는 주괴 수. 정확도가 낮은 순서로 적고 첫 칸의 정확도는 0이다.")]
+        [SerializeField] private SmeltingYieldTier[] _yieldTiers =
+        {
+            new SmeltingYieldTier { MinAccuracy = 0f, IngotCount = 1 },
+            new SmeltingYieldTier { MinAccuracy = 0.4f, IngotCount = 2 },
+            new SmeltingYieldTier { MinAccuracy = 0.85f, IngotCount = 3 },
+            new SmeltingYieldTier { MinAccuracy = 0.95f, IngotCount = 4 },
+        };
+
         [Tooltip("광석 등급 0, 1, 2 순서. 귀한 광석일수록 판정이 좁고 쇳물이 빨리 식는다.")]
         [SerializeField] private SmeltingDifficulty[] _difficulties =
         {
@@ -148,6 +158,7 @@ namespace Blacksmith.Forge
                 FluidityWeight = _fluidityWeight,
                 PourWeight = _pourWeight,
                 Difficulties = _difficulties,
+                YieldTiers = _yieldTiers,
             };
         }
 
@@ -167,6 +178,18 @@ namespace Blacksmith.Forge
             if (_moldMin >= _moldMax)
             {
                 Debug.LogWarning("틀 위치 범위의 최솟값은 최댓값보다 작아야 한다.", this);
+            }
+
+            if (_yieldTiers.Length == 0 || _yieldTiers[0].MinAccuracy > 0f)
+            {
+                Debug.LogWarning("정제 결과표는 정확도 0부터 시작해야 한다.", this);
+            }
+            for (int i = 0; i < _yieldTiers.Length; i++)
+            {
+                if (_yieldTiers[i].IngotCount < 1 || (i > 0 && _yieldTiers[i].MinAccuracy <= _yieldTiers[i - 1].MinAccuracy))
+                {
+                    Debug.LogWarning($"정제 결과표 {i}: 주괴는 1개 이상이고 정확도는 앞 칸보다 커야 한다.", this);
+                }
             }
 
             for (int i = 0; i < _difficulties.Length; i++)
