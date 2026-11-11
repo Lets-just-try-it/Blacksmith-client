@@ -1,6 +1,6 @@
 # Tempered Heroes (가제) 프로젝트 진행 현황
 
-> 기준일: 2026-11-11
+> 기준일: 2026-11-12
 >
 > 이 문서는 자신이 들어 있는 브랜치의 상태를 설명한다. 시스템별 상태, 핵심 진입점, 확인하지 않은 것, 남은 작업만 적는다. 구현 방법과 확인 기록은 PR 본문과 `docs/ai-prompts/`에 적는다. 개발 환경 설정은 `docs/SETUP.md`를 따른다.
 
@@ -52,6 +52,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 데이터: `DungeonData`(`Dungeon_Tier1`, `Dungeon_Tier2`만 있음), `03.ScriptableObjects/Monsters`, `AdventurerBattle`(직업별 전투 수치·스킬 표).
 - 흐름: 던전 지도 `DungeonMapView` → 파견 창 `DispatchView`/`DispatchState` → `BattleSceneLoader`가 `Battle` 씬 Additive 로드 → `BattleSceneFlow` 재생, `BattleState` 동기화 → 결과창 확인 → `DungeonProgressState` 반영, `BattleRewardApplier`(`Game` 씬만)가 골드·재료·경험치 반영. 전투 중 낮 화면은 `DaySceneBattleCover`가 끈다.
 - 지도는 씬마다 `DispatchUI`의 `DungeonMap`에 `_state`·`_progress`를 연결해야 켜진다. `DispatchTest`와 `Game`에 연결했다.
+- 스테이지 맵: `Core/Battle/StageMapGenerator`가 전투 시드로 타원 덩어리를 이어 붙인 넓은 맵을 만들고, `StageMapValidator`가 한 덩어리·구멍 없음·최소 폭을 확인한다. `Battle` 씬의 `StageMap`(`StageMapView`)이 시작 지점을 원점에 두고 바닥 메시를 깐다. 수치와 바닥 머티리얼(던전마다 하나)은 `StageMap_Tier1`·`StageMap_Tier2`(던전 데이터가 참조), 바닥은 `ThirdParty/FloorTiles01`이다. 모험가는 아직 맵과 상관없이 직선으로 걷는다(NavMesh 이동은 남은 작업 3의 8방향 이동).
 - 지금 전투는 웨이브 방식이고 몬스터 재료 드랍이 있다. 둘 다 2026-11-10 기획과 달라 바꿀 대상이다(남은 작업 3).
 
 ### 모험가 영입 (진행 중)
@@ -98,6 +99,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 두 명 접속: 작업대 사용권 거절, 인벤토리·장비 착용, 파견 창·지도(참가자 보기 전용), 낮·밤 전환, `Game` 씬 전체 흐름. (Host 이동, 영입, 대화, 전투 재생은 두 명으로 확인했다.)
 - 실제 미니게임 도중 낮이 끝나는 경우.
 - 웨이브 표시, 보스 연출, 바닥 드랍의 플레이 모드 화면.
+- 스테이지 맵: 두 명 접속에서 같은 맵이 나오는지, 전투 카메라로 본 맵 가장자리.
 - 빌드한 실행 파일에서의 전체 흐름.
 
 ## 남은 작업

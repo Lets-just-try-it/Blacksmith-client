@@ -32,9 +32,12 @@ namespace Blacksmith.Battle
         [Tooltip("[추정] 한 웨이브 안에서 몬스터끼리 앞뒤로 벌어지는 거리")]
         [SerializeField, Min(0)] private int _monsterSpacing = 150;
         [SerializeField] private List<StageEntry> _stages = new List<StageEntry>();
+        [Tooltip("이 던전의 스테이지 맵 생성 수치와 바닥. 비우면 전투 씬의 기본값을 쓴다")]
+        [SerializeField] private StageMapData _stageMap;
 
         public int DungeonId => _dungeonId;
         public string DisplayName => _displayName;
+        public StageMapData StageMap => _stageMap;
         public int StageCount => _stages.Count;
 
         public bool IsBossStage(int stage)

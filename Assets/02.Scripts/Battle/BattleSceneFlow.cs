@@ -17,6 +17,8 @@ namespace Blacksmith.Battle
         [SerializeField] private BattleChannel _channel;
         [SerializeField] private BattleState _battleState;
         [SerializeField] private BattlePlayer _player;
+        [Tooltip("전투마다 시드로 스테이지 맵 바닥을 만든다")]
+        [SerializeField] private StageMapView _stageMap;
         [SerializeField] private BattleHud _hud;
         [SerializeField] private BattleBossHpBar _bossHpBar;
         [SerializeField] private BattleBossIntro _bossIntro;
@@ -97,6 +99,11 @@ namespace Blacksmith.Battle
             BattleResult result = new BattleSimulation(_battleState.CurrentSetup).RunToEnd();
             _rewards = _battleState.CalculateRewards(result);
             _lootDrops.Prepare(_battleState.CurrentSetup, _rewards);
+            if (_stageMap != null)
+            {
+                _stageMap.Build(_battleState.CurrentSetup.Seed, _battleState.CurrentDungeon.StageMap);
+            }
+
             _player.Play(_battleState.CurrentSetup, _rules.TicksPerSecond, GetPrefab);
         }
 
