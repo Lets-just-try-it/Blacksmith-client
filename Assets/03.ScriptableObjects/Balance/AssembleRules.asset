@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ac0484681e7049b7c28f9906f2d19, type: 3}
+  m_Name: AssembleRules
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.AssembleRulesData
+  _introTime: 1
+  _seamEndTime: 1.2
+  _endDelay: 1
+  _seamBaseTime: 38
+  _seamTimePerHole: 8
+  _stripPad: 0.9
+  _grabPad: 0.5
+  _alignLoss: 0.5
+  _seatRadius: 0.95
+  _seatDelay: 0.15
+  _ringRest: 0.25
+  _ringOvertime: 0.1
+  _hitsNeeded: 2
+  _perfectScore: 1
+  _goodScore: 0.75
+  _missPenalty: 0.08
+  _holeQualityOffset: 0
+  _alignBase: 0.75
+  _alignWeight: 0.25
+  _plateBase: 0.92
+  _plateWeight: 0.08
+  _successScore: 0.6
+  _difficulties:
+  - AlignTolerance: 0.34
+    StartOffset: 1.3
+    RingDuration: 0.85
+    PerfectWindow: 0.07
+    GoodWindow: 0.18
+    HoleBonus: 0
+    SideHoles: 2
+    OptionalSeams: 0
+  - AlignTolerance: 0.26
+    StartOffset: 1.7
+    RingDuration: 0.7
+    PerfectWindow: 0.06
+    GoodWindow: 0.15
+    HoleBonus: 1
+    SideHoles: 3
+    OptionalSeams: 1
+  - AlignTolerance: 0.18
+    StartOffset: 2.1
+    RingDuration: 0.6
+    PerfectWindow: 0.05
+    GoodWindow: 0.12
+    HoleBonus: 2
+    SideHoles: 3
+    OptionalSeams: 2
