@@ -6,11 +6,13 @@ namespace Blacksmith.Core.Forge
     // 단조: 박자에 맞춰 망치질해 칼날을 도안 두께로 만든다. 입력은 행동 키 하나다.
     // 작은 박자는 판정선에 닿을 때 톡 누르고, 큰 박자(강타)는 시작 표시에서 눌러 힘을 모은 뒤 끝 표시에서 뗀다.
     // 망치는 알아서 다음 부위로 옮겨 가고, 부위마다 필요한 박자 수가 다르다. 박자표의 길이가 곧 한 판의 제한시간이다.
-    // 마지막에 도안과 칼날 두께가 얼마나 일치하는지가 정확도(0~1)가 된다.
+    // 정확도(0~1)는 100%에서 시작해, 박자를 완벽하게 치지 못할 때마다 놓친 만큼 줄어든 값이다. 칼날 두께는 연출용이다.
     public sealed class ForgingGame : MiniGame
     {
         public sealed class Beat
         {
+            // 큰 박자에서 꾹 누르는 시간(초). 작은 박자는 0이다.
+            public float Hold;
             // 맞는 순간. 작은 박자는 누르는 순간, 큰 박자는 떼는 순간이다.
             public float Time;
             // 큰 박자에서 눌러야 하는 순간. 작은 박자는 Time과 같다.
@@ -38,6 +40,8 @@ namespace Blacksmith.Core.Forge
         private int _timedHits;
         private float _offsetSum;
         private float _endTimer;
+        private float _lostUnits;
+        private float _totalUnits;
 
         public IReadOnlyList<Beat> Beats => _beats;
         private readonly List<Beat> _beats = new List<Beat>();
@@ -118,23 +122,10 @@ namespace Blacksmith.Core.Forge
         }
 
         // 힘 모으기 진행(0~1). 꾹 누르는 중이 아니면 0이다.
-        public float HoldProgress => Holding == null ? 0f : Clamp01((Clock - Holding.PressTime) / _rules.HeavyHold);
+        public float HoldProgress => Holding == null ? 0f : Clamp01((Clock - Holding.PressTime) / Math.Max(0.1f, Holding.Hold));
 
-        public float MeanError
-        {
-            get
-            {
-                float sum = 0f;
-                for (int i = 0; i < Thickness.Length; i++)
-                {
-                    sum += Math.Abs(Thickness[i] - Target[i]);
-                }
-                return sum / Thickness.Length;
-            }
-        }
-
-        // 도안 일치율(0~1)
-        public float Match => Clamp01(1f - MeanError / _rules.MatchTolerance);
+        // 지금까지의 정확도(0~1). 100%에서 시작해, 박자를 완벽하게 치지 못할 때마다 놓친 만큼 줄어든다.
+        public float LiveAccuracy => Clamp01(1f - _lostUnits / _totalUnits);
 
         private void BuildTargets(Random random)
         {
@@ -152,7 +143,7 @@ namespace Blacksmith.Core.Forge
                 }
                 Target[i] = target;
                 // 많이 깎아야 하는 부위일수록 박자가 많다.
-                Need[i] = Math.Max(_rules.MinNeed, Math.Min(_rules.MaxNeed, (int)Math.Round((1f - target) * _rules.NeedScale)));
+                Need[i] = Math.Max(_rules.MinNeed, Math.Min(_difficulty.MaxNeed, (int)Math.Round((1f - target) * _difficulty.NeedScale)));
             }
         }
 
@@ -168,15 +159,17 @@ namespace Blacksmith.Core.Forge
                     bool heavy = remaining >= 2 && random.NextDouble() < _difficulty.HeavyChance;
                     if (heavy)
                     {
-                        _beats.Add(new Beat { PressTime = time, Time = time + _rules.HeavyHold, Unit = 2, Segment = segment });
+                        float hold = _difficulty.HeavyHoldMin + (float)random.NextDouble() * (_difficulty.HeavyHoldMax - _difficulty.HeavyHoldMin);
+                        hold = (float)Math.Round(hold * 20f) / 20f;
+                        _beats.Add(new Beat { PressTime = time, Time = time + hold, Hold = hold, Unit = 2, Segment = segment });
                         remaining -= 2;
-                        time += _rules.HeavyHold + _difficulty.BeatSpacing;
+                        time += hold + NextSpacing(random);
                     }
                     else
                     {
                         _beats.Add(new Beat { PressTime = time, Time = time, Unit = 1, Segment = segment });
                         remaining -= 1;
-                        time += _difficulty.BeatSpacing;
+                        time += NextSpacing(random);
                     }
 
                     if (remaining <= 0)
@@ -186,6 +179,15 @@ namespace Blacksmith.Core.Forge
                 }
             }
             _unjudged = _beats.Count;
+            foreach (Beat beat in _beats)
+            {
+                _totalUnits += beat.Unit;
+            }
+        }
+
+        private float NextSpacing(Random random)
+        {
+            return _difficulty.BeatSpacing * (1f + _difficulty.SpacingJitter * (float)(random.NextDouble() - 0.3));
         }
 
         public override void Tick(float deltaTime, MiniInput input)
@@ -399,6 +401,8 @@ namespace Blacksmith.Core.Forge
                 _offsetSum += offset;
             }
 
+            _lostUnits += beat.Unit * (1f - Clamp01(quality / _rules.PerfectQuality));
+
             int segment = beat.Segment;
             Progress[segment] = Math.Min(Need[segment], Progress[segment] + beat.Unit * quality);
             Thickness[segment] = Lerp(1f, Target[segment], Progress[segment] / Need[segment]);
@@ -429,14 +433,14 @@ namespace Blacksmith.Core.Forge
 
             if (_unjudged == 0)
             {
-                Raise(MiniEventKind.Complete, Match);
+                Raise(MiniEventKind.Complete, LiveAccuracy);
             }
         }
 
         private void Finish()
         {
             Finished = true;
-            Accuracy = Match;
+            Accuracy = LiveAccuracy;
             Raise(MiniEventKind.Finish, Accuracy);
         }
 

@@ -85,7 +85,7 @@ namespace Blacksmith.Forge
         // 값이 바뀔 때만 문자열을 만든다.
         public void Refresh(ForgingGame game)
         {
-            int match = Mathf.RoundToInt(game.Match * 100f);
+            int match = Mathf.RoundToInt(game.LiveAccuracy * 100f);
             if (match != _shownMatch)
             {
                 _shownMatch = match;
@@ -137,7 +137,7 @@ namespace Blacksmith.Forge
         {
             _hintText.text = $"평균 타이밍 {Milliseconds(meanOffset)} ({Direction(meanOffset)})";
             _feedbackText.text = string.Empty;
-            _resultText.text = $"도안 일치율 {Mathf.RoundToInt(accuracy * 100f)}%";
+            _resultText.text = $"정확도 {Mathf.RoundToInt(accuracy * 100f)}%";
         }
 
         public void HidePanel()

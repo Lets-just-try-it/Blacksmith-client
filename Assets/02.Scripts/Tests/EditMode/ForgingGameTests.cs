@@ -20,7 +20,6 @@ namespace Blacksmith.Tests
                 SegmentCount = 12,
                 LeadIn = 2.2f,
                 TravelTime = 1.7f,
-                HeavyHold = 0.7f,
                 EndDelay = 0.9f,
                 InputOffset = 0f,
                 SegmentGap = 0.2f,
@@ -34,14 +33,11 @@ namespace Blacksmith.Tests
                 BodyJitter = 0.14f,
                 TipThickness = 0.3f,
                 TipSegments = 3,
-                NeedScale = 7f,
                 MinNeed = 2,
-                MaxNeed = 5,
-                MatchTolerance = 0.25f,
                 Difficulties = new[]
                 {
-                    new ForgingDifficulty { PerfectWindow = 0.05f, GoodWindow = 0.10f, WeakWindow = 0.20f, BeatSpacing = 0.55f, HeavyChance = 0.5f },
-                    new ForgingDifficulty { PerfectWindow = 0.04f, GoodWindow = 0.08f, WeakWindow = 0.15f, BeatSpacing = 0.45f, HeavyChance = 0.6f },
+                    new ForgingDifficulty { PerfectWindow = 0.05f, GoodWindow = 0.10f, WeakWindow = 0.20f, BeatSpacing = 0.55f, HeavyChance = 0.5f, HeavyHoldMin = 0.7f, HeavyHoldMax = 0.7f, NeedScale = 7f, MaxNeed = 5 },
+                    new ForgingDifficulty { PerfectWindow = 0.04f, GoodWindow = 0.08f, WeakWindow = 0.15f, BeatSpacing = 0.45f, HeavyChance = 0.6f, HeavyHoldMin = 0.7f, HeavyHoldMax = 0.7f, NeedScale = 7f, MaxNeed = 5 },
                 },
             };
         }
@@ -462,6 +458,39 @@ namespace Blacksmith.Tests
 
             Assert.Less(hard.PerfectWindow, easy.PerfectWindow);
             Assert.Less(hard.WeakWindow, easy.WeakWindow);
+        }
+
+        [Test]
+        public void HeavyHold_IsDrawnFromDifficultyRange_AndSameSeedRepeats()
+        {
+            ForgingRules rules = CreateRules();
+            rules.Difficulties[1].HeavyHoldMin = 0.4f;
+            rules.Difficulties[1].HeavyHoldMax = 1.7f;
+            rules.Difficulties[1].SpacingJitter = 0.25f;
+            rules.Difficulties[1].HeavyChance = 1f;
+
+            var first = new ForgingGame(rules, 7, 1);
+            var second = new ForgingGame(rules, 7, 1);
+
+            var holds = first.Beats.Where(beat => beat.IsHeavy).Select(beat => beat.Hold).ToList();
+            Assert.IsNotEmpty(holds);
+            Assert.IsTrue(holds.All(hold => hold >= 0.4f - 0.001f && hold <= 1.7f + 0.001f));
+            Assert.Greater(holds.Distinct().Count(), 1);
+            CollectionAssert.AreEqual(first.Beats.Select(beat => beat.Time).ToList(), second.Beats.Select(beat => beat.Time).ToList());
+        }
+
+        [Test]
+        public void LiveAccuracy_StartsAtFull_AndDropsOnlyByMissedAmount()
+        {
+            var game = new ForgingGame(CreateRules(), 3, 0);
+            Assert.AreEqual(1f, game.LiveAccuracy);
+
+            float total = game.Beats.Sum(beat => (float)beat.Unit);
+            AdvanceTo(game, game.Beats[0].Time + 0.5f);
+
+            // 첫 박자를 놓치면 그 박자 크기만큼만 줄어든다.
+            Assert.IsTrue(game.Beats[0].Judged);
+            Assert.AreEqual(1f - game.Beats[0].Unit / total, game.LiveAccuracy, 0.0001f);
         }
 
         // 눌러 힘을 모으는 동안 시간을 흘려보낸다.

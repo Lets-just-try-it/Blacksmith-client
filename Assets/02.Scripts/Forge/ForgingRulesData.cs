@@ -9,7 +9,6 @@ namespace Blacksmith.Forge
         [SerializeField, Min(1)] private int _segmentCount = 12;
         [SerializeField, Min(0f)] private float _leadIn = 2.2f;
         [SerializeField, Min(0.1f)] private float _travelTime = 1.7f;
-        [SerializeField, Min(0.1f)] private float _heavyHold = 0.7f;
         [SerializeField, Min(0f)] private float _endDelay = 0.9f;
         [Tooltip("입력·소리·화면이 도착하는 지연(초). 박자에 맞췄는데 '느림'으로 나오면 올리고, '빠름'으로 나오면 내린다. 판정 문구의 ms를 보고 맞춘다.")]
         [SerializeField, Range(0f, 0.3f)] private float _inputOffset = 0.06f;
@@ -28,17 +27,14 @@ namespace Blacksmith.Forge
         [SerializeField, Range(0f, 0.5f)] private float _bodyJitter = 0.14f;
         [SerializeField, Range(0f, 1f)] private float _tipThickness = 0.3f;
         [SerializeField, Min(0)] private int _tipSegments = 3;
-        [SerializeField, Min(0.1f)] private float _needScale = 7f;
         [SerializeField, Min(1)] private int _minNeed = 2;
-        [SerializeField, Min(1)] private int _maxNeed = 5;
-        [SerializeField, Min(0.01f)] private float _matchTolerance = 0.25f;
 
         [Tooltip("난이도 등급 0, 1, 2 순서. 재료 단계가 올라갈수록 어렵다.")]
         [SerializeField] private ForgingDifficulty[] _difficulties =
         {
-            new ForgingDifficulty { PerfectWindow = 0.05f, GoodWindow = 0.10f, WeakWindow = 0.20f, BeatSpacing = 0.55f, HeavyChance = 0.5f },
-            new ForgingDifficulty { PerfectWindow = 0.045f, GoodWindow = 0.09f, WeakWindow = 0.17f, BeatSpacing = 0.5f, HeavyChance = 0.55f },
-            new ForgingDifficulty { PerfectWindow = 0.04f, GoodWindow = 0.08f, WeakWindow = 0.15f, BeatSpacing = 0.45f, HeavyChance = 0.6f },
+            new ForgingDifficulty { PerfectWindow = 0.05f, GoodWindow = 0.10f, WeakWindow = 0.20f, BeatSpacing = 0.55f, HeavyChance = 0.45f, SpacingJitter = 0f, HeavyHoldMin = 0.45f, HeavyHoldMax = 1.5f, NeedScale = 7f, MaxNeed = 5 },
+            new ForgingDifficulty { PerfectWindow = 0.035f, GoodWindow = 0.07f, WeakWindow = 0.14f, BeatSpacing = 0.40f, HeavyChance = 0.6f, SpacingJitter = 0.25f, HeavyHoldMin = 0.4f, HeavyHoldMax = 1.7f, NeedScale = 9f, MaxNeed = 6 },
+            new ForgingDifficulty { PerfectWindow = 0.021f, GoodWindow = 0.042f, WeakWindow = 0.084f, BeatSpacing = 0.27f, HeavyChance = 0.75f, SpacingJitter = 0.45f, HeavyHoldMin = 0.4f, HeavyHoldMax = 1.9f, NeedScale = 12f, MaxNeed = 8 },
         };
 
         public ForgingRules ToRules()
@@ -48,7 +44,6 @@ namespace Blacksmith.Forge
                 SegmentCount = _segmentCount,
                 LeadIn = _leadIn,
                 TravelTime = _travelTime,
-                HeavyHold = _heavyHold,
                 EndDelay = _endDelay,
                 InputOffset = _inputOffset,
                 SegmentGap = _segmentGap,
@@ -62,10 +57,7 @@ namespace Blacksmith.Forge
                 BodyJitter = _bodyJitter,
                 TipThickness = _tipThickness,
                 TipSegments = _tipSegments,
-                NeedScale = _needScale,
                 MinNeed = _minNeed,
-                MaxNeed = _maxNeed,
-                MatchTolerance = _matchTolerance,
                 Difficulties = _difficulties,
             };
         }
@@ -87,9 +79,12 @@ namespace Blacksmith.Forge
                 }
             }
 
-            if (_maxNeed < _minNeed)
+            foreach (ForgingDifficulty difficulty in _difficulties)
             {
-                Debug.LogWarning("박자 수 최댓값은 최솟값 이상이어야 한다.", this);
+                if (difficulty.MaxNeed < _minNeed || difficulty.HeavyHoldMax < difficulty.HeavyHoldMin)
+                {
+                    Debug.LogWarning("박자 수 최댓값은 최솟값 이상, 큰 박자 누르는 시간 최댓값은 최솟값 이상이어야 한다.", this);
+                }
             }
         }
     }

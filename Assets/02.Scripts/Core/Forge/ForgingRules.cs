@@ -11,8 +11,6 @@ namespace Blacksmith.Core.Forge
         public float LeadIn { get; set; }
         // 화면에서 박자 표시가 나타나 판정선에 닿기까지 시간(초). 규칙에는 영향이 없다.
         public float TravelTime { get; set; }
-        // 큰 박자에서 꾹 누르는 시간(초)
-        public float HeavyHold { get; set; }
         // 입력·소리·화면이 실제로 도착하는 지연(초). 눌렀거나 뗀 순간에서 이만큼을 빼고 판정해, 박자에 맞췄다고 느끼는 순간이 정확으로 나오게 한다.
         public float InputOffset { get; set; }
         // 마지막 박자 뒤 결과를 보여 주는 시간(초)
@@ -35,13 +33,9 @@ namespace Blacksmith.Core.Forge
         public float TipThickness { get; set; }
         public int TipSegments { get; set; }
 
-        // 부위마다 필요한 박자 수 = clamp(round((1 - 목표 두께) * NeedScale), MinNeed, MaxNeed)
-        public float NeedScale { get; set; }
+        // 부위마다 필요한 박자 수 = clamp(round((1 - 목표 두께) * 난이도의 NeedScale), MinNeed, 난이도의 MaxNeed)
         public int MinNeed { get; set; }
-        public int MaxNeed { get; set; }
 
-        // 부위별 두께 오차의 평균이 이 값에 이르면 정확도가 0이 된다.
-        public float MatchTolerance { get; set; }
 
         public ForgingDifficulty[] Difficulties { get; set; }
     }
@@ -58,5 +52,13 @@ namespace Blacksmith.Core.Forge
         public float BeatSpacing;
         // 두 박자를 한 번에 합친 큰 박자가 될 확률
         public float HeavyChance;
+        // 박자 간격이 들쭉날쭉한 정도. 간격은 BeatSpacing * (1 + SpacingJitter * (-0.3~0.7))이다.
+        public float SpacingJitter;
+        // 큰 박자에서 꾹 누르는 시간(초)의 범위. 박자마다 이 안에서 정해진다.
+        public float HeavyHoldMin;
+        public float HeavyHoldMax;
+        // 부위마다 필요한 박자 수를 정하는 배율과 최댓값
+        public float NeedScale;
+        public int MaxNeed;
     }
 }
