@@ -16,7 +16,7 @@ namespace Blacksmith.Battle
     }
 
     // 밤 파견에서 호스트가 고른 내용(창 열림, 보이는 창, 던전 단계, 스테이지, 파티)이다. 낮 씬 오브젝트이며 호스트가 소유한다.
-    // 고르기는 호스트만 하고, 다른 참가자는 같은 창을 보기만 한다 (docs/GAME_CONCEPT.md 8절).
+    // 고르기는 호스트만 하고, 다른 참가자는 같은 창을 보기만 한다 (docs/GAME_CONCEPT.md 9절).
     // 호스트가 직접 값을 바꾸므로 RPC를 두지 않는다.
     public class DispatchState : NetworkBehaviour
     {
