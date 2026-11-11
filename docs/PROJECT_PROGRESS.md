@@ -2,423 +2,120 @@
 
 > 기준일: 2026-11-11
 >
-> 이 문서는 자신이 들어 있는 브랜치의 상태를 설명한다. 정확한 커밋은 `git log -1 -- docs/PROJECT_PROGRESS.md`로 확인한다.
+> 이 문서는 자신이 들어 있는 브랜치의 상태를 설명한다. 시스템별 상태, 핵심 진입점, 확인하지 않은 것, 남은 작업만 적는다. 구현 방법과 확인 기록은 PR 본문과 `docs/ai-prompts/`에 적는다. 개발 환경 설정은 `docs/SETUP.md`를 따른다.
 
-## 프로젝트 요약
+## 요약
 
-Tempered Heroes는 Unity 6 URP 기반의 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 플레이어는 낮에 전날 밤 모험가가 토벌한 던전에서 재료를 채집하고, 대장간에서 장비를 직접 제작해 의뢰에 납품하거나 상점에 팔며, 모험가를 영입해 여관에서 관리한다. 밤에는 제작한 장비를 입힌 모험가를 던전으로 파견해 자동 전투 결과를 확인한다. 최종 목표는 모험가를 키워 마왕을 토벌하는 것이다.
+Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 던전에서 재료를 채집해 장비를 제작하고 의뢰·상점·모험가에게 쓰며, 밤에는 모험가를 파견해 자동 전투 결과를 확인한다. 게임 흐름과 데모 1 범위는 `docs/GAME_CONCEPT.md`, 네트워크 규칙은 `CLAUDE.md`의 "네트워크 구조"와 `docs/NETWORK_DESIGN.md`를 따른다.
 
-대장간에서 관리할 수 있는 모험가는 대장간 업그레이드로 슬롯이 1 → 2 → 4 → 6 → 8칸으로 늘어 최대 8명이다. 한 번에 파견할 수 있는 모험가는 최대 5명이다. 슬롯이 5칸보다 많으면 관리 중인 모험가 중에서 파견할 모험가를 골라 장비를 입혀 보낸다. 5명을 꼭 채워 보낼 필요는 없고, 몇 명을 보낼지는 파견할 때 플레이어가 정한다.
+- 씬: `Bootstrap` → `Lobby` → `Game`이 실제 흐름이다. `PlazaTest`, `ForgeTest`, `BattleTest`, `InventoryTest`, `DispatchTest`는 로비 없이 호스트로 시작하는 개발용 씬이다. `Battle` 씬은 밤 파견 때 Additive로 불러온다.
+- `Game` 씬: 대장간(`ForgeRoom` 프리팹), 공용 창고, 낮·밤, 밤 파견과 던전 지도, 광장(x = 500 근처), 대화, 전투 보상 반영이 배치되어 있다. 시험용 재료와 모험가는 `StartSupply`가 넣는다.
 
-현재 저장소에는 프로젝트 공통 문서(`CLAUDE.md`, `GIT_WORKFLOW.md`, 이 문서, `docs/GAME_CONCEPT.md`, `docs/NETWORK_DESIGN.md`, `docs/ai-prompts/README.md`), URP 템플릿으로 생성한 Unity 프로젝트, Photon Fusion 2 SDK와 Host 모드 네트워크 뼈대, 진행 중인 자동 전투 코드, 모험가 영입 기반 코드, 영역 공통 대화(다이얼로그) 시스템, 진행 중인 인벤토리(공용 창고, 플레이어 슬롯 8칸)가 있다.
+## 시스템별 상태
 
-## 개발 및 배포 환경
+상태: 구현 / 진행 중 / 미구현. 진입점은 코드를 찾기 시작할 곳이다.
 
-- Unity `6000.3.24f1`
-- Universal Render Pipeline `17.3.0`
-- Input System `1.20.0`
-- Test Framework `1.6.0`
-- 네트워크: Photon Fusion 2.1.3, Host 모드
-- 플랫폼: PC (Windows/Mac)
-- 배포: 스토브 우선 출시 → 스팀
-- 브랜치 전략: Git Flow (`main`, `dev`, 작업 브랜치, `release/`, `hotfix/`. `GIT_WORKFLOW.md` 참고)
-- 빌드 씬 순서: `Bootstrap` → `Lobby` → `Game` (`SampleScene`은 템플릿 기본값으로 뒤에 남아 있다. 그 뒤의 `PlazaTest`, `ForgeTest`, `BattleTest`, `InventoryTest`는 개발용 테스트 씬이다)
-- TODO: CI/CD 구성
+### 장비 제작 (진행 중)
 
-### Photon 설정 (로컬 최초 1회)
-
-App ID가 담긴 `Assets/Photon/Fusion/Resources/PhotonAppSettings.asset`은 공개 저장소에 올리지 않도록 `.gitignore`로 제외한다. 저장소를 처음 받은 뒤 각자 한 번 설정한다.
-
-1. Unity 에디터에서 프로젝트를 열면 Fusion이 빈 `PhotonAppSettings.asset`을 만든다. 만들어지지 않았으면 `Tools > Fusion > Realtime Settings`를 연다.
-2. `Tools > Fusion > Realtime Settings`에서 `App Id Fusion`과 `Fixed Region`을 입력한다.
-3. App ID와 지역 값은 팀 비공개 채널에서 받는다. 지역이 다르면 같은 세션에 들어가지 못할 수 있으므로 팀 전원이 같은 값을 쓴다.
-
-- App ID를 문서, 커밋, PR에 적지 않는다.
-- SDK 임포트로 Player Settings의 `Allow 'unsafe' Code`와 `Run In Background`가 켜지고 Fusion 정의 심볼이 추가되었다. Fusion이 요구하는 설정이므로 끄지 않는다.
-
-### 멀티플레이 실행과 주의 사항
-
-- `Bootstrap` 씬에서 플레이를 시작한다. 로비에서 세션명을 입력하고 `Host`로 방을 열거나 `Join`으로 참가한다. 혼자 할 때도 `Host`로 시작한다.
-- 두 명 테스트는 빌드한 실행 파일과 에디터를 함께 띄워 같은 세션명으로 접속한다.
-- 로비 UI 문구는 한글 폰트를 UI에 적용할 때까지 영어로 둔다. 한글 폰트 에셋은 `05.Art/Fonts`에 임시로 추가했다.
-- `NetworkObject`가 붙은 프리팹을 새로 만든 뒤 스폰할 때 "has been baked with a guid ... failed to be translated into a prefab" 오류가 나면 `Tools > Fusion > Rebuild Prefab Table`을 실행한다.
-- 씬에 둔 `NetworkObject`는 씬을 저장할 때 Fusion이 베이크한다. 에디터 스크립트나 CLI로 씬을 만들었다면 `Tools > Fusion > Scene > Bake Scene Objects`를 실행하고 다시 저장한다. 베이크되지 않은 씬 오브젝트는 런타임에 등록되지 않는다.
-
-### AI 에이전트 연동
-
-AI 코딩 에이전트(Claude Code)가 Unity 에디터에 연결할 수 있도록 다음 패키지를 팀 공용으로 포함한다.
-
-| 패키지 | 역할 | 상태 |
-| --- | --- | --- |
-| Unity Pipeline `0.9.1-exp.1` (`com.unity.pipeline`) | Unity CLI가 에디터나 실행 중인 게임에 연결해 씬·GameObject·프리팹 조작, 빌드, 테스트, 플레이/정지를 수행한다. | 사용 중 |
-| Unity AI Assistant `2.21.0-pre.1` (`com.unity.ai.assistant`), AI Inference `2.6.1` (`com.unity.ai.inference`) | Unity MCP 서버. Claude Code가 relay(`~/.unity/relay/`)를 통해 에디터에 연결한다. | 예비 |
-
-- 에디터 작업(씬 조작 등)은 Unity CLI로 한다. Unity MCP는 CLI에 문제가 생겼을 때만 사용한다.
-- Unity MCP 서버는 Unity에서 지원 중단(deprecated) 예정이며, 대체 수단으로 Unity CLI가 안내되어 있다. CLI 사용이 안정되면 MCP 등록과 `ai.assistant` 패키지 유지 여부를 정리한다.
-- 세 패키지와 CLI 모두 실험·프리릴리스·beta 버전이다. 업데이트 후 에디터 오류가 생기면 이 패키지들을 먼저 확인하고, 버전을 바꿀 때는 팀 전원이 같은 버전으로 맞춘다.
-
-#### Unity CLI 설치와 버전 맞추기
-
-- 팀 기준 CLI 버전: `1.0.0-beta.14`
-- 설치 (Windows PowerShell):
-
-  ```powershell
-  $env:UNITY_CLI_CHANNEL='beta'; irm https://public-cdn.cloud.unity3d.com/hub/prod/cli/install.ps1 | iex
-  ```
-
-- 이미 설치했다면 `unity --version`으로 버전을 확인하고, 기준 버전보다 낮으면 `unity self-update`로 올린다.
-- 연결 확인: Unity 에디터에서 이 프로젝트를 연 상태로 `unity command editor status`를 실행해 `status`가 `ready`이고 `projectPath`가 이 저장소인지 확인한다.
-- 기준 버전을 올릴 때는 팀에 공유하고 이 문서의 기준 버전도 함께 갱신한다.
-- 명령이 멈추거나 느리면 Unity 에디터 창이 백그라운드에서 갱신을 늦추는지 확인한다.
-
-## 목표 게임 흐름
-
-낮에는 채집한 재료로 장비를 제작해 의뢰에 납품하거나 상점에 팔고, 모험가를 영입한다. 밤에는 모험가를 파견해 자동 전투 결과를 확인한다. 코어 루프, 콘텐츠 루프, 데모 1 범위는 `docs/GAME_CONCEPT.md`를 따른다.
-
-혼자 플레이할 때도 Photon Fusion 2 Host 모드에서 참가자가 없는 호스트로 시작한다. 게임 상태는 호스트가 소유하고, 클라이언트는 RPC로 행동을 요청한다. 세부 규칙은 `CLAUDE.md`의 "네트워크 구조"와 `docs/NETWORK_DESIGN.md`를 따른다.
-
-## 시스템별 구현 상태
-
-각 항목 제목 옆 괄호는 상태(구현, 진행 중, 일부, 미구현)다.
-
-### 장비 제작 미니게임·판매 (진행 중)
-
-- 미니게임 연출 끄기: `J` 키(`MinigameFeedbackToggle`)가 효과음, 카메라 흔들림·확대, 화면 번쩍임, 타격 입자를 한꺼번에 껐다 켠다(`MinigameFeedbackSwitch`). 효과음 도우미 4곳, 계속 나는 소리(`ForgeNoiseSynth`), `ForgeCameraFocus`의 `Shake`·`Punch`, 세 화면의 `Flash`, `ForgeGreybox.Burst`에서 스위치를 확인한다. 값은 `PlayerPrefs`에 기억한다. `ForgeTest` 씬에 연결했다.
-- `Core/Forge`에 미니게임 기반(`MiniGame`, `MiniInput`, `MiniEvent`)과 담금질 규칙(`QuenchGame`: 시드 기반 기준 시간, 정확도 계산).
-- 수치는 `QuenchRulesData`(`03.ScriptableObjects/Balance/QuenchRules.asset`).
-- 담금질은 `ForgeTest` 씬에서 한 명이 로컬로 해볼 수 있다.
-- 담금질 작업대 앞(`QuenchStation`)에서 상호작용 키를 누르면 카메라가 작업대로 옮겨지고(`ForgeCameraFocus`), 같은 키로 담그고 꺼낸다.
-- 준비 구간은 키를 눌러야 시작한다(자동 시작 없음).
-- 기준 시간, 담근 뒤 2초까지만 보이는 `SS:cc` 시간, 결과 정확도와 시간선(기준 시간, 완벽 구간, 꺼낸 시간 마커)을 한글 폰트로 보여 주고(`QuenchView`), 칼날은 상자로 연출한다(`QuenchBladeVisual`).
-- 하는 동안 캐릭터 조작 입력은 잠긴다(`PlayerNetworkInputLock`, `docs/NETWORK_DESIGN.md` 3.1절).
-- 단조(`ForgingGame`)는 프로토타입의 리듬 방식을 옮겼다.
-- 칼날 12부위를 박자에 맞춰 두드려 도안 두께로 만들고(작은 박자는 톡, 금색 큰 박자는 꾹 눌러 힘을 모았다가 끝에서 떼기), 정확도는 도안 일치율이다.
-- 입력 지연을 보정하는 판정 보정값(`InputOffset`)이 있고 판정 문구에 박자와의 차이(ms)를 보여 준다.
-- 박자표와 도안은 시드로 정하고 수치는 `ForgingRulesData`(`03.ScriptableObjects/Balance/ForgingRules.asset`)에 있다.
-- `ForgeTest` 씬의 단조 작업대(`ForgingStation`, 범위는 큰 빨간 작업대 둘레와 앞 통로)에서 담금질과 같은 방식으로 해볼 수 있고(하는 동안 내 캐릭터는 내 화면에서 숨김), 박자 레인(`ForgingLaneView`), 도안 일치율·콤보·남은 박자·판정 문구(`ForgingView`), 칼날과 망치 연출(`ForgingBladeVisual`)이 있다.
-- 소리는 망치로 내려치는 소리(쇠 소리·쿵·균열음), 힘 모으는 소리, 허공 휘두르는 소리, 결과 소리를 낸다(코드로 만든 임시 소리 `ForgeProceduralSfx`, `ForgeNoiseSynth`).
-- 타격감은 불꽃·충격파·조명, 화면 흔들림·확대·약한 번쩍임, 맞는 순간 규칙 시간을 잠깐 멈추는 처리(`ForgingFeedback`, `ForgeCameraFocus`)로 낸다.
-- 정제(`SmeltingGame`)는 프로토타입의 3막 방식을 옮겼다.
-- 원석을 마우스로 쪼개고(고리가 닿는 순간 클릭, 저주 균열은 넘김), 행동 키로 풀무질해 불꽃 띠 안에 지시선을 붙들어 쇳물을 달군 뒤, 마우스로 크레인에 매달린 도가니를 틀 위로 옮기고 클릭한 채 올려 눈금까지 붓는다.
-- 정확도는 쪼개기 0.28, 묽기 0.12, 붓기 0.60 비중이다.
-- 균열·불꽃 띠·틀 위치는 시드로 정하고 수치는 `SmeltingRulesData`(`03.ScriptableObjects/Balance/SmeltingRules.asset`, 광석 등급 0은 프로토타입 값, 1·2는 프로토타입의 다른 광석 값)에 있다.
-- `ForgeTest` 씬의 정제 작업대(`SmeltingStation`)에서 해볼 수 있고, 작업대 위에 줄인 임시 그레이박스 무대(`SmeltingStage`: 원석·곡괭이·화덕·풀무·크레인·틀)를 올렸으며 단계마다 카메라가 옮겨 간다(`ForgeCameraFocus`가 포커스 중 시점 이동을 지원).
-- 균열 고리(`SmeltingCrackMarkers`), 단계 표시와 수율·풍구 게이지(`SmeltingView`), 소리·입자·흔들림(`SmeltingFeedback`)이 있다.
-- 연마(`PolishGame`)는 회전 숫돌(그라인더) 방식이다.
-- 마우스를 누른 채 날 끝 24칸을 밀며 갈고, 마우스 높이가 날의 각도라 위아래로 흔들리는 알맞은 각도(초록 띠)에 맞춰 따라간다.
-- 갈수록 날이 달아올라 한계에 닿으면 타서 감점과 갈 수 없는 시간이 생기므로, 행동 키로 물에 식혀 가며 갈아야 한다.
-- 다 간 곳을 계속 갈면 얇아져 감점이고, 칸을 연속으로 다 갈면 콤보 보너스다.
-- 연마 작업대(`PolishStation`)에서 해볼 수 있고, 도는 숫돌 표면과 날 끝 막대 화면(`PolishLensView`, 도형을 직접 그리는 `PixelCanvas`), 날 세움·식힘·탄 횟수 칩과 열 눈금·각도 안내·점수 패널(`PolishView`), 작업대 위 줄인 숫돌 바퀴(제자리)와 미끄러지는 칼날·물통 무대(`PolishStage`), 소리·입자·흔들림(`PolishFeedback`)이 있다.
-- 열이 오를수록 불똥이 노랗다가 붉어지고 칼날이 달아오르며 소리가 거칠어지고, 칸을 다 갈 때 파동과 콤보에 따라 오르는 음계가 나고, 물에 담글 때 김이 오른다.
-- 판매 구역에는 진열대 2개(`DisplayShelfState`, 장비 하나씩)와 손님(`Customer`)이 있다. 손님은 진열 여부와 상관없이 판매 구역을 돌아다니다(`ShopFlow`) 장비가 올라간 진열대 앞에서 일정 확률로 정가에 사 가며, 사면 골드(`GameState.Gold`)가 늘고 화면(`ShopHud`)에 보인다.
-- 낮이 끝나면 손님을 내보낸다. 새 제작을 막는 마감과 밤 전환은 낮·밤 사이클(`GameState`, `ForgeDayCycleLink`)이 맡는다.
-- 판 성형(`PlateGame`, `Core/Forge/PlateRules`, 수치는 `PlateRulesData`의 `PlateRules.asset`)은 방어구용 미니게임이다. 제작 목록에서 고른 방어구(투구, 갑옷)의 쇠판에 그려진 조각 외곽선의 허용 띠를 마우스로 따라 오린다. 띠를 벗어나면 그 자리에서 멈추고 녹색 점을 다시 눌러 이어 가며, 불순물 구간에서는 띠가 좁다. 투구는 4~6조각, 갑옷은 5~7조각이다.
-- 판 성형 작업대(`PlateStation`)는 `ForgeRoom` 프리팹의 제작 구역 동쪽 벽(`Station_Plate`)에 있어 `ForgeTest`와 `Game` 씬에 함께 나온다. 쇠판 그림(`PlateBoardView`), 글자와 조각 목록(`PlateView`), 작업대 위 쇠판과 가위 무대와 소리(`PlateStage`)가 있고, 연마와 같은 방식으로 카메라가 옮겨 가며 하는 동안 내 캐릭터를 숨긴다.
-- 장신구 제작(`NecklaceGame`, `Core/Forge/NecklaceRules`·`NecklaceShape`, 수치는 `NecklaceRulesData`의 `NecklaceRules.asset`)은 체인 잇기 → 보석 깎기 → 보석 장착 → 광내기 네 단계를 한 번에 하는 미니게임이다. 장신구대(`JewelryStation`)는 `ForgeRoom` 프리팹의 제작 구역 서쪽 벽(`Station_Jewelry`)에 있어 `ForgeTest`와 `Game` 씬에 함께 나온다. 작업판 그림(`NecklaceBoardView`: 뒤·앞 캔버스와 깎은 모양을 그림으로 만드는 보석 텍스처), 글자·버튼·단계 칩(`NecklaceView`), 미니게임 키(`MinigameKeys`: ←/→, 1·2, F, 우클릭)가 있다.
-- 목걸이 레시피 12개(`RubyNecklace1Recipe` 등: 보석 1 / 3 / 5개 → 티어 1 / 2 / 3 목걸이)가 장신구대 제작 목록에 올라 있고, 제작 목록은 12줄이 넘치면 스크롤한다. 목걸이 등급은 네 단계 점수의 평균으로 정해진다. 같은 종류의 보석만 쓸 수 있고 다른 종류를 섞는 규칙은 구현하지 않았다.
-- 장신구 제작은 `Game` 씬(로비에서 호스트로 시작)에서 제작 목록 열기 → 보석 예약 → 제작 → 네 단계 → 목걸이 지급(정확도 0.97에서 5등급, 보석 1개 소모)까지, `ForgeTest` 씬에서 목록 스크롤과 3개 예약까지 확인했다. 각 단계의 화면(체인 판과 상자, 숫돌과 목표 점선, 틀과 구멍, 면의 윤)은 캡처로 확인했다. 입력은 같은 호출을 코드로 부른 것이라 실제 마우스 드래그·조각 집기·문지르기, 숫자키·방향키·F·우클릭, 두 명 접속은 확인하지 않았다.
-- 제작 목록: 모든 작업대가 `ForgeRoom` 프리팹의 공용 제작 목록 창(`CraftingMenuView`)을 쓴다. 작업대를 열면(E) 그 작업대가 하는 제작 항목(`ForgeStationState.Entries`, 같은 재료·결과는 한 줄로 합침)을 목록으로 보여 주고, 고르면 만드는 것·티어·난이도·필요한 재료와 작업대 슬롯에 놓인 개수·결과를 보여 준다. 재료는 창 안의 작업대 슬롯(`CraftingStagingView`, 8칸)에 개인 슬롯에서 끌어다 놓거나 Shift+클릭·더블 클릭으로 놓고, 놓인 칸을 클릭하면 되돌린다. 다 놓이면 제작 버튼이 켜져 미니게임이 시작되고, 끝나면 목록은 다시 보이지 않고 작업대가 풀린다. 닫기(Esc)·미니게임 종료·영업 종료(마감, `ForgeChannel.OpenChanged`)로 닫힌다.
-- 방어구 제작 순서는 정제 → 판 성형 → 조립이다. 구리·철 투구/갑옷 레시피 4개(`CopperHelmetRecipe` 등)에 있고, 판 성형은 주괴를 투구 2개·갑옷 4개 쓴다([추정]). 중간 아이템 `오려 낸 구리/철 투구판·갑옷판`(42~45번)이 새로 있다. 조립 작업대가 아직 없어 방어구는 완성되지 않고, 미스릴 방어구는 아이템이 없어 목록에 없다.
-- 작업대 슬롯에 놓는 것은 아이템을 옮기는 것이 아니라 예약이다(`Core/Forge/CraftingReservation`, 개인 슬롯 칸마다 개수). 개인 슬롯 화면(`InventoryView`)은 `InventoryChannel.Reservation`으로 예약한 만큼을 빼서 그리고(아이템은 실제로 그대로 있다), 빠른 이동은 `QuickMoveOverride`로 예약이 된다. 고른 항목이 쓰는 재료만 필요한 개수까지만 예약되고, 항목을 바꾸면 모두 풀린다. 개인 슬롯이 바뀌어 예약한 칸의 물건이 달라지면 예약이 풀린다. 제작을 요청할 때 예약(64비트 값)을 호스트에 보내고, 호스트가 개인 슬롯에 그만큼 있는지 확인한 뒤 미니게임이 끝날 때 그 칸에서 재료를 뺀다.
-- 레시피 단계는 주 재료와 개수(`InputCount`), 더 필요한 재료(`ExtraInputs`), 결과물, 미니게임 모양 번호(`Variant`)를 갖는다. 재료 판정과 뺄 칸 계산(여러 칸에 나뉜 같은 재료, 중간 형태의 정확도 평균)은 `Core/Forge/CraftingRequirements`에 있다. 철 대검 레시피도 목록에 올라와 있다.
-- 판 성형 작업대와 제작 목록은 필요 개수 이상은 놓이지 않는 것, 놓인 재료가 개인 슬롯 화면에서 빠져 보여도 미니게임 중에 실제로는 인벤토리에 그대로 있는 것, 미니게임이 끝날 때 예약한 칸의 재료만 소모되고 투구판이 개인 슬롯에 들어오는 것, 미니게임이 끝나면 창이 닫히는 것, Shift+클릭이 예약이 되는 것, 예약한 물건이 없어지면 예약이 풀리는 것까지 `ForgeTest`와 `Game` 씬(로비에서 호스트로 시작)에서 확인했다. 입력과 끌어다 놓기는 같은 호출을 코드로 부른 것이라 실제 마우스 드래그, 두 명 접속(다른 사람이 쓰는 작업대 거절), 갑옷·철 레시피 실제 제작, 다른 네 작업대의 미니게임은 확인하지 않았다.
-- 실제 효과음 파일과 나머지 미니게임(조립, 장신구)은 남아 있다.
-- 제작 파이프라인: 작업대 다섯 곳(정제, 단조, 담금질, 연마, 판 성형)이 `ForgeStationState`(작업대 사용권, 호스트 소유)와 `ForgeStationLink`로 호스트 승인 뒤에 열리고 제작을 시작하며, 끝나면 `ForgePlayerActions`의 결과 RPC로 호스트가 예약한 재료를 개인 슬롯에서 빼고 결과물을 만든다.
-- 규칙은 `Core/Forge/CraftingRules`(정확도 평균을 중간 형태의 정확도 칸(`ItemStack.Accuracy`)에 퍼센트로 담고 마지막에 등급으로 환산), 단계 순서와 재료는 `CraftingRecipeData`(`WeaponRecipe.asset` 등), 거절 이유는 `ForgeNotice`가 안내한다.
-- 작업대는 손에 든 물건을 쓰지 않는다. 숫자키 1~8로 손에 들 슬롯은 고르지만(`HeldSlotSelector`) 제작에는 관여하지 않는다.
-- 재료 티어가 미니게임 난이도를 정하고(`TierRules`: 티어별 난이도와 판매 기준가, 등급 배율로 판매가 계산 규칙 포함, 판매가는 진열대 판매가 쓴다) 연마는 앞 세 단계 평균을 처음 날 상태에 쓴다.
-- 미니게임 UI는 인벤토리 위 공간에 방법 창(왼쪽 위)과 조작 막대(아래 가운데)로 통일해 두었다.
-- 담금질에 소리와 연출(`QuenchFeedback`)이 있다.
-- `ForgeTest`·`Game`에서 공용 창고의 시험용 구리 광석을 꺼내 구리 대검까지 만들어 볼 수 있다. 작업대(`ForgeRoom` 프리팹)가 쓰는 `WeaponRecipe`는 구리 광석 → 구리 주괴 → 단조한 구리 칼날 → 담금질한 구리 칼날 → 구리 대검이다. 철 대검 단계는 `IronWeaponRecipe`에 두었지만, 작업대가 레시피를 하나만 받아서 쓰지 않는다(철 장비는 기획상 대장간 업그레이드 2단계에서 열림).
-- 레시피는 아직 재료 개수와 부재료를 받지 않는다(기획: 광석 4 + 부재료 2/3/5, `docs/GAME_CONCEPT.md` 4.4). 광석 하나로 장비 하나가 된다.
-- 판매 기준가(`TierRules`)는 티어 1·2·3이 1,000 / 5,000 / 15,000이다.
-
-### 장비 등급 규칙 (구현)
-
-- 미니게임 점수 평균을 5단계 등급으로 변환하는 `GradeRule`(`Core/`)과 경계값·등급 이름 데이터(`GradeThresholds`).
+- 미니게임: 정제(`SmeltingGame`), 단조(`ForgingGame`), 담금질(`QuenchGame`), 연마(`PolishGame`), 판 성형(`PlateGame`), 장신구(`NecklaceGame`). 규칙은 `Core/Forge`, 수치는 `03.ScriptableObjects/Balance/*Rules.asset`. 조립 미니게임은 없다.
+- 제작 흐름: 작업대 사용권 `ForgeStationState`(호스트) + `ForgeStationLink`, 결과 RPC `ForgePlayerActions`. 공용 제작 목록 창 `CraftingMenuView`, 재료 예약 `Core/Forge/CraftingReservation`, 재료 판정 `Core/Forge/CraftingRequirements`, 정확도 누적·등급 환산 `Core/Forge/CraftingRules`, 레시피 `CraftingRecipeData`.
+- 레시피: 구리 대검, 철 대검, 구리·철 투구/갑옷(판 성형까지, 조립 작업대가 없어 완성 안 됨), 목걸이 12개. 레시피는 아직 재료 1개 → 장비 1개이고 부재료를 받지 않는다.
+- 등급: `Core/GradeRule` + `GradeThresholds` (구현).
+- 시험: `ForgeTest`와 `Game`에서 공용 창고의 시험용 광석으로 대검까지 만들 수 있다. 티어별 난이도·판매 기준가 `TierRules`.
+- 연출 끄기: `J` 키(`MinigameFeedbackToggle`, `MinigameFeedbackSwitch`).
+- 작업 자세: Player 프리팹의 `Forge/ForgeWorkPose`가 `ForgeStationRegistry`에서 사용 중인 작업대를 찾아 망치질 자세를 켠다.
+- 판매 구역(`DisplayShelfState`, `Customer`, `ShopFlow`, `ShopHud`)은 기획에서 빠져 제거할 대상이다.
 
 ### 대장간 맵 (진행 중)
 
-- `01.Scenes/ForgeTest`에서 `04.Prefabs/Town/ForgeRoom`을 확인한다.
-- 외부 에셋 없이 상자만으로 만든 그레이박스다(머티리얼은 `05.Art/Materials/Greybox`).
-- 씬을 열고 플레이하면 로비 없이 호스트로 시작해(`ForgeTestStarter`) 입구 앞에서 Player로 WASD로 걸어 다닐 수 있고, 카메라가 쿼터뷰로 따라간다(`ForgeTestCameraFollow`, F1~F6 키로 쿼터뷰 시점 6종(기본, 넓게, 높이, 낮게, 가까이, 직교)을 고르고 V 키로 1인칭과 번갈아 봄).
-- `Game` 씬에 같은 구성(대장간, 공용 창고, 낮·밤, 밤 파견, 판매)과 광장이 들어가 로비를 거쳐 들어온다. 로비 없이 바로 시작하는 `ForgeTest`는 시험용으로 남는다. `Game`의 `StartSupply`(`ForgeTestStarter`에서 호스트 시작을 뺀 것)가 시험용 재료와 모험가만 넣는다.
-- 약 20m x 16m, 판매 구역(입구), 모험가 5명이 모이는 회의형 관리 구역, 제작 구역(작업대 7개와 공용 창고, 작업대마다 색을 달리함).
-- 벽은 높이 1.6m로 통일했고 빈 틈이 문이다.
-- 구역 사이 문 3곳은 `ForgeDoor`로 캐릭터가 다가가면 서서히 열리고 닫힌다.
-- 벽·소품·바닥에 상자 충돌체를 달았다.
-- 담금질 작업대에는 회색 상자 수조(`QuenchTrough`, 물 표면은 자식 `WaterSurface`)를 둔다.
-- 쿼터뷰로 실행해 플레이어 스폰과 화면을 확인했다.
-- 작업대별 상세(담금질 작업대는 카메라 포커스까지 있음), 판매·관리 구역 기능, 실제 에셋 적용은 남아 있다.
+- `04.Prefabs/Town/ForgeRoom` 그레이박스(판매·관리·제작 구역, 작업대 7개, `ForgeDoor`). `ForgeTest`에서 F1~F6 시점, V 1인칭(`ForgeTestCameraFollow`).
+- 실제 에셋 적용은 남았다. `ForgeTest`는 대장간 담당 영역이다.
 
 ### 인벤토리 (진행 중)
 
-- `Core/Inventory`에 칸 하나의 내용(`ItemStack`: 아이템 번호, 등급, 개수)과 칸 규칙(`InventoryGrid`: 앞쪽 빈 칸부터 넣기, 같은 재료·같은 등급 쌓기, 빈 칸이 없으면 줄 늘리기, 끌어다 놓기의 옮기기·맞바꾸기·합치기, 조건 검색).
-- 공용 창고와 플레이어 슬롯이 같은 규칙을 쓰고, 서로 다른 인벤토리 사이 이동도 같은 함수로 처리한다.
-- `Inventory/`에 아이템 정의(`ItemData`: 번호, 이름, 아이콘, 임시 색, 종류(재료/중간 형태/장비), 장비 부위)와 번호 → 정의 표(`ItemCatalog`), 크기 수치(`InventoryRulesData`), 호스트 소유 인벤토리 공통 부분(`NetworkInventory`)과 공용 창고(`SharedInventoryState`: 가로 5칸 × 10줄로 시작해 5줄씩 늘어나 최대 40줄), Player 프리팹의 플레이어 슬롯 8칸(`PlayerInventoryState`, 수치는 `PlayerInventoryRules`)과 화면 하단에 항상 떠 있는 슬롯 HUD(`PlayerInventoryHud`: 내 플레이어가 스폰되면 그 슬롯을 보여 줌), Player 프리팹의 이동 요청 RPC(`InventoryPlayerActions`), 화면과 RPC를 잇는 `InventoryChannel`, 창고를 여는 상자(`SharedInventoryBox`: E로 열고 E·Esc로 닫음, 연 동안 캐릭터 조작 입력 잠금), 칸 격자 창과 드래그 앤 드롭(`InventoryView`, `InventorySlotView`: 창고 안, 내 슬롯 안, 창고 ↔ 내 슬롯 모두 같은 방식).
-- 아이템(`03.ScriptableObjects/Items`, 번호 1~29)
-  - 티어 1 구리 계열(13·22~29): 구리 광석, 구리 주괴, 단조한·담금질한 구리 칼날, 구리 대검·투구·갑옷·활·지팡이.
-  - 티어 2 철 계열(1~9): 철광석, 철 주괴, 단조한·담금질한 철 칼날, 철 대검·투구·갑옷·활·지팡이.
-  - 티어 3: 미스릴 광석(14). 미스릴 장비는 아직 없다.
-  - 부재료(15~17): 짐승 가죽, 질긴 힘줄, 마석 조각. 보석(18~21): 루비, 사파이어, 토파즈, 에메랄드.
-  - 직업 기본무기(10~12): 낡은 대검·활·지팡이.
-  - 목걸이(30~41): 루비·사파이어·토파즈·에메랄드 목걸이 I·II·III(티어 1~3). 아이템 데이터의 `_accessoryEffect`가 효과 종류(보석)를 정하고, 수치는 전투의 `AccessoryEffects` 데이터에 있다. 제작 레시피는 아직 없다.
-  - 구리 장비의 능력치 보정은 철 장비 값을 그대로 복사했다. 티어별 보정은 전투 담당이 정한다.
-- `01.Scenes/InventoryTest`에서 로비 없이 호스트로 시작해 시험용 물건을 채운 창고로 확인한다(`InventoryTestStarter`).
-- Ctrl을 누른 채 놓으면 개수 입력 창(`InventorySplitPopup`, 프리팹 `04.Prefabs/UI/Inventory/InventorySplitPopup`)으로 스택을 나누고(`InventoryGrid.TryMoveCount`), 공용 창고를 연 동안 Shift+클릭·더블 클릭으로 내 슬롯 ↔ 창고 사이를 빠르게 옮긴다(`InventoryGrid.TryTransfer`, 들어가는 만큼만 옮김).
-- 끄는 그림은 자기 캔버스의 정렬 순서를 덮어써 다른 창 뒤로 숨지 않는다.
-- 숫자키 1~8로 고른 손에 든 슬롯(`HeldSlotSelector`, 캐릭터 조작 잠금 중에는 무시)은 하단 슬롯에 금색 테두리로 강조하고, 호스트에 알려(`PlayerInventoryState.HeldSlot`) 캐릭터 앞쪽에 든 물건을 금색 강조와 함께 보여 준다(`HeldItemView`, 아이콘이 없으면 아이템 색 상자, 강조 머티리얼 `05.Art/Materials/HeldItemHighlight`).
-- 모험가 장비 착용 창(`AdventurerEquipView`)은 공용 창고와 모든 플레이어 개인 슬롯의 완성 장비를 모은 공용 장비 목록(전체·투구·갑옷·무기·장신구 탭)과 모험가의 모습(`AdventurerPreview`: 화면 밖 무대의 전투 모델을 전용 카메라로 찍음, 외형과 입은 장비는 전투 모델의 `AdventurerLook`이 보여 줌), 능력치(레벨 능력치 + 장비 보정, 끄는 장비를 입혔을 때의 변화량), 투구·갑옷·무기·장신구 칸을 보여 주고, 끌어 놓기·더블 클릭으로 입히고 벗긴다. 다른 장비로 바꾸면 원래 장비는 사라진다(`AdventurerEquipping`. 공용 창고로 돌려보내는 방식은 `InventoryPlayerActions`의 설정으로 남겨 두었고 꺼져 있다). 기획에서는 벗기기가 빠졌지만 기능 제거는 아직 하지 않았다.
-- 창이 열린 동안 하단 개인 슬롯은 숨긴다.
-- 장비 보정(`Core/Inventory/EquipmentStatRules`: 아이템 기본 보정 × 등급 배수, 데이터 `ItemData`·`EquipmentStats`)은 전투 유닛 만들기(`AdventurerSetupRules`, `AdventurerBattleData`)에도 같이 들어간다.
-- 칸 규칙(`Core/Inventory/EquipmentRules`: 부위가 맞아야 하고, 무기 칸은 직업의 무기 종류만)에 맞지 않으면 아무것도 바뀌지 않는다.
-- 입힌 장비는 인벤토리에서 빠져 모험가에게 등급과 함께 저장되고(`AdventurerData`의 장비 등급, `AdventurerRosterState.TrySetEquipment`), 벗기면 공용 창고로 돌아간다(`AdventurerEquipping`, `RpcEquip`·`RpcUnequip`).
-- 무기는 벗길 수 없다(`EquipmentRules.CanUnequip`, 창과 호스트가 같이 씀). 무기 칸을 목록에 놓거나 더블 클릭하면 "무기는 벗길 수 없습니다. 다른 무기로 바꿔 주세요" 토스트만 띄운다. 영입 후보는 직업의 기본무기를 든 채로 생성되므로 모험가는 늘 무기를 든다. 확인: EditMode 테스트 286개 통과(벗기기 규칙 테스트 추가), `InventoryTest` 플레이 모드에서 호스트의 무기 벗기기 요청이 거절되고 무기가 그대로인 것. 창에서 실제 마우스로 끌어 놓기·더블 클릭은 확인하지 않았다.
-- 무기 종류는 대검·활·지팡이이고, 직업은 전사(대검)·궁수(활)·마법사(지팡이), 시험용 무기로 철 활·철 지팡이를 추가했다.
-- `InventoryTest`에서 오른쪽 위 "모험가 장비" 버튼으로 연다(직업마다 시험용 모험가 1명).
-- 재접속한 플레이어의 슬롯 이어 주기, 다른 영역과의 연결은 남아 있다.
+- 규칙 `Core/Inventory`: `ItemStack`, `InventoryGrid`, `EquipmentRules`(부위·직업 무기, 무기 벗기기 금지), `EquipmentStatRules`.
+- 네트워크: `NetworkInventory`, 공용 창고 `SharedInventoryState`(5칸 × 10줄 → 최대 40줄), 플레이어 슬롯 `PlayerInventoryState`(8칸), RPC `InventoryPlayerActions`, 화면 연결 `InventoryChannel`.
+- 화면: `InventoryView`, `PlayerInventoryHud`, `InventorySplitPopup`(Ctrl 나누기), 손에 든 슬롯 `HeldSlotSelector`·`HeldItemView`.
+- 장비 착용 창: `AdventurerEquipView`, `AdventurerEquipping`, 미리보기 `AdventurerPreview`.
+- 아이템: `03.ScriptableObjects/Items` 번호 1~45, 표 `ItemCatalog`. 1티어 데이터 이름은 아직 "구리"다(기획은 청동).
 
 ### 낮·밤 사이클 (진행 중)
 
-- 공용 게임 상태(`Network/GameState`, 낮 씬에 둔 `GameState` 프리팹)가 며칠째(`Day`), 단계(`DayPhase`: 낮, 영업 마감 중, 밤), 낮 타이머(`TickTimer`)를 동기화한다. 첫날 낮에서 시작한다.
-- 단계 규칙은 `Core/DayCycleRules`다. 낮 시간이 끝나면 진행 중인 미니게임이 없을 때 바로 밤 전환 연출(`Dusk`)로 넘어가고, 있으면 영업 마감 중으로 기다렸다가 모두 끝나면 전환 연출로 넘어간다. 전환 연출 시간(3초)이 지나면 밤이 된다. 밤은 시간으로 끝나지 않는다.
-- 밤 전환 연출: 시계가 20:00에 멈추고, 화면 가운데에 "밤이 되었습니다"를 띄우며 그동안 캐릭터 조작을 잠근다(`UI/NightTransitionView`). 문구는 연출이 끝나기 직전에 흐려지며 사라져 파견 창과 겹치지 않는다.
-- 조명: `Forge/DayNightLighting`이 전환 연출이 시작되면 해(Directional Light) 세기·색과 환경광을 밤 값으로 서서히 바꾸고, 다음 날 낮이 시작되면 되돌린다. 전투 씬이 활성 씬인 동안에는 환경광을 건드리지 않는다. 하늘(스카이박스) 색은 바꾸지 않는다. 장비 착용 창 미리보기(`Inventory/AdventurerPreview`)는 밤에도 낮과 같은 밝기로 보이도록, 미리보기 카메라가 그리는 동안만 무대의 방향광(`PreviewLight`, 낮 해와 같은 색·세기·각도)을 주 광원(`RenderSettings.sun`)으로 쓰고 환경광을 낮 값(`_ambientColor`)으로 바꿨다가 그리기가 끝나면 되돌린다.
-- 낮 길이와 게임 속 시각 범위는 `DayCycle` 데이터(600초, 10시~20시)에 둔다. `DispatchTest`는 테스트용 `DayCycle_Test`(60초, 같은 시각 범위)를 쓴다.
-- 대장간: `ForgeDayCycleLink`가 씬의 작업대가 진행 중인지 `GameState`에 알려 주고, 낮이 아니면 `ForgeChannel`을 닫는다. 호스트는 닫힌 동안 작업대 시작 요청을 "오늘 영업이 끝났다"로 거절한다.
-- 밤: `NightDispatchLink`가 파견을 연다. 던전 지도 창을 연결한 씬은 지도 창이 먼저 뜨고 파견 창으로 이어지며, 연결하지 않은 씬은 파견 창부터 뜬다. 낮에는 파견 창을 여는 버튼이 없어 파견할 수 없다. 지도·파견 창은 닫을 수 없고, 파견하거나 "파견하지 않고 다음 날" 버튼으로 넘긴다. 전투 결과를 확인하거나 건너뛰면 다음 날 낮이 시작된다.
-- 화면 오른쪽 위 시계(`UI/DayCycleHud`, 프리팹 `04.Prefabs/UI/DayCycleHud`): 아날로그 시계판(원 스프라이트 `05.Art/Sprites/UI/ClockCircle`)에 문 여는 시각(10시 방향)부터 지금 시각까지 노란 부채꼴과 두 바늘, 그 아래 24시간제 디지털 시각(10분 단위, 예: 10:10, 19:20)과 "N일째 · 영업 마감 중 / 밤"을 보여 준다. 시각은 `DayCycleRules.GetClockMinutes`로 구한다. 전투 중에는 다른 낮 씬 UI와 함께 꺼진다. 왼쪽 위는 미니게임 방법 창과 겹쳐서 오른쪽 위에 둔다.
-- `DispatchTest`와 `ForgeTest`에 연결했다. `ForgeTest`도 밤이 되면 파견 창이 뜨고 파견·전투·다음 날까지 이어진다(관리 목록, 파견·장비 창, 밤 파견 연결, 전투 중 낮 화면 끄기를 붙이고 `ForgeTestStarter`가 직업마다 시험용 모험가 1명을 넣는다). 테스트에서는 `GameState.EndDayNow`로 낮을 바로 끝낼 수 있다. `Game` 씬은 시계와 골드 표시 아래 "밤으로 넘기기 (테스트)" 버튼(`UI/SkipToNightButton`, 씬의 `DayCycleHud`에 버튼과 `GraphicRaycaster`를 붙임. 프리팹은 그대로)으로 같은 일을 한다. 호스트의 낮에만 보이고, 누르면 밤 전환 연출을 거쳐 밤이 된다. 출시 전에 빼야 한다.
-- 두 씬이 같이 쓰도록 파견 창(`04.Prefabs/UI/Battle/DispatchUI`), 장비 착용 창(`04.Prefabs/UI/Inventory/AdventurerEquipUI`)과 미리보기 무대(`AdventurerPreviewStage`), 시계(`04.Prefabs/UI/DayCycleHud`), 밤 전환 문구(`04.Prefabs/UI/NightTransitionUI`)를 프리팹으로 만들었다. 씬 오브젝트 참조(관리 목록, 파견 상태, 공용 창고, GameState)는 씬마다 연결한다.
-- 낮이 시작될 때 모험가 후보 다시 뽑기(광장), 밤 저장, 하늘 색 등 추가 밤 연출은 남아 있다.
+- `Network/GameState`(`Day`, `DayPhase`, 낮 `TickTimer`, `Gold`), 규칙 `Core/DayCycleRules`, 수치 `DayCycle` 데이터(600초, 10시~20시).
+- 연출: `UI/NightTransitionView`, 조명 `Forge/DayNightLighting`, 시계 `UI/DayCycleHud`.
+- 연결: `ForgeDayCycleLink`(마감), `NightDispatchLink`(밤 파견).
+- `Game` 씬의 "밤으로 넘기기 (테스트)" 버튼(`UI/SkipToNightButton`)은 출시 전에 뺀다.
 
 ### 던전·파견·자동 전투 (진행 중)
 
-- `Core/Battle`에 시드 기반 자동 전투 시뮬레이션(마나 자동 스킬, 웨이브 연속 진행, 쓰러짐·사망 판정)과 던전 단계별 스테이지 선택·진행 규칙. `Battle/`에 쿼터뷰 재생, 하단 HP·마나 HUD, 결과창. 모험가 정보(`AdventurerData`)를 전투 유닛으로 바꾸는 `AdventurerSetupRules`(체력·공격력·방어력은 `AdventurerStatRules.GetCurrentStats`)와, 직업별 전투 수치(사거리, 공격 간격, 이동 속도, 마나)·전투 모델과 `SkillId` → `SkillData` 표를 담은 `AdventurerBattle` 데이터. `01.Scenes/BattleTest`에서 로비 없이 호스트로 시작해, 광장과 같은 규칙으로 생성한 모험가 파티(레벨 지정)와 던전 1단계(`Dungeon_Tier1`)로 확인한다.
-- Fusion 연동: 전투 씬의 `BattleState`(호스트 소유 씬 오브젝트)가 파견 정보(시드, 던전, 스테이지, 모험가 ID)를 동기화하고, 모든 참가자가 같은 전투를 재생한다.
-- 결과는 호스트가 시작할 때 계산해 담아 두고, 결과창에서 호스트가 "확인"을 누르면 `ResultConfirmed` 이벤트로 넘긴다.
-- 결과창의 확인 버튼은 호스트에게만 보인다.
-- 웨이브: 스테이지는 웨이브 여러 개를 차례로 싸운다(HP·마나가 이어짐). `DungeonData`의 스테이지마다 웨이브별 몹 수(`WaveMonsterCounts`), 몹 풀(`MobPool`), 보스 웨이브(`IsBoss`, `Boss`)를 두고, 웨이브의 몹은 `Core/Battle/BattleWaveRules`가 전투 시드로 몹 풀에서 뽑는다(사거리가 짧은 몹이 앞). [추정] 1단계 1 → 2 / 2 → 3 → 3 / 2 → 3 + 보스, 2단계 2 → 3 → 3 / 3 → 3 → 4 → 4 / 3 → 3 → 4 + 보스. 웨이브를 모두 이겨야 스테이지 클리어로 진행 상황이 오른다. 전투 화면 왼쪽 위에 "웨이브 2/3"(`BattleWaveLabel`)을 보여 준다. 시뮬레이션의 `WaveSetup`·`WaveIndex`·`WavesCleared`는 이전의 스테이지 이름을 웨이브로 바꾼 것이다.
-- 보상은 몬스터 한 마리 몫(`MonsterReward`)을 던전 데이터의 잡몹(`_mobReward`)·보스(`_bossReward`)로 두고, 클리어한 웨이브 몬스터의 몫을 합쳐 받는다(`Core/Battle/BattleRewardRules`). [추정] 1단계 잡몹 골드 35·경험치 20·구리 광석 1, 보스 400·200·10. 2단계 잡몹 80·50·철광석 1, 보스 800·400·10. 스테이지 골드는 1단계 105 / 280 / 575, 2단계 640 / 1,120 / 1,600으로 웨이브 전보다 늘었다.
-- 확률 드랍: 쓰러뜨린 몬스터마다 부재료(짐승 가죽·질긴 힘줄·마석 조각 각각 잡몹 35% × 1번, 보스 50% × 2번)와 보석(잡몹 1단계 2%·2단계 10%, 보스 1단계 20%·2단계 45% × 2번, 종류는 균등)을 굴린다(`Core/Battle/BattleDropRules`). 전투 시드로 굴려서 결과창 보상과 전투 화면 드랍 연출이 같은 값을 쓴다. 클리어한 웨이브의 재료만 받는다.
-- 장신구 효과(`Core/Battle/AccessoryEffect`, 수치 `03.ScriptableObjects/Balance/AccessoryEffects`): 토파즈(파티 합산 골드), 에메랄드(파티 합산 광석·부재료, 보석 제외), 사파이어(본인 경험치)는 `BattleRewardRules`가, 루비(사망 판정 1회 면제, 막으면 목걸이 파손)는 `BattleSimulation`이 반영한다. 늘어난 수는 올림한다. 결과창에 늘어난 재료 몫을 "(에메랄드 +N)"처럼 따로 적고(토파즈로 늘어난 골드도 "(토파즈 +N)"으로 적는다), 루비가 막은 모험가는 "(목걸이 파손)"으로 보인다. 부서진 목걸이를 관리 목록에서 빼는 것은 결과 반영과 함께 남았다.
-- 바닥 드랍 연출(`BattleLootDrops`, 드랍 하나 `BattleLootDropView`, 프리팹 `04.Prefabs/Effects/LootDrop`): 실제로 얻는 재료만 몬스터가 쓰러질 때 그 자리에서 튀어 올라 카메라 쪽 바닥에 떨어진다(아이템 색 상자 + "이름 ×개수", 이름표는 모델에 가려지지 않는 `Jua SDF Overlay` 머티리얼). 몬스터마다 자기가 굴린 드랍을 떨어뜨린다. 에메랄드로 늘어난 몫은 마지막으로 클리어한 웨이브에서 마지막에 쓰러진 몬스터 드랍에 더해 보여 준다. 진 웨이브의 몬스터는 아무것도 떨어뜨리지 않는다.
-- 결과창은 전투가 끝나고 1.5초 뒤에 뜬다(`BattleSceneFlow._resultDelay`, [추정]). 마지막 몬스터가 쓰러지는 모습과 드랍이 결과창에 가려지지 않게 하기 위해서다.
-- 던전 5단계 구성(1 버려진 묘지(해골), 2 고블린·오크 소굴, 3 얼어붙은 산맥, 4 화염 화산, 5 마왕성) 중 1·2단계 데이터가 있다. 지도 창은 5단계 15거점이고, 3~5단계는 던전 데이터가 없어 잠김(???)으로 보인다.
-- 던전 지도 창(`DungeonMapView`, 거점 `DungeonMapNode`, 프리팹 `04.Prefabs/UI/Battle/DispatchUI`의 `DungeonMap`, 거점 프리팹 `DungeonMapNode`(스테이지)·`DungeonMapBossNode`(보스)): 밤 파견의 첫 화면이다. 임시 대륙 그림(`05.Art/Sprites/UI/DungeonMap/DungeonMapContinent`, 에디터에서 코드로 그린 그림. 거점 아이콘 `StageNode`·`BossNode`·`NodeRing`도 같음) 위에 5단계 15개 스테이지를 한 줄의 점선 길로 잇는다(이전 10단계 30거점 길에서 고르게 15개를 골라 썼다). 동그라미는 스테이지, 별은 보스이고 별 아래에 단계 이름(열리지 않았거나 데이터가 없으면 ???)을 적는다. 거점 위치는 지도 창의 `_stopPositions`(지도 그림 기준 0~1)에 두고, 길 점선은 실행할 때 거점 사이에 깐다. 거점을 눌러 단계와 스테이지를 함께 고르며, 거점은 클리어(초록)·도전(금색)·잠김(회색)으로 칠한다. 한 번 파견하면 고른 스테이지 하나를 싸우고, 열린 단계에서는 클리어한 스테이지와 다음 스테이지를 고를 수 있다(`Core/Battle/DungeonProgressRules`). 클리어한 스테이지를 다시 이겨도 진행 상황은 늘지 않는다. "파티 꾸리기"로 파견 창에 넘어가고, 지도와 파견 창 중 어느 쪽이 보이는지(`DispatchState.Screen`)도 호스트가 정해 모든 참가자에게 같다.
-- 지도는 씬마다 붙인다. 지도 창의 `_state`(파견 상태)와 `_progress`(던전 진행 상황)를 씬 오브젝트에 연결하면 켜질 때 `DispatchState.RegisterMap`으로 알리고, 그 씬의 밤 파견이 지도부터 열린다. 연결하지 않으면 지도 창은 꺼진 채로 있고 파견 창부터 열리며 "지도로 돌아가기" 버튼도 숨는다. 지금은 `DispatchTest`와 `Game`에 연결했고, `ForgeTest`는 대장간 담당 영역이라 연결하지 않았다.
-- 파견 창과 Additive 전투 씬: 낮 씬의 파견 창(`DispatchView`, 상태는 `DispatchState`)에서 호스트가 관리 목록의 모험가를 최대 5명 고르고(부상·사망 제외, `Core/Battle/DispatchRules`), 줄의 장비 버튼으로 장비 착용 창을 열어 장비를 입힌다. 지도에서 고른 단계·스테이지를 보여 주고, "지도로 돌아가기"로 다시 고른다.
-- 줄에는 전투 유닛과 같은 계산(`AdventurerBattleData.ToSetup`)의 능력치가 보여 장비 보정이 전투와 같다.
-- 모험가 전투 모델은 직업별 인간형 프리팹(`04.Prefabs/Characters/Adventurers/Adventurer_Warrior`·`Archer`·`Mage`. 궁수·마법사는 전사의 프리팹 변형으로 공격 동작만 다르다)이다. 외형과 입은 장비는 `AdventurerLook`이 보여 준다: 투구와 무기는 아이템의 모델 파츠를 켜고, 갑옷·장신구는 등뼈에 붙인 아이템 색 상자를 켠다. 장비 착용 창 미리보기와 `BattleSceneFlow`가 같은 함수를 쓴다. 쓰러지는 동작이 없어 몸(`Body`)을 눕힌다.
-- 파견하면 `BattleSceneLoader`가 `Battle` 씬을 Additive로 불러오고, 전투 씬의 `BattleSceneFlow`가 `BattleChannel`로 파견 정보와 관리 목록 모험가(입은 장비 포함)를 받아 전투를 시작한다.
-- 전투 씬이 떠 있는 동안 `DaySceneBattleCover`가 낮 씬 카메라·UI·라이트를 끄고 조작을 잠근다.
-- 결과창에서 확인을 누르면 진행 상황을 낮 씬의 `DungeonProgressState`에 반영하고 전투 씬을 내려 낮 씬으로 돌아간다.
-- 같은 때 `Game` 씬의 `BattleRewardApplier`가 결과창과 같은 보상(`BattleRewards`)을 반영한다: 골드는 `GameState`, 재료는 공용 창고(`SharedInventoryState`, 0등급), 모험가 레벨·경험치는 관리 목록(`AdventurerRosterState.TrySetLevel`). 호스트에서만 동작한다. 테스트 씬(`DispatchTest`, `ForgeTest`)에는 붙이지 않았다.
-- 다른 참가자는 같은 파견 창을 보기만 한다.
-- 파견 창이 열린 동안 하단 개인 슬롯을 숨긴다(`InventoryChannel.HideHud`, 장비 착용 창과 같은 방식).
-- `01.Scenes/DispatchTest`(InventoryTest 구성 + 파견)에서 낮을 끝내 밤이 되면 뜨는 창으로 확인한다. `ForgeTest`에서도 밤이 되면 파견 창이 뜬다.
-- `BattleTest`는 테스트 파티로 `Battle` 씬을 불러와 반복 파견하는 테스트 씬이 되었다.
-- 부상·사망과 부서진 목걸이는 아직 관리 목록에 반영하지 않는다.
-- `BattleTest`는 매 전투 같은 파티로 시작해 레벨이 이어지지 않는다.
-- 인스펙터에서 `Dungeon_Tier2`로 바꿔 2단계도 볼 수 있다.
-- 몬스터: 던전 1·2단계 데이터(`Dungeon_Tier1` 버려진 묘지: 해골 병사·해골 궁수·망령, 보스 해골 기사 / `Dungeon_Tier2` 고블린·오크 소굴: 고블린 전사·고블린 궁수·고블린 주술사·오크 광전사, 보스 오크 대족장)와 몬스터 데이터(`03.ScriptableObjects/Monsters`). 단계가 서로 바뀌어 수치도 역할별로 옮겼다(해골은 이전 고블린 소굴 수준, 고블린·오크는 이전 버려진 묘지 수준). 고블린 대장(`Monster_GoblinChief`)은 지금 어느 던전에도 쓰지 않는다.
-- 몬스터는 스킬 목록을 차례로 쓰고(보스 패턴), 체력이 정한 비율 아래로 처음 떨어지면 한 번 분노한다(`EnrageData`: 공격력 증가, 공격 간격 감소).
-- 외형은 임시 모델에 색과 크기만 바꾼 프리팹(`04.Prefabs/Characters/Monsters`)이고, 보스는 분노할 때 빨간 이펙트가 나온다.
-- 잡몹은 발밑에 월드 공간 체력바(`BattleUnitHpBar`, `Monster_Placeholder` 프리팹)를 표시하고, 보스(`MonsterData`의 `IsBoss`)는 화면 상단 UI(`BattleBossHpBar`)에 이름과 체력바를 표시한다.
-- 보스 스테이지는 잡몹 웨이브 뒤에 보스만 나오는 보스 웨이브를 싸운다.
-- 보스 웨이브가 시작되면 "BOSS STAGE" 문구와 보스 이름(`BattleBossIntro`)을 띄우고, 그동안 재생만 멈춘다(`BattlePlayer.Hold`, 전투 결과는 바뀌지 않음).
-- 보스는 `Boss_Placeholder` 프리팹에서 1.5배 크기와 몸 주위로 피어오르는 오라 파티클(`BossAura`)을 가진다.
-- 보스가 분노하면 몸이 붉게 바뀌고 분노 오라(`EnrageAura`)가 켜지며, 카메라가 짧게 흔들리고(`BattleCameraFollow`), 상단 체력바 이름에 "분노"가 붙고 바 색이 바뀐다(`BattlePlayer.UnitEnraged`).
-- 보스가 쓰러지면 오라를 멈춘다.
-- 직업별 사거리([추정], `AdventurerBattle` 데이터): 전사 120, 궁수 450, 마법사 400. 궁수·마법사는 전사 뒤에 멈춰 공격한다.
-- 공격 방식: 기본 공격은 단일, 광역·단일은 스킬 종류가 정한다. 스킬 표(`AdventurerBattle`)에 6개를 두고 직업마다 두 개씩 후보로 준다([추정], 직업 데이터 `_skillIds`): 전사 1 광역 200% 반경 150 / 4 단일 300%, 궁수 2 단일 350% / 5 광역 150% 반경 250, 마법사 3 광역 180% 반경 350 / 6 단일 400%.
-- 전투 시작 대열(`BattleSimulation`): 근접(사거리가 `BattleRules`의 `MeleeRangeMax` 200 이하)은 앞줄, 원거리는 그 뒤 줄에 옆으로(라인) 나란히 선다. 줄 사이는 `FormationSpacing`(160)이다. 한 줄은 `MaxRowSize`(3)명까지이고, 넘는 종류는 그 종류끼리 줄을 고르게 나눈다(근접 4·원거리 1 → 2/2/1, 근접 1·원거리 4 → 1/2/2, 근접 3·원거리 2 → 3/2, 근접 2·원거리 3 → 2/3. 3명 이하는 나누지 않는다). 줄 안은 사거리가 짧은 순, 같으면 파티 순서이고, 줄마다 길 가운데에 맞춘다. `BattleUnit.Lane`은 반 칸 단위(0이 가운데)라 1명이 2명 줄 앞에 서도 가운데에 서고, 몬스터 무리도 가운데에 맞춘다. 옆자리 간격은 Battle 씬 `BattlePlayer._laneStep`(1.6 월드 단위)이다. 유닛 번호와 결과 순서는 파티 순서 그대로다.
-- 모험가 유닛은 진행 방향(`BattlePlayer`의 `_pathStep` 쪽)을 보도록 돌려 생성한다. 인간형 모델의 정면이 +Z라 회전 없이 생성하면 옆을 봤다. 몬스터 프리팹은 방향을 바꾸지 않았다.
-- 생성된 모험가 유닛은 오브젝트 이름이 `이름 Lv레벨 (#ID)`이고, 인스펙터의 `AdventurerUnitInfo`에서 모험가 정보와 실제 전투 능력치를 볼 수 있다.
-- 보상·경험치: 전투 결과에 모험가별로 쓰러지기 전까지 클리어한 웨이브 수를 담고, `BattleRewardRules`가 클리어한 웨이브의 골드·재료와 모험가별 경험치·레벨업을 계산한다. 결과창에는 "스테이지 이름 · 웨이브 N/M 클리어"를 적는다.
-- 몬스터별 보상은 `DungeonData`, 레벨업 필요 경험치는 `AdventurerLevel` 데이터(`AdventurerLeveling`)에 둔다.
-- 결과창에 골드·재료 보상과 경험치·레벨업을 보여 준다. 전투를 재생하는 동안에는 낮 씬의 골드 표시(`ShopHud`)도 `DaySceneBattleCover`가 끈다.
-- 전투 씬은 낮 씬 위에 Additive로 불러오고 결과를 반영한 뒤 내린다(`docs/NETWORK_DESIGN.md` 8절).
-- `Game` 씬에서 골드·재료·경험치·레벨을 반영한다. 부상·사망 반영과 몬스터 아트는 남아 있다.
+- 규칙 `Core/Battle`: `BattleSimulation`(시드 기반, 대열, 스킬, 분노), `BattleWaveRules`, `BattleRewardRules`, `BattleDropRules`, `DungeonProgressRules`, `DispatchRules`, `AccessoryEffect`.
+- 데이터: `DungeonData`(`Dungeon_Tier1`, `Dungeon_Tier2`만 있음), `03.ScriptableObjects/Monsters`, `AdventurerBattle`(직업별 전투 수치·스킬 표).
+- 흐름: 던전 지도 `DungeonMapView` → 파견 창 `DispatchView`/`DispatchState` → `BattleSceneLoader`가 `Battle` 씬 Additive 로드 → `BattleSceneFlow` 재생, `BattleState` 동기화 → 결과창 확인 → `DungeonProgressState` 반영, `BattleRewardApplier`(`Game` 씬만)가 골드·재료·경험치 반영. 전투 중 낮 화면은 `DaySceneBattleCover`가 끈다.
+- 지도는 씬마다 `DispatchUI`의 `DungeonMap`에 `_state`·`_progress`를 연결해야 켜진다. `DispatchTest`와 `Game`에 연결했다.
+- 지금 전투는 웨이브 방식이고 몬스터 재료 드랍이 있다. 둘 다 2026-11-10 기획과 달라 바꿀 대상이다(남은 작업 3).
 
-### 모험가 영입·랜덤 생성 (진행 중)
+### 모험가 영입 (진행 중)
 
-- `Core/Adventurers`에 모험가 정보 원본 형식(`AdventurerData`: 이름, 직업, 레벨, 외형 번호, 기본·성장 체력·공격력·방어력, 스킬 번호, 착용 장비 번호, 몸 상태), 시드 기반 생성(`AdventurerGenerator`, 후보 1~4명), 레벨 성장 공식(`AdventurerStatRules`).
-- 수치는 `AdventurerGeneration`·직업(`Job_Warrior`)·`AdventurerRoster` 데이터. `Plaza/`에 호스트 소유 관리 목록(`AdventurerRosterState`, 최대 8), 광장 후보 스폰·영입 처리(`PlazaRecruitment`, `RecruitCandidate`), 후보에게 E로 말을 걸면 대화가 열리고 "영입하기"를 골라야 영입되는 흐름(`RecruitCandidate`가 `IDialogueChoiceHandler`로 선택 결과를 받음, 대사는 `03.ScriptableObjects/Dialogues/Recruit_Candidate`), 목록 창 UI, 초상 뼈대(`AdventurerPortraitProvider`).
-- `Game` 씬의 x = 500 근처에 광장(바닥, 영입 후보 자리 4곳, `PlazaRecruitment`)을 두었다. 관리 목록은 대장간과 같은 `AdventurerRoster`를 쓰고, PlazaTest의 목록 창 UI(`RosterPanel`)는 옮기지 않았다.
-- `01.Scenes/PlazaTest`에서 로비 없이 호스트로 시작해 확인한다.
-- 직업은 전사 1종이다.
-- 파견 창은 전투 영역에서 만들었다(`Battle/DispatchView`).
-- 영입 후보는 직업의 기본무기(낡은 대검·낡은 활·낡은 지팡이, 직업 데이터의 `_defaultWeapon`)를 든 채로 생성되고, 광장에서 인간형 모델에 외형과 무기가 보인다(`RecruitCandidate`의 `AdventurerLook`).
-- 전투 결과의 레벨·경험치는 `AdventurerRosterState.TrySetLevel`로 반영한다. 부상·사망 반영은 남아 있다.
+- 규칙 `Core/Adventurers`: `AdventurerData`, `AdventurerGenerator`(후보 1~4명), `AdventurerStatRules`, 레벨 `AdventurerLevelRules`(필요 경험치 데이터 `Battle/AdventurerLevelData`).
+- `Plaza/`: 관리 목록 `AdventurerRosterState`(최대 8), `PlazaRecruitment`, `RecruitCandidate`(대화에서 "영입하기"로 영입).
+- 초상화는 임시 이미지다(`AdventurerPortraitProvider`).
 
-### 인간형 캐릭터 모델 (구현)
+### 인간형 캐릭터 (구현)
 
-- 플레이어, 영입 후보, 손님, 모험가 전투 유닛이 같은 인간형 모델(Blender에서 만든 `05.Art/Models/Characters/Hero/Hero.fbx`, 애니메이션은 `05.Art/Animations/Hero`)을 쓴다. 모든 파츠가 한 모델에 같은 리그로 들어 있고, 외형에 맞춰 파츠를 켜고 끈다.
-- 외형 번호는 `Core/Characters`의 `HumanoidAppearance`(헤어·눈·입·머리색·피부색·의상)이고, 시드 기반으로 `HumanoidAppearanceGenerator`가 뽑는다. 모험가 생성(`AdventurerGenerator`)과 손님 생성(`ShopFlow`)이 같이 쓴다.
-- 외형 목록은 `03.ScriptableObjects/Characters/HumanoidLook` 데이터(`HumanoidLookData`)다. 헤어 4종(모자에 따른 일반·캡·헬멧 버전), 눈 3종, 입 3종, 머리색 6종(짙은 갈색·금발·적발·흑발·밝은 갈색·흰머리), 피부색 4종, 의상 2종(튜닉, 앞치마. 신발 포함, 기본 몸은 맨발), 모자 3종, 손에 드는 파츠 7개가 들어 있다. 개수는 목록 길이로 정해지므로 항목을 추가하면 생성 범위도 늘어난다. 번호가 목록 위치이므로 끝에만 추가한다.
-- `02.Scripts/Characters/`: 외형 적용(`HumanoidAppearanceView`: 파츠 켜기·끄기, 모자에 따른 헤어 버전과 귀 숨김, 피부·머리 파츠의 팔레트 행 교체), 이동 속도에 맞춘 걷기·달리기(`HumanoidMotion`, 표시 전용), 고정 외형(`FixedHumanoidAppearance`, 플레이어), 동기화 형식(`NetworkHumanoidAppearance`), 모험가 외형과 장비 표시(`AdventurerLook`).
-- 공용 프리팹 `04.Prefabs/Characters/Humanoid`(모델 1.8배, `Humanoid` 애니메이터: 대기·걷기·달리기 블렌드, 전투 이동, 공격). 궁수·마법사 공격 동작은 `Humanoid_Bow`·`Humanoid_Staff` 오버라이드 컨트롤러다.
-- 모든 파츠가 머티리얼 하나(`05.Art/Materials/Characters/Hero/M_Hero_Palette`)와 팔레트 텍스처 한 장(`05.Art/Models/Characters/Hero/Hero_Palette.png`, 4열 × 64행, Point 필터·밉맵 없음)을 쓴다. 메쉬 UV의 v가 팔레트 행(색 램프)을 가리킨다. 행 구성과 색은 Blender 익스포트의 `palette.json`을 따르며, 팔레트는 Blender 원본과 함께 고친다.
-- 셰이더는 팔레트 램프 툰 셰이더 그래프(`05.Art/Shaders/HumanoidPaletteToon`, `Blacksmith/HumanoidPaletteToon`, Custom Function `HumanoidPaletteToon.hlsl`)다. 해 방향(NdotL)과 받는 그림자로 그림자·기본·하이라이트 열 중 하나를 계단식으로 고르고(`_T1` 0.45, `_T2` 0.85), 그 색에 해 색·세기와 환경광(`_SunWeight` 0.8, `_AmbientWeight` 0.5)을 곱해 밤에는 함께 어두워진다. Blender 사양은 조명을 곱하지 않는 출력이지만, 낮·밤 조명을 따르게 하려고 곱한다.
-- 피부색·머리색은 렌더러별 행 교체(`_Swap0From`→`_Swap0To`, MaterialPropertyBlock)로 바꾼다. 피부 파츠(기본 16행)와 헤어 파츠(기본 9행)의 목록과 색 후보 행은 `HumanoidLook` 데이터에 있다. 행 교체는 두 쌍(`_Swap0`, `_Swap1`)까지 있고 지금은 첫 쌍만 쓴다.
-- 모델은 Blender에서 만든 부드러운 노멀(면 사이 각도 60° 초과인 모서리만 각지게)을 그대로 쓴다(`Hero.fbx` 임포트 Normals = Import, Tangents = Mikktspace). 그래서 명암 경계가 모서리가 아니라 면 위를 지나간다. 눈·입 파츠는 얼굴에 그림자를 드리우지 않는다(`Humanoid` 프리팹에서 Cast Shadows 끔).
-- 애니메이션 FBX는 `Preserve Hierarchy`를 켜야 클립 경로(`Rig/Hips/...`)가 모델과 맞는다. 다시 익스포트한 파일을 덮어쓸 때도 임포트 설정(.meta)을 유지한다.
-- 플레이어는 의상 B(앞치마) 고정 외형이다. 손에 든 물건(`HeldItemView`)은 아직 모델 손이 아닌 캐릭터 앞쪽에 보인다.
-- 플레이어 자세(`Characters/HumanoidPose`, 표시 전용):
-  - 손에 든 칸에 아이템이 있으면 상반신만 들기 자세(`Common_HoldItem`)를 취한다. 애니메이터의 `UpperBody` 레이어(팔 뼈만 체크한 `HumanoidArms` 마스크, Override)의 가중치를 켜고 끄며, 하반신은 대기·걷기·달리기를 그대로 한다. 판단은 `HeldItemView`가 한다(빈 칸이나 손에 든 것 없음이면 끔). 아이템별로 손에 얹는 모습과 들기 소켓(`ItemSocket_Hold`)은 아직 없다.
-  - 미니게임 중(작업대 사용권을 가진 동안)에는 오른손에 망치(`Weapon_SmithHammer_Held`)를 들고 망치질(`Work_Smithing`, 애니메이터 `WorkPose` = 1)을 하며, 들기 자세는 끈다. 작업하는 동안에는 인벤토리에서 들고 있던 물건의 표시도 숨긴다(`HeldItemView.SetHidden`, 든 칸은 그대로). 사용권이 풀리면 망치를 숨기고 이동 동작과 든 물건 표시로 돌아간다. 판단은 Player 프리팹의 `Forge/ForgeWorkPose`가 작업대 등록 목록(`03.ScriptableObjects/Runtime/ForgeStationRegistry`, 작업대가 스폰될 때 등록)에서 사용 중인 작업대를 찾아 한다. 작업대 종류별 동작 번호와 도구 파츠는 `ForgeWorkPose`의 목록에 두며, 지금은 네 작업대 모두 망치질이다.
-  - 작업대 사용권과 손에 든 칸은 이미 복제되는 상태라 다른 참가자의 자세도 같은 규칙으로 보인다(새 네트워크 상태 없음).
-- 초상화(`AdventurerPortraitProvider`)는 아직 임시 이미지다.
+- 모델 `05.Art/Models/Characters/Hero/Hero.fbx`, 프리팹 `04.Prefabs/Characters/Humanoid`, 외형 목록 `HumanoidLookData`, 적용 `HumanoidAppearanceView`, 모험가 외형·장비 `AdventurerLook`, 자세 `HumanoidPose`.
+- 셰이더 `05.Art/Shaders/HumanoidPaletteToon`(팔레트 텍스처 `Hero_Palette.png`).
+- 주의: 외형 목록은 번호가 위치라 끝에만 추가한다. 애니메이션 FBX는 `Preserve Hierarchy`를 켜고, 다시 익스포트할 때 `.meta`를 유지한다. 팔레트는 Blender 원본과 함께 고친다.
 
-### 대화 (다이얼로그) (진행 중)
+### 대화 (진행 중)
 
-- `Core/Dialogue`에 조건 평가(`DialogueCondition`: 게임 상태 값 비교. 화면 표시와 호스트 재확인이 같은 함수를 씀)와 선택지 강조 규칙(`DialogueChoiceCursor`: 강조 없이 시작, 숫자키·W/S, 끝에서 멈춤, 최대 9개).
-- `Dialogue/`에 대사 데이터(`DialogueData`: 조건별 대사 묶음, 줄마다 화자, 선택지와 비활성 이유), 화자(`DialogueSpeaker`), 함께 보는 대화 번호표(`DialogueCatalog`), 프리팹과 씬을 잇는 `DialogueChannel`, 진행(`DialogueDirector`)과 화면(`DialogueView`, `DialogueChoiceButton`: 비활성 이유 표시, 고르려 하면 흔들림), 조건 값 공급(`GameDialogueStats`, 지금은 빈 관리 슬롯 수만), NPC 대화 점유(`DialogueSeat`), Player 프리팹의 대화 요청·선택·해제 RPC(`DialoguePlayerActions`)와 "대화 중" 말풍선(`DialogueBubbleView`), 함께 보는 대화(`SharedDialogue`: 각자 넘기고 모두 다 읽으면 닫음, NPC 대화 중이면 그 대화를 닫고 염).
-- 대화 중에는 `PlayerNetworkInputLock`으로 캐릭터 조작 입력을 잠그고, 엔터(UI/Submit)·W/S·숫자키(UI 맵 `ChoiceUp`·`ChoiceDown`·`ChoiceNumber`)는 대화창이 직접 읽는다.
-- 대화창 프리팹은 `04.Prefabs/UI/Dialogue`, 대사 데이터는 `03.ScriptableObjects/Dialogues`, 채널·입력 잠금 에셋은 `03.ScriptableObjects/Runtime`. `01.Scenes/PlazaTest`와 `Game`에 배치했고, 함께 보는 대화는 `PlazaTest`에서 플레이 중 `SharedDialogue` 오브젝트의 `SharedDialogueTestTrigger` 컨텍스트 메뉴로 연다(`Game`에는 테스트 트리거를 두지 않았다).
-- 튜토리얼·컷씬 연결, 명성 등 조건 값 추가는 남아 있다.
+- 규칙 `Core/Dialogue`(`DialogueCondition`, `DialogueChoiceCursor`), `Dialogue/`의 `DialogueDirector`, `DialogueView`, `DialogueChannel`, `SharedDialogue`(함께 보는 대화), RPC `DialoguePlayerActions`.
+- 데이터 `03.ScriptableObjects/Dialogues`. 튜토리얼·컷씬 연결과 명성 등 조건 값이 남았다.
 
 ### 구역 이동·화면 페이드 (구현)
 
-- 대장간 입구(`ForgeRoom`의 `Entrance_Block` 자리)와 광장의 대장간 입구 큐브에 이동 큐브(`04.Prefabs/Town/AreaPortal`)를 두었다. 닿으면 화면이 어두워진 사이 반대편 도착 지점(`ForgeArrival`, `PlazaArrival`)으로 옮겨진다. `ForgeRoom` 프리팹은 고치지 않고 `Game` 씬의 `ForgePlazaLink`에 두었다.
-- 화면 페이드(`ScreenFader`, `ScreenFadeChannel`)는 구역 이동, 로비 → 게임, 게임 → 전투, 전투 → 게임 전환에 쓴다. 구조는 `docs/NETWORK_DESIGN.md` 3.2절.
-- 이동 큐브는 회색 기본 큐브로 임시 표시다. 대장간 쪽 큐브가 입구를 가려 보일 수 있다.
-- 전투 결과를 반영하면 호스트가 모든 플레이어를 대장간 스폰 위치(`PlayerSpawner`의 스폰 지점)로 옮긴다(`NightDispatchLink` → `PlayerSpawner.ReturnAllToSpawnPoints` → `PlayerAreaTravel.TravelByHost`). 전투 씬이 낮 화면을 가린 동안 옮기므로, 결과창을 닫으면 페이드 아웃 → 페이드 인 뒤 대장간이 보인다. "파견하지 않고 다음 날"로 넘길 때는 옮기지 않는다.
+- `04.Prefabs/Town/AreaPortal`, `Game` 씬의 `ForgePlazaLink`, `ScreenFader`/`ScreenFadeChannel`(`docs/NETWORK_DESIGN.md` 3.2절). 전투 결과 반영 뒤 `PlayerSpawner.ReturnAllToSpawnPoints`로 모두 대장간으로 옮긴다.
 
-### 대장간 업그레이드·해금 (미구현)
+### Photon Fusion 2 (진행 중)
 
-- 아직 없다.
+- 로비의 Host 시작·Client 참가, 플레이어 스폰, `NetworkInput` 예측 이동, 입력 잠금 `PlayerNetworkInputLock`.
+- 남음: 스팀·스토브 초대, 재접속 처리.
 
-### 저장/불러오기 (미구현)
+### 미구현
 
-- 아직 없다.
-
-### Photon Fusion 2 연동 (Host 모드) (진행 중)
-
-- Fusion 2.1.3 SDK. `Bootstrap` → `Lobby` → `Game` 씬 흐름, 세션명으로 Host 시작·Client 참가, 세션 종료 시 로비 복귀, 호스트의 플레이어 스폰·디스폰, `NetworkInput` 기반 예측 이동(입력 구조는 `docs/NETWORK_DESIGN.md` 3절), 미니게임·대화 중 캐릭터 조작 입력 잠금(`PlayerNetworkInputLock`, 같은 문서 3.1절), 필드 없는 공용 `GameState`. 플레이어는 인간형 모델을 쓴다.
-- 클라이언트 요청 RPC는 Player 프리팹에 영역별 행동 컴포넌트(예: `ForgePlayerActions`)로 나눠 두기로 했다.
-- 영역별 공유 상태·RPC, 스팀·스토브 초대는 남아 있다.
-
-### 방송 연동 (미구현)
-
-- 아직 없다.
+- 대장간 업그레이드·해금, 저장/불러오기, 방송 연동.
+- 데모 1 기능(채집, 상점, 의뢰, 여관, 친밀도, 내구도 등)은 남은 작업 3.
 
 ### 자동화 테스트 (일부)
 
-- `02.Scripts/Tests/EditMode`에 전투 시뮬레이션 결정성·승패·마나·쓰러짐, 스테이지 선택·진행 테스트 16개, 보스 스킬 순환·분노 테스트 3개, 장비 등급 경계값·평균 테스트 14개, 담금질 규칙 테스트 15개(준비 구간 자동 시작 없음, 완벽 구간, 담그는 순간부터 시간 계산 포함), 정제 규칙 테스트 27개(균열 판정, 저주 균열, 풀무질, 붓기와 정확도 미리보기, 전체 진행, 같은 시드 결정성), 연마 규칙 테스트 22개(시드 결정성, 갈기와 각도 품질, 열과 물 식히기, 타기와 재개, 얇아짐, 전체 진행 포함), 판 성형 규칙 테스트 22개(조각 모양, 오리기와 띠 이탈, 불순물, 시드 결정성, 전체 진행 포함), 제작 규칙 테스트 6개(정확도 평균 누적, 마지막 단계 등급 환산), 제작 재료 판정 테스트 10개(여러 칸에 나뉜 재료, 같은 재료 합산, 정확도 평균, 모자랄 때, 놓을 수 있는 개수), 제작 재료 예약 테스트 10개(필요 개수 제한, 칸 풀기, 인벤토리 변경 반영, 64비트 포장, 호스트 확인), 장신구 제작 규칙 테스트 29개(난이도별 체인 모양, 조각 놓기·뒤집기·집기, 숫돌 선택·돌리기·너무 깎기, 틀 맞추기·손상, 면 닦기, 시드 결정성, 전체 진행), 티어 규칙 테스트 15개(티어·등급별 판매가, 난이도 번호), 판매 규칙 테스트 9개(손님이 도는 길, 사는 확률), 모험가 생성 결정성·범위·기본무기와 레벨 성장 테스트 13개, 인간형 외형 생성 테스트 5개, 모험가 → 전투 유닛 변환 테스트 5개, 모험가별 클리어 웨이브 테스트 2개, 보상·경험치·레벨업·몬스터별 드랍 테스트 9개, 웨이브 몹 뽑기 테스트 4개, 대화 조건·선택지 강조 테스트 19개, 단조 규칙 테스트 24개(결정성, 박자표 구성, 판정 창, 큰 박자 누르기·떼기, 콤보, 결과 이벤트, 판정 보정 포함), 인벤토리 칸 규칙 테스트 18개(넣기, 쌓기, 줄 늘리기와 최대 크기, 옮기기·맞바꾸기·합치기, 인벤토리 사이 이동, 빼기, 검색), 파견 규칙 테스트 8개, 낮·밤 단계·시각 규칙 테스트 10개.
+- `02.Scripts/Tests/EditMode`에 `Core` 규칙의 EditMode 테스트가 있다. 실행: 에디터를 연 채 `unity command test run editor`.
+- 가격 규칙 등 일부 `Core` 규칙은 결정성 테스트가 없다. 빌드 검증은 하지 않았다.
 
-## 검증 상태
+## 확인하지 않은 것
 
-- 구역 이동·화면 페이드: 에디터 플레이 모드에서 로비에서 호스트로 시작해 다음을 확인했다. 콘솔 오류 없음.
-  - 로비 → `Game` 진입 후 화면이 밝아지고, 대장간 입구 큐브에 닿으면 광장 도착 지점에, 광장 큐브에 닿으면 대장간 도착 지점에 멈춰 서고, 카메라가 바로 따라오며 조작 잠금이 풀리는 것. 큐브에 닿게 하는 것은 키 입력 대신 스크립트로 플레이어를 큐브 앞에 옮겨 확인했다.
-  - 영입한 모험가를 스크립트로 파견해 `Battle` 씬이 열리고 화면이 밝아지는 것, 결과를 확정하면 `Battle` 씬이 내려가고 화면이 밝아지는 것.
-  - 두 명 접속에서 페이드와 구역 이동이 동작하는 것을 확인했다.
-  - 광장에 있는 채로 밤에 스크립트로 파견하면, 전투 중 오른쪽 위 골드 표시가 보이지 않고 결과창에 "보상: 골드 105, 구리 광석 ×3, …"가 나오는 것, 결과를 확정하면 플레이어가 대장간 스폰 위치에서 2일째 낮을 시작하고 골드가 105 늘어 보이는 것. 한 명 접속만 확인했다.
-- 에디터 컴파일 오류 없음. EditMode 테스트 271개 통과 (에디터가 열려 있으면 `unity command test run editor`).
-- 인간형 캐릭터 모델: 플레이 모드에서 다음을 확인했다. 콘솔 경고·오류 없음.
-  - `ForgeTest`: 플레이어가 앞치마 차림으로 서서 대기 동작을 하는 것, 손님이 무작위 외형(피부·머리색, 의상)으로 서서 돌아다니는 것.
-  - `PlazaTest`: 영입 후보가 무작위 외형과 직업의 기본무기(궁수는 낡은 활)를 든 모습으로 서 있는 것.
-  - `BattleTest`: 모험가 4명이 각자 다른 머리색과 기본무기를 들고 서서 싸우는 것. 적이 아닌 옆을 보고 싸우는 문제가 있다(남은 우선 작업의 전투 항목).
-  - `ForgeTest`: 팔레트 툰 셰이더로 면 방향에 따라 명암 3단계가 나오는 것, 손님의 피부색·머리색 교체(창백한 피부·흰머리), 의상별 신발, 밤 조명(`DayNightLighting`의 밤 값을 직접 적용)에서 캐릭터 전체가 어둡고 푸르게 바뀌는 것.
-  - `ForgeTest`: 부드러운 노멀로 다시 가져온 뒤 머리·얼굴의 명암 경계가 모서리가 아닌 곡선으로 지나가는 것.
-  - `ForgeTest`: 손에 든 칸에 아이템이 있으면 팔이 들기 자세가 되고 빈 칸이면 풀리는 것, 작업대 사용권을 받으면 망치를 들고 망치질을 하며 들기 자세와 든 물건 표시가 꺼지고, 사용권이 풀리면 망치가 사라지고 들기 자세와 든 물건 표시가 돌아오는 것(사용권은 스크립트로 직접 주고 풀었다). 들기 자세로 걷기·달리기, 실제 미니게임 시작·종료, 두 명 접속은 화면으로 확인하지 않았다.
-  - `BattleTest`: 팔레트 셰이더로 모험가가 분홍색(셰이더 오류) 없이 그려지는 것.
-  - 실제 낮 마감 후 밤 전환, 몸에 받는 그림자가 그림자 단계로 바뀌는 것, 셰이더 그래프 창에서 그래프를 여는 것, 모바일 품질 설정(`Mobile_RPAsset`)에서의 모습은 확인하지 않았다.
-  - 걷기·달리기 전환, 공격 동작이 직업별로 다른 것, 투구를 입힌 모습(헬멧 헤어·귀 숨김), 쓰러질 때 몸이 눕는 것, 장비 착용 창 미리보기, 두 명 접속은 화면으로 확인하지 않았다.
-- `PlazaTest` 씬 플레이 모드에서 호스트 자동 시작, 영입 후보 1~4명 생성, 후보에게 다가가면 "E 영입" 표시, E 입력으로 영입해 후보가 사라지고 목록에 들어가는 것, 슬롯이 가득 차면 영입되지 않는 것, 목록 창을 연 상태에서 바로 갱신되는 것, 버튼으로 창을 열고 닫는 것을 확인했다. 콘솔 오류 없음. 빌드한 실행 파일과 에디터로 두 명이 접속해 영입, 관리 목록 동기화, 클라이언트 화면의 후보 위치를 확인했다. 이때 로비가 `PlazaTest`를 불러오도록 로컬에서만 임시로 바꿔 테스트했다. (영입이 대화로 바뀌기 전에 확인한 내용이다.)
-- 대화: `PlazaTest` 씬에서 다음을 확인했다. 콘솔 오류 없음.
-  - 후보에게 다가가면 "E 대화"가 뜨고, E로 대화가 열리며, 대화 중에는 W/S를 눌러도 캐릭터가 움직이지 않는다.
-  - 엔터로 대사를 넘긴다. 선택지는 강조 없이 뜨고 이때 엔터는 무시된다. W/S·숫자키로 강조가 옮겨 가고 끝에서 멈춘다.
-  - "영입하기"를 고르면 후보가 사라지고 목록에 들어간다. "그만두기"는 대화만 닫고 점유를 푼다.
-  - 슬롯이 가득 차면 다른 대사가 나오고, "영입하기"가 흐리게 이유와 함께 표시되며, 고르려 하면 거절 연출만 나온다.
-  - NPC 대화 도중 함께 보는 대화를 열면 NPC 대화가 닫히고 점유가 풀린 뒤 함께 보는 대화가 열리고, 다 읽으면 닫힌다.
-  - 키 입력은 에디터 창 포커스 없이 Input System 이벤트로 넣어 확인했다. 마우스 클릭은 클릭 처리 함수를 직접 불러 확인했고 실제 마우스로는 확인하지 못했다.
-  - 빌드한 실행 파일과 에디터로 두 명이 접속해 확인했다. 한 명이 후보와 대화 중이면 다른 사람 화면에 그 플레이어의 말풍선과 후보의 "대화 중"이 보이고 그 후보에게 말을 걸 수 없었다. 클라이언트가 말을 걸어 "영입하기"를 고르면 영입되고 양쪽 관리 목록이 함께 갱신됐다. 함께 보는 대화는 먼저 다 읽은 쪽에 "다른 참가자를 기다리는 중"이 뜨고 둘 다 읽으면 함께 닫혔다. 이때 로비가 `PlazaTest`를 불러오도록 로컬에서만 임시로 바꿔 테스트했다.
-- 공용 창고: `InventoryTest` 씬 플레이 모드에서 시험용 물건 54칸이 들어가 창고가 5×10에서 5×15로 늘어나는 것, 철광석 150개가 99개와 51개로 나뉘어 쌓이는 것, 상자 범위에 들어가면 "E 창고"가 뜨고 E로 창이 열리며 이동 입력이 잠기는 것, 칸에 이름·등급 이름·개수가 표시되는 것, 빈 칸으로 옮기기·다른 물건과 맞바꾸기·같은 재료 합치기(남는 개수는 원래 칸에 남음)·가득 찬 칸 위에 놓으면 그대로인 것, Esc로 닫으면 잠금이 풀리는 것을 확인했다. 콘솔 오류 없음. 실제 키보드·마우스로 창을 열고 닫고 칸을 끌어다 놓는 것도 확인했다. 두 명 접속은 아직 확인하지 않았다.
-- 플레이어 슬롯: `InventoryTest` 씬 플레이 모드에서 화면 하단에 빈 8칸이 뜨는 것, 창고 → 내 슬롯, 내 슬롯 안 이동, 내 슬롯 → 창고, 두 인벤토리 사이 맞바꾸기가 되는 것, 창고 창을 연 채로 플레이를 멈춰도 오류가 나지 않는 것을 확인했다. 콘솔 오류 없음. 실제 마우스로 창고와 내 슬롯 사이를 끌어다 놓는 것도 확인했다.
-- 인벤토리 조작: `InventoryTest` 씬 플레이 모드에서 다음을 확인했다. 콘솔 오류 없음.
-  - 창고를 연 상태에서 빠른 이동으로 철광석 99개·51개가 내 슬롯으로 옮겨지고, 내 슬롯의 3개가 창고 빈 칸으로 돌아가는 것.
-  - 손에 든 슬롯을 고르면 하단 슬롯에 금색 테두리가 켜지고, 호스트의 `PlayerInventoryState.HeldSlot`이 같은 값이 되며, 캐릭터 앞쪽(캐릭터 기준 0.7m)에 철광석 색 상자와 깜박이는 금색 강조가 보이는 것. 캐릭터가 카메라 쪽을 본 모습은 실제 이동으로 확인하지 못했다.
-  - 스택 나누기를 요청하면 개수 입력 창이 기본값 49(99의 절반)로 뜨고 그동안 입력이 잠기며, 3개를 확인하면 빈 칸에 3개가 생기고 창이 닫히며 잠금이 풀리는 것.
-  - 하단 슬롯에서 끄는 그림이 공용 창고 창 위에 그려지는 것(끄는 그림 캔버스 정렬 순서 100).
-  - 끌기·클릭·키 입력은 화면 함수와 `InventoryChannel`을 직접 불러 확인했다. 실제 마우스·키보드로는 아직 확인하지 못했고, 두 명 접속도 아직 확인하지 않았다.
-- 모험가 장비 착용: `InventoryTest` 씬 플레이 모드에서 다음을 확인했다. 콘솔 오류 없음.
-  - 공용 장비 목록에 공용 창고의 장비와 내 개인 슬롯의 철 지팡이가 함께 보이고, 철광석·철 주괴는 보이지 않는 것.
-  - 전사의 무기 칸에 철 갑옷이나 철 활을 놓으면 아무것도 바뀌지 않고 창고에 그대로 남으며, 각각 "이 칸에 맞지 않는 장비입니다"·"맞지 않는 무기입니다" 토스트가 떴다가 흐려지며 사라지는 것.
-  - 전사에게 철검(무기)·철 투구를 입히면 창고에서 빠지고 장비 칸에 등급과 함께 보이는 것, 무기를 벗기면 창고로 돌아오는 것, 궁수에게 철 활이 들어가는 것.
-  - 장비가 많으면 목록이 창 안에서 스크롤되는 것.
-  - 창을 열면 하단 개인 슬롯이 숨고 닫으면 다시 보이는 것, 모험가 모습이 직업 모델로 보이고 입은 투구·무기 상자가 붙는 것, 철검(중급)·철 투구(중급)를 입히면 능력치가 공격력 +10·체력 +20·방어력 +3 오르는 것, 철검(최상급)을 끄는 동안 공격력 "→ 49 (+5)"가 보이는 것, 무기 탭에서 무기만 보이는 것.
-  - 끌기·놓기·클릭은 화면 함수를 직접 불러 확인했다. 실제 마우스와 두 명 접속(다른 플레이어 슬롯의 장비 표시, 참가자 화면이 보기 전용인지)은 아직 확인하지 않았다.
-- 낮·밤 사이클: 플레이 모드에서 다음을 확인했다. 콘솔 오류 없음. EditMode 테스트 252개 통과.
-  - `ForgeTest`: 디지털 시각이 10초 뒤 10:10이 되는 것(실제 1초 = 게임 1분, 10분 단위 표시).
-  - `ForgeTest`: 시계가 오른쪽 위에 보이는 것. 낮이 끝나면 밤 파견 창이 시험용 모험가 3명과 함께 뜨고, 파견하면 전투 씬이 올라와 결과 확인 뒤 2일째 낮이 시작되는 것. 콘솔 오류 없음.
-  - `DispatchTest`: 시계가 오른쪽 위에 보이고, 낮에는 파견 창을 여는 버튼이 없는 것.
-  - `DispatchTest`(낮 60초): 아날로그 시계의 노란 부채꼴이 10시 방향부터 지금 시각까지 차는 것(16:10에 4시 방향까지), 밤이 되면 20:00과 8시 방향까지 채운 부채꼴, "1일째 · 밤"이 보이는 것. 낮이 끝나면 밤이 되어 던전 지도 창이 닫기 버튼 없이 저절로 열리고(파견 창에도 닫기 버튼 없음) "파견하지 않고 다음 날" 버튼이 보이는 것. 그 버튼으로 2일째 낮이 시작되는 것.
-  - `DispatchTest`: 2일째 밤에 파견하면 전투 중에는 파견 창이 다시 열리지 않고, 결과창에서 확인을 누르면 낮 씬으로 돌아와 3일째 낮이 시작되는 것.
-  - `DispatchTest`: 파견 창이 열리면 하단 개인 슬롯이 숨고, 장비 착용 창을 열었다 닫거나 파견을 건너뛰어 창이 닫히면 다시 보이는 것.
-  - `DispatchTest`: 낮이 끝나면 약 3초 동안 전환 연출이 이어지고(로그로 Dusk → Night 간격 확인), 화면 가운데 "밤이 되었습니다"와 어두워진 조명이 보이며 조작이 잠기는 것. 문구가 사라진 뒤 파견 창이 뜨는 것. 다음 날 낮이 되면 해 세기와 환경광이 원래 값으로 돌아오는 것.
-  - `ForgeTest`: 밤(20:00)에 낮 씬은 어두운 채로, 파견 창에서 연 장비 착용 창의 모험가 미리보기는 낮과 같은 밝기로 보이는 것(미리보기 화면의 모델 평균 밝기 낮 0.43, 밤 0.37~0.44. 고치기 전 밤 0.13). 콘솔 오류 없음.
-  - `ForgeTest`: 작업대를 쓰는 중에 낮이 끝나면 "영업 마감 중"으로 기다리고 작업대 시작이 막히며, 작업대가 끝나면 밤이 되는 것. 밤에 작업대 시작 요청이 "영업 끝" 이유로 거절되는 것.
-  - 작업대 사용과 버튼은 화면·호스트 함수를 직접 불러 확인했다. 실제 미니게임 도중 낮이 끝나는 경우와 두 명 접속은 아직 확인하지 않았다.
-- 파견 창과 Additive 전투: `DispatchTest` 씬 플레이 모드에서 다음을 확인했다. 콘솔 오류 없음(전투 HUD의 "쓰러짐" 문구가 한글 없는 기본 폰트를 써서 나는 기존 경고는 있다).
-  - 파견 창에 관리 목록 3명과 1단계 고블린 소굴(이전 구성. 지금은 버려진 묘지), "스테이지 1 ~ 3 (보스)"가 보이고, 두 명을 고르면 줄이 강조되며 "파티 2/5"가 되는 것.
-  - 전사에게 철검(최상급)·철 투구(상급)·철 갑옷(중급)을 입히면 파견 창 능력치가 체력 476 → 540, 공격력 34 → 49, 방어력 7 → 16으로 바뀌고, 파견한 전투 유닛(`AdventurerUnitInfo`)의 능력치도 같은 것.
-  - 파견하면 `Battle` 씬이 Additive로 올라와 활성 씬이 되고, 낮 씬 카메라·Canvas·라이트가 꺼지며 조작이 잠기는 것.
-  - 결과창에서 확인을 누르면 진행 상황(2스테이지 클리어)이 반영되고, 전투 씬이 내려가 낮 씬 화면이 다시 켜지며 조작 잠금이 풀리는 것. 다음 파견 창은 3스테이지부터 고를 수 있다.
-  - 줄의 장비 버튼으로 그 모험가의 장비 착용 창이 파견 창 위에 열리는 것.
-  - 장비 착용 창 미리보기와 전투 유닛에 같은 색의 투구·갑옷·무기 상자가 보이고, 장비가 없는 모험가는 상자가 없는 것.
-  - 장비 착용 창을 연 채 플레이 모드를 끌 때 나던 관리 목록 접근 오류가 더 나지 않는 것.
-  - `BattleTest`에서 `Battle` 씬을 불러와 전투·결과 반영·씬 내리기·다시 파견이 반복되는 것.
-  - 버튼은 화면 함수를 직접 불러 확인했다. 실제 마우스와 두 명 접속(참가자 화면에 파견 창이 보기 전용으로 뜨는지, 참가자도 전투 씬을 따라 불러오고 내리는지)은 아직 확인하지 않았다. EditMode 테스트 242개 통과.
-- 던전 지도: 플레이 모드에서 다음을 확인했다. 지도 창 관련 콘솔 오류 없음. 아래 지도 표시와 고르기는 개발 중 `ForgeTest`에 임시로 연결해 확인했고(연결은 되돌림), 같은 `DispatchUI` 프리팹을 쓰는 `DispatchTest`에서 지도 → 파견 창 → 지도 이동과 한 스테이지 파견·결과 반영을 다시 확인했다.
-  - 밤이 되면 던전 지도 창이 먼저 뜨고 파견 창은 닫혀 있는 것. 대륙 위 길을 따라 거점 30개(별 10개, 이전 구성. 지금은 15개·별 5개)가 땅 위에 놓이고, 1단계 1스테이지만 금색(고른 고리 표시)이고 나머지는 잠김, 보상 골드가 보이는 것.
-  - 잠긴 거점(1단계 보스, 2단계 1스테이지)을 고르려 해도 고른 스테이지가 바뀌지 않는 것. 1스테이지를 이긴 다음 날 밤에 1스테이지는 초록, 2스테이지는 금색이고 그 사이 길이 진하게 보이는 것.
-  - "파티 꾸리기"로 파견 창이 뜨고 고른 단계·스테이지가 보이며, "지도로 돌아가기"로 지도에 돌아오는 것.
-  - 파견하면 고른 스테이지 하나만 싸우고(`BattleState.FirstStage`·`LastStage`가 같음), 이기면 다음 날 밤 지도에서 1스테이지는 "클리어", 2스테이지가 "도전"으로 골라져 있는 것. 잠긴 보스 스테이지는 고를 수 없는 것.
-  - 클리어한 1스테이지를 고르면 "이미 클리어한 스테이지" 안내가 뜨고, 다시 이겨도 진행 상황이 1에서 늘지 않는 것.
-  - 지도 창 관련 버튼은 화면·상태 함수를 직접 불러 확인했다. 실제 마우스와 두 명 접속(참가자 화면이 호스트를 따라 지도·파견 창을 오가는지)은 아직 확인하지 않았다. `ForgeTest`는 `ForgeTestStarter`의 관리 목록 참조가 비어 시험용 모험가가 들어가지 않아(아래 남은 작업) 플레이 중에만 모험가 3명을 넣어 확인했다.
-  - `Game` 씬(로비에서 Host 시작): 낮을 바로 끝내면 저녁을 거쳐 밤에 던전 지도 창이 먼저 뜨고(거점 30개, 이전 구성) 파견 창은 닫혀 있는 것, "파티 꾸리기"·"지도로 돌아가기"에 해당하는 상태 함수로 파견 창과 지도를 오가는 것, "파견하지 않고 다음 날"로 2일째 낮이 되며 지도가 닫히는 것. 콘솔 오류 없음. 시계와 골드 표시 아래 "밤으로 넘기기 (테스트)" 버튼 위치에 클릭 이벤트를 보내면(골드 표시에 가리지 않음) 저녁을 거쳐 밤에 지도 창이 뜨고, 버튼은 낮이 아니면 숨었다가 다음 날 낮에 다시 보이는 것. 화면 함수를 직접 불러 확인했고 실제 마우스와 두 명 접속은 확인하지 않았다.
-  - 지도를 연결하지 않은 `ForgeTest`에서는 밤에 파견 창부터 뜨고 "지도로 돌아가기" 버튼이 숨으며, 파견·결과 확인 뒤 다음 날로 넘어가는 것.
-- `ForgeTest`에서 담금질이 `PlayerNetworkInputLock`으로 바뀐 뒤에도 작업대에서 E로 시작하면 이동이 잠기고, 끝나면 다시 움직이는 것을 확인했다.
-- `BattleTest` 씬 플레이 모드에서 스테이지 3개 진행, 승리, 결과창 표시를 확인했다. 진행 상황에 따라 다음 스테이지부터 선택한 스테이지까지만 싸우는 것도 확인했다. 생성한 모험가 4명(1·3·5·8레벨)이 레벨에 맞는 능력치로 싸우고, 결과창에 모험가 이름이 나오는 것을 확인했다. 결과창에 골드 650·재료와 모험가별 경험치·레벨업이 표시되고, 다시 전투하면 오른 레벨과 남은 경험치로 싸우는 것을 확인했다. 콘솔 오류 없음.
-- 몬스터 데이터(이전 던전 구성 기준): `BattleTest` 씬에서 `Dungeon_Tier1`으로 3스테이지까지 승리하고 결과창에 "고블린 소굴"과 보상이 나오는 것, `Dungeon_Tier2` 보스 스테이지에 해골 기사와 해골 궁수가 나오는 것을 확인했다(이후 보스 스테이지는 보스만 나오게 바뀌었다. 아래 "보스 스테이지" 참고). 콘솔 오류 없음. 에디터에서 시뮬레이션만 돌려 보면, 1단계는 1명 파티가 잡몹 스테이지까지만 깨고 Lv5 2명이나 Lv1 3명이면 보스까지 깬다. 2단계는 Lv12 3명이나 Lv5 5명이 필요하다. 수치는 [추정]이다.
-- 보스 스테이지(이전 던전 구성 기준): `BattleTest` 씬에서 1단계 보스 스테이지가 시작될 때 "BOSS STAGE"와 "고블린 대장" 문구가 뜨고 그동안 전투가 멈췄다가 이어지는 것, 보스 스테이지에 고블린 대장만 나오고 1.5배 크기와 오라 파티클이 보이는 것, 고블린 대장이 분노할 때 몸이 붉어지고 분노 오라가 켜지며 체력바에 "고블린 대장 - 분노"와 주황색 바가 나오는 것, 보스가 쓰러진 뒤 오라가 멈춰 결과창 위에 파티클이 남지 않는 것, 승리 후 결과창이 나오는 것을 확인했다. 콘솔 오류 없음. 2단계는 플레이 모드로 보지 않았다. 보스 스테이지에서 잡몹을 빼고 시뮬레이션을 돌려도 위 기준 파티(1단계 Lv5 2명·Lv1 3명, 2단계 Lv12 3명·Lv5 5명)가 그대로 보스까지 깨서 보스 수치는 바꾸지 않았다. 보스 체력을 20% 올리면 같은 파티가 지기 시작한다. EditMode 테스트 219개 통과.
-- 몬스터 체력바: `BattleTest` 씬에서 잡몹 발밑에 체력바가 뜨고 피해를 받으면 줄며 쓰러지면 사라지는 것, 보스 스테이지에서 화면 상단에 보스 이름("고블린 대장")과 체력바가 뜨고 보스가 쓰러지면 사라지는 것, 보스에는 발밑 체력바가 없는 것을 확인했다. 콘솔 오류 없음. 전투 HUD의 HP·마나 바와 몬스터 체력바는 둥근 스프라이트를 늘리는 Image Filled 대신 Fill의 오른쪽 앵커를 비율로 줄인다(`BarFill`). 바 끝이 번지지 않는 것을 확인했다.
-- 전투 Fusion 연동: `BattleTest` 씬 플레이 모드에서 호스트가 자동으로 시작되어 전투가 재생되고, 결과창에 호스트용 "다시 전투" 버튼이 뜨는 것, 버튼을 누르기 전까지 결과가 반영되지 않고 누르면 `ResultConfirmed` 이벤트가 한 번 불리며 진행 상황이 갱신된 뒤 다음 전투가 시작되는 것을 확인했다. 콘솔 오류 없음. 빌드한 실행 파일과 에디터로 두 명이 접속해, 두 화면에서 같은 전투가 재생되고 결과창 내용이 같은 것, 클라이언트 결과창에는 "다시 전투" 버튼이 없는 것, 호스트가 버튼을 누르면 클라이언트에서도 다음 전투가 시작되는 것을 확인했다. 이때 로비가 `BattleTest`를 불러오도록 로컬에서만 임시로 바꿔 테스트했다. 전투 도중에 들어온 참가자는 호스트 화면과 맞춰지지 않고 그 전투를 처음부터 재생한다.
-- Fusion SDK 임포트 후 에디터 컴파일 오류 없음, Fusion IL 위버 동작 확인.
-- Host 모드 뼈대: 에디터 플레이 모드에서 `Bootstrap` → `Lobby` → Host 시작 → `Game` 씬 로드, 플레이어 스폰, 키 입력에 따른 쿼터뷰 기준 이동, 세션 종료 후 로비 복귀를 확인했다. 세션명이 비었거나 인증에 실패하면 로비에 실패 문구가 뜨고 다시 시도할 수 있다. 빌드한 실행 파일과 에디터로 두 명이 접속해 이동과 동기화에 이상이 없는 것을 확인했다.
-- 기본 TextMesh Pro 폰트에 한글 글리프가 없어 UI 한글이 네모로 보인다. 한글 폰트 에셋(주아, 고운바탕)을 추가해 한글 글리프가 들어가는 것을 확인했다. 광장 UI와 전투 결과창(`BattleTest` 씬, `BattleResultRow` 프리팹)에는 임시 폰트 주아를 적용해 한글이 보이는 것을 확인했다. 전투 HUD와 로비 등 나머지 UI에는 아직 적용하지 않았다.
-- 외부 에셋 `PolyRonin` 대장간 소품과 `VOiD1` 불꽃 셰이더를 `Assets/ThirdParty`에 들여왔다. 소품 머티리얼은 URP Lit로 바꿔 임시 장면에서 분홍색 없이 표시되는 것을 확인했다. 소품 크기가 제각각이고 아직 어떤 장면에도 쓰지 않았다. 출처와 라이선스는 `Assets/ThirdParty/README.md`에 적었다.
-- 모험가 방향·직업별 사거리·두 줄 대열: EditMode 테스트 284개 통과(두 줄, 한 종류만 있을 때 한 줄, 짧은 줄 가운데 맞춤, 5명 파티 2/2/1·1/2/2·3/2·2/3 테스트 추가). `BattleTest` 플레이 모드에서 모험가 4명이 진행 방향(+X)을 보는 것, 시작할 때 전사(사거리 120)가 앞줄 가운데에 혼자 서고 마법사(400)·궁수(450 두 명)가 뒷줄에 나란히 서는 것(4명 파티), 파티 시드와 인원을 잠시 바꿔 5명 파티로 시작할 때 근접 1·원거리 4가 1/2/2, 근접 3·원거리 2가 3/2, 근접 2·원거리 3이 2/3(원거리를 나누지 않음)으로 서는 것을 확인했다(씬은 저장하지 않음). 전사 4명이 나오는 시드가 없어 2/2/1은 근접 기준을 잠시 420으로 올려 마법사를 앞줄로 세워 확인했다. 궁수·마법사가 전사 뒤에 멈춰 공격하는 것을 확인했다. 콘솔 오류 없음.
-- 대열 간격·가운데 맞춤·직업별 스킬: EditMode 테스트 285개 통과(대열 테스트를 반 칸 단위 라인으로 고침). 줄 간격 100 → 160, 옆자리 간격 1 → 1.6 월드 단위로 늘린 뒤 `BattleTest`에서 5명 파티 1/2/2와 3/2가 줄마다 떨어져 보이고 1명 줄이 가운데에 서는 것, 기본 파티가 광역·단일 스킬을 섞어 가진 것, 몬스터 무리가 가운데에 서는 것을 확인했다. 콘솔 오류 없음. 에디터 시뮬레이션 200판씩(직업·스킬은 무작위 생성): 1단계 1·2스테이지 Lv1 1명 100%, 1단계 보스 Lv3 2명 78%, Lv1·3·5·8 4명 100%, 2단계 1스테이지 Lv5 3명 100%, 2단계 보스 Lv8 4명 100%, Lv12 3명 100%, Lv5 5명 100%, Lv1·3·5·8 4명 14%. 이전 측정(76%, 100%, 100%, 짐)과 비슷해 수치는 바꾸지 않았다.
-- 웨이브 시스템: EditMode 테스트 292개 통과(웨이브 몹 뽑기의 웨이브별 수·같은 시드 재현·사거리 순서, 몬스터마다 드랍 굴림, 몹이 많을수록 드랍 증가, 패배 시 클리어한 웨이브까지 보상, 웨이브 도중 패배는 진행 상황 그대로). 에디터 시뮬레이션 200판씩(생성한 Lv1 모험가): 1단계 1·2스테이지 1명 100%, 1단계 보스 1명 0%(잡몹 2웨이브까지), 3명 100%. 2단계 1스테이지 1명 3%, 3명 100%, 2단계 2스테이지 3명 100%, 2단계 보스 3명 0%(잡몹 3웨이브까지). 1단계 1스테이지는 직업마다 400판 모두 Lv1 1명이 이긴다. 플레이 모드(웨이브 표시, 보스 웨이브 연출, 몬스터별 바닥 드랍, 결과창 문구)와 두 명 접속은 아직 확인하지 않았다.
-- 던전 5단계 구성·확률 드랍·장신구 효과: EditMode 테스트 278개 통과(드랍 굴림의 같은 시드 재현·확률 경계, 토파즈 합산과 올림, 에메랄드가 보석을 늘리지 않음, 사파이어 본인만, 루비 면제와 목걸이 파손). 에디터에서 시뮬레이션만 200판씩 돌려 보면 1단계 1·2스테이지는 Lv1 1명이 모두 이기고, 1단계 보스는 Lv3 2명이 76%, Lv1·3·5·8 4명이 100% 이긴다. 2단계 보스는 Lv8 4명이 100%, Lv1·3·5·8 4명은 진다. `BattleTest` 플레이 모드에서 결과창에 "버려진 묘지"와 재료 이름(구리 광석, 질긴 힘줄 등)이 나오는 것, 몬스터가 쓰러진 자리에 아이템 색 상자와 "이름 ×개수"가 떨어지고 결과창 재료와 같은 것, 해골 기사가 쓰러져 눕는 것, 파티에 목걸이 III(등급 5)를 입히면 골드 150 → 180(토파즈 +30), 구리 광석 4 → 5(에메랄드 +1), 사파이어를 입은 모험가 경험치 80 → 128(+48)로 나오는 것을 확인했다. `DispatchTest`에서 지도 창에 거점 15개(별 5개)가 보이고 1단계 이름이 "버려진 묘지", 2~5단계가 ???로 보이는 것을 확인했다. 콘솔 오류 없음. 2단계(고블린·오크 소굴)와 루비 면제는 플레이 모드로 보지 않았고, `Game` 씬과 두 명 접속은 확인하지 않았다.
-- 빌드 검증은 아직 하지 않았다.
+대부분의 화면 입력은 화면 함수나 RPC를 코드로 불러 확인했다. 아래는 아직 실제로 확인하지 않았다.
 
-## 남은 우선 작업
+- 실제 마우스 조작: 제작 목록 끌어다 놓기, 장신구 미니게임, 장비 착용 창, 파견 창·지도 버튼.
+- 두 명 접속: 작업대 사용권 거절, 인벤토리·장비 착용, 파견 창·지도(참가자 보기 전용), 낮·밤 전환, `Game` 씬 전체 흐름. (Host 이동, 영입, 대화, 전투 재생은 두 명으로 확인했다.)
+- 실제 미니게임 도중 낮이 끝나는 경우.
+- 웨이브 표시, 보스 연출, 바닥 드랍의 플레이 모드 화면.
+- 빌드한 실행 파일에서의 전체 흐름.
+
+## 남은 작업
 
 1. `main`과 `dev`에 브랜치 보호를 설정한다. `main`은 첫 출시 준비 때 `release/` 브랜치를 병합해 채운다.
-2. 역할별(대장간, 광장, 전투, 인벤토리) 기능을 구현하고 시연으로 피드백을 받는다.
-   - 대장간: 나머지 제작 미니게임 1종 이식(조립)과 담금질·단조를 최신 프로토타입과 대조해 맞추기, 미니게임 입력·화면, 재료 수급 방식, 판매 재료 밸런스 기획(`docs/GAME_CONCEPT.md` 4.4·4.5) 적용: 무기 레시피에 재료 개수와 부재료 데이터 넣기(구조는 제작 목록에서 만들어 둠), 활·지팡이 레시피, 조립 작업대도 같은 제작 목록으로 만들기, 장신구에서 다른 종류의 보석을 섞는 규칙(처음 넣은 보석이 효과를 정함), 활·지팡이 제작 단계 정하기([미정]), 미스릴 장비 아이템, 대장간 업그레이드 6단계와 해금.
-   - 전투: 던전 지도·파견 창·Additive 전투를 실제 마우스와 두 명 접속으로 확인, 스테이지 안의 웨이브(던전 단계에 따라 웨이브 수가 늘어남, 기획 7.1 [미정]), 몬스터 아트와 수치 조정, 보스 등장 연출 중 카메라가 보스를 비추게 하기(지금은 파티를 따라가 보스가 화면 위쪽에 걸친다), 3~5단계 몬스터·던전 데이터(구성은 `docs/GAME_CONCEPT.md` 7.1, 5단계 보스 마왕은 7.2. 데모 1 이후 작업), 장비별 이펙트, 전투 도중 들어온 참가자의 재생을 호스트 화면에 맞추기(재접속 처리와 함께), 전투 결과의 부상·사망과 루비가 막아 부서진 목걸이를 관리 목록에 반영(골드·재료·경험치는 `BattleRewardApplier`가 반영함), 공용 창고가 최대 크기까지 차서 보상 재료가 다 들어가지 않을 때의 처리(지금은 경고만 남기고 버림), 사망하면 입힌 장비도 사라지게 하기, 티어별 장비 능력치, 드랍 아이템 아이콘 모델.
-   - 공통: `ForgeTest`에 던전 지도 연결(`DispatchUI` 안 `DungeonMap`의 `_state`·`_progress`를 씬의 `DispatchState`·`DungeonProgressState`로, 대장간 담당), 낮·밤 사이클의 실제 미니게임 도중 마감과 두 명 접속 확인, 밤 화면 연출과 전투 중 낮 화면 끄기(`DaySceneBattleCover`, 임시)를 합칠지 정하기, `Game` 씬에는 `GameState`·낮·밤·밤 파견·광장·대화가 배치되었다. 골드를 둘 낮 씬 게임 상태(`GameState`를 누가 언제 스폰할지 포함)와 게임을 껐다 켤 때의 저장 구조(던전 진행 상황 `DungeonProgressState` 포함)를 정한다. 장비 보정과 직업별 공격 방식은 정해지면 `AdventurerSetupRules`와 `AdventurerBattle`에 추가한다.
-   - 광장: 낮이 시작될 때 후보 다시 뽑기(`GameState.PhaseChanged`, 기획 6.1절 [미정]), 전투 결과의 부상·사망을 관리 목록에 반영하는 API, 낮이 시작될 때 후보 재생성, 외형을 조합한 초상화([고도화])
-   - 인간형 모델: 걷기·공격·투구 모습·쓰러짐과 장비 착용 창 미리보기를 화면으로 확인, 손에 든 물건을 들기 소켓(`ItemSocket_Hold`)에 아이템별로 얹기, 미니게임별 작업 동작, 갑옷·장신구 모델
-   - 인벤토리: 재접속한 플레이어의 슬롯 이어 주기(`PlayerRef`가 아닌 별도 식별자로 찾음, 플레이어 식별 방식이 정해진 뒤), 손에 든 물건의 실제 모델·아이콘, 실제 아이템 데이터와 아이콘. 다른 영역과의 연결: 실제 마우스와 두 명 접속으로 장비 착용 확인, 투구·갑옷·장신구 벗기기 기능 제거(기획은 교체만 가능, 무기는 벗길 수 없게 막음), 밤 저장, `Game` 씬에 공용 창고 배치. 슬롯이 가득 찼을 때 제작 결과·보상 재료 처리, 파견 뒤 장비 반환은 정해야 한다. 목걸이 제작 레시피(보석 1·3·5개, 처음 넣은 보석이 효과 종류, 아이템은 30~41번으로 있음).
-   - 대화: 튜토리얼·클리어 컷씬에서 `SharedDialogue` 사용, 명성 등 조건 값(`DialogueStat`, `GameDialogueStats`) 추가, `Game` 씬에 대화창·`GameDialogueStats`·`SharedDialogue` 배치.
+2. 역할별 남은 기능
+   - 대장간: 조립 작업대와 미니게임, 단조·담금질을 최신 프로토타입과 대조, 활·지팡이 레시피와 제작 단계([미정]), 장신구에 다른 보석 섞는 규칙(처음 넣은 보석이 효과), 미스릴 장비 아이템, 대장간 업그레이드와 해금, 실제 효과음.
+   - 전투: 몬스터 아트와 수치, 보스 등장 때 카메라, 장비별 이펙트, 티어별 장비 능력치, 전투 도중 들어온 참가자 재생 맞추기, 부상·사망과 부서진 목걸이를 관리 목록에 반영, 사망 시 장비 제거, 공용 창고가 가득 찼을 때 보상 처리.
+   - 광장: 낮이 시작될 때 후보 다시 뽑기(기획 6.1 [미정]), 부상·사망 반영 API, 초상화([고도화]).
+   - 인간형 모델: 손에 든 물건을 `ItemSocket_Hold`에 얹기, 미니게임별 작업 동작, 갑옷·장신구 모델, 걷기·공격·쓰러짐 화면 확인.
+   - 인벤토리: 재접속한 플레이어의 슬롯 이어 주기, 손에 든 물건 모델·아이콘, 투구·갑옷·장신구 벗기기 기능 제거(교체만), 슬롯이 가득 찼을 때 제작 결과 처리, 파견 뒤 장비 반환.
+   - 대화: 튜토리얼·클리어 컷씬에서 `SharedDialogue` 사용, 명성 등 조건 값, `Game` 씬 배치 확인.
+   - 공통: `ForgeTest`에 던전 지도 연결(대장간 담당), 밤 연출과 `DaySceneBattleCover`(임시)를 합칠지, 저장 구조(`DungeonProgressState` 포함)와 `GameState` 스폰 시점, 장비 보정과 직업별 공격 방식(`AdventurerSetupRules`, `AdventurerBattle`).
 3. 데모 1을 위해 2026-11-10 기획(`docs/GAME_CONCEPT.md`)과 지금 구현이 다른 부분을 맞춘다. 담당자는 팀에서 정한다(기획 13절).
    - 제거: 판매 구역·진열대(`DisplayShelfState`)·손님(`Customer`, `ShopFlow`), 대장간의 모험가 관리 구역, 전투 보상의 재료·보석 드랍(`BattleDropRules`, 결과창 재료 표시, 드랍 연출), 치료비 회복.
    - 변경: 주괴는 등급 없이 쌓이고 정제 정확도가 주괴 개수를 정함(지금은 주괴 1개에 정확도를 담음), 장비 등급에서 정제 점수를 빼고 연마의 처음 날 상태는 단조·담금질 평균으로, 재료 한 칸 최대 32개(지금 99), 1티어 광석 이름 청동(데이터는 구리), 부산물 이름(짐승 가죽 → 가죽, 질긴 힘줄 → 힘줄, 마석 조각 → 마석)과 뼈·목재 추가, 웨이브를 8방향 이동 맵의 몬스터 무리로, 부상 상태를 부상수치로, 에메랄드 효과 대상.
    - 추가: 던전 채집(절차적 맵, 자원 스폰, 묻힌 보물 상자, 어두운 던전 시야), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 여관, 친밀도, 장비 내구도와 녹이기, 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
-4. 다른 `Core` 규칙(가격)에도 시드 결정성 EditMode 테스트를 추가한다.
-5. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 확정 전 임시 폰트다. 둘 다 SIL OFL 1.1이며 `05.Art/Fonts`에 라이선스 문서와 함께 둔다.
+4. 가격 등 다른 `Core` 규칙에도 시드 결정성 EditMode 테스트를 추가한다.
+5. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 임시 폰트다(SIL OFL 1.1, `05.Art/Fonts`).
 6. Unity CLI 사용이 안정되면 예비로 둔 Unity MCP 연동을 정리한다.
-
-## 관련 문서
-
-- `CLAUDE.md`: 프로젝트 개발 지침
-- `GIT_WORKFLOW.md`: 브랜치, 커밋, PR 규칙
-- `docs/GAME_CONCEPT.md`: 게임 컨셉과 세부 기획
-- `docs/NETWORK_DESIGN.md`: 멀티플레이 네트워크 설계
-- `docs/ai-prompts/README.md`: AI 협업 기록 규칙
+7. CI/CD를 구성한다.
