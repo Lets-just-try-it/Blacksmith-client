@@ -5,25 +5,16 @@ using UnityEngine.Rendering;
 
 namespace Blacksmith.Battle
 {
-    // 전투 시드로 스테이지 맵을 만들어 바닥 메시를 깐다. 맵의 시작 지점이 이 오브젝트의 위치에 온다.
-    // 시드가 같으면 모든 참가자에게 같은 맵이 나와 따로 동기화하지 않는다. 표시 전용이라 전투 결과에는 영향이 없다.
+    // 전투 설정의 스테이지 맵(전투 시드로 만든 것)에 바닥 메시를 깐다. 맵의 시작 지점이 이 오브젝트의 위치에 온다.
+    // 시드가 같으면 모든 참가자에게 같은 맵이 나와 따로 동기화하지 않는다.
     public class StageMapView : MonoBehaviour
     {
-        [Tooltip("던전 데이터에 스테이지 맵이 없을 때 쓴다")]
-        [SerializeField] private StageMapData _defaultData;
-
         private GameObject _floor;
         private float _cellSize = 1f;
         private MapPoint _start;
 
-        // 몬스터 무리와 보스의 스폰 지점. 아직 전투가 쓰지 않아 씬 뷰 기즈모로만 보인다.
-        public StageLayout Layout { get; private set; }
-
-        public void Build(int seed, StageMapData data, int mobGroupCount, bool hasBoss)
+        public void Build(StageMap map, StageMapData data)
         {
-            data = data != null ? data : _defaultData;
-            StageMap map = StageMapGenerator.Generate(seed, data.ToSettings());
-            Layout = StageLayoutGenerator.Generate(map, seed, mobGroupCount, hasBoss, data.ToLayoutSettings());
             _cellSize = data.CellSize;
             _start = map.Start;
             Clear();
@@ -86,30 +77,11 @@ namespace Blacksmith.Battle
             }
         }
 
-        // 맵 칸 좌표를 월드 좌표로 바꾼다. 시작 지점이 이 오브젝트의 위치다.
-        public Vector3 ToWorld(MapPoint point)
+        // 전투 좌표(BattleSpace 단위)를 월드 좌표로 바꾼다. 시작 지점이 이 오브젝트의 위치다.
+        public Vector3 ToWorld(float x, float z)
         {
-            return transform.TransformPoint((point.X - _start.X) * _cellSize, 0f, (point.Z - _start.Z) * _cellSize);
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (Layout == null)
-            {
-                return;
-            }
-
-            Gizmos.color = Color.red;
-            foreach (MapPoint group in Layout.MobGroups)
-            {
-                Gizmos.DrawWireSphere(ToWorld(group), 3f * _cellSize);
-            }
-
-            if (Layout.HasBoss)
-            {
-                Gizmos.color = Color.magenta;
-                Gizmos.DrawWireSphere(ToWorld(Layout.Boss), 5f * _cellSize);
-            }
+            float cells = 1f / BattleSpace.UnitsPerCell;
+            return transform.TransformPoint((x * cells - _start.X) * _cellSize, 0f, (z * cells - _start.Z) * _cellSize);
         }
 
         private void Clear()

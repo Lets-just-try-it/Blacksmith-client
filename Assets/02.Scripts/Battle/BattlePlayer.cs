@@ -10,31 +10,30 @@ namespace Blacksmith.Battle
     public class BattlePlayer : MonoBehaviour
     {
         [SerializeField] private Transform _unitRoot;
-        [SerializeField] private Transform _pathOrigin;
         [Tooltip("유닛 체력바가 바라볼 카메라")]
         [SerializeField] private Camera _camera;
-        [Tooltip("시뮬레이션 위치 1이 이동하는 월드 거리와 방향 (쿼터뷰 길 방향)")]
-        [SerializeField] private Vector3 _pathStep = new Vector3(0.01f, 0f, 0.005f);
-        [Tooltip("옆자리 한 칸당 벌어지는 월드 거리 (BattleUnit.Lane은 반 칸 단위)")]
-        [SerializeField] private Vector3 _laneStep = new Vector3(-0.3f, 0f, 0.6f);
         [SerializeField, Min(0.1f)] private float _playbackSpeed = 1f;
 
         private readonly List<BattleUnitView> _views = new List<BattleUnitView>();
-        private readonly List<int> _previousPositions = new List<int>();
+        private readonly List<Vector2Int> _previousPositions = new List<Vector2Int>();
 
         private BattleSimulation _simulation;
         private Func<BattleUnit, BattleUnitView> _getPrefab;
+        private Func<float, float, Vector3> _toWorld;
         private float _tickDuration;
         private float _elapsed;
         private float _holdRemaining;
-        private int _waveCount;
+        private int _monsterCount;
+        private int _defeatedCount;
 
         public event Action<BattleUnitView> UnitSpawned;
         public event Action<BattleUnitView> UnitEnraged;
         public event Action<BattleUnitView> UnitFell;
         public event Action TickAdvanced;
-        // 웨이브 번호(0부터)와 이 전투의 웨이브 수
-        public event Action<int, int> WaveStarted;
+        // 모험가를 발견해 다가오기 시작한 무리 번호(BattleSetup.Groups 순서)
+        public event Action<int> GroupEngaged;
+        // 토벌한 몬스터 수와 이 스테이지의 전체 몬스터 수
+        public event Action<int, int> ProgressChanged;
         public event Action<BattleResult> Finished;
 
         public IReadOnlyList<BattleUnitView> Views => _views;
@@ -47,14 +46,23 @@ namespace Blacksmith.Battle
             set => _playbackSpeed = Mathf.Max(0.1f, value);
         }
 
-        public void Play(BattleSetup setup, int ticksPerSecond, Func<BattleUnit, BattleUnitView> getPrefab)
+        // toWorld는 전투 좌표(BattleSpace 단위)를 월드 좌표로 바꾼다.
+        public void Play(BattleSetup setup, int ticksPerSecond, Func<BattleUnit, BattleUnitView> getPrefab, Func<float, float, Vector3> toWorld)
         {
             Clear();
             _simulation = new BattleSimulation(setup);
             _getPrefab = getPrefab;
+            _toWorld = toWorld;
             _tickDuration = 1f / ticksPerSecond;
-            _waveCount = setup.Waves.Count;
+            _monsterCount = 0;
+            foreach (MonsterGroupSetup group in setup.Groups)
+            {
+                _monsterCount += group.Monsters.Count;
+            }
+
+            _defeatedCount = 0;
             SpawnNewViews();
+            ProgressChanged?.Invoke(_defeatedCount, _monsterCount);
         }
 
         // 보스 등장 연출처럼 화면을 보여 주는 동안 재생을 멈춘다. 시뮬레이션 결과는 바뀌지 않는다.
@@ -94,7 +102,7 @@ namespace Blacksmith.Battle
         {
             for (int i = 0; i < _views.Count; i++)
             {
-                _previousPositions[i] = _views[i].Unit.Position;
+                _previousPositions[i] = new Vector2Int(_views[i].Unit.X, _views[i].Unit.Z);
             }
 
             IReadOnlyList<BattleEvent> events = _simulation.Step();
@@ -120,10 +128,10 @@ namespace Blacksmith.Battle
             for (int i = _views.Count; i < units.Count; i++)
             {
                 BattleUnit unit = units[i];
-                BattleUnitView view = Instantiate(_getPrefab(unit), ToWorld(unit.Position, unit.Lane), GetSpawnRotation(unit), _unitRoot);
+                BattleUnitView view = Instantiate(_getPrefab(unit), _toWorld(unit.X, unit.Z), Quaternion.identity, _unitRoot);
                 view.Bind(unit, _camera.transform.rotation);
                 _views.Add(view);
-                _previousPositions.Add(unit.Position);
+                _previousPositions.Add(new Vector2Int(unit.X, unit.Z));
                 UnitSpawned?.Invoke(view);
             }
         }
@@ -133,9 +141,11 @@ namespace Blacksmith.Battle
             switch (battleEvent.Type)
             {
                 case BattleEventType.BasicAttack:
+                    Face(_views[battleEvent.SourceUnitId], _views[battleEvent.TargetUnitId].transform.position);
                     _views[battleEvent.SourceUnitId].PlayAttack();
                     break;
                 case BattleEventType.SkillCast:
+                    Face(_views[battleEvent.SourceUnitId], _views[battleEvent.TargetUnitId].transform.position);
                     _views[battleEvent.SourceUnitId].PlaySkill();
                     break;
                 case BattleEventType.Damaged:
@@ -150,19 +160,25 @@ namespace Blacksmith.Battle
                     _views[battleEvent.TargetUnitId].PlayFall();
                     _views[battleEvent.TargetUnitId].RefreshHp();
                     UnitFell?.Invoke(_views[battleEvent.TargetUnitId]);
+                    if (_views[battleEvent.TargetUnitId].Unit.Team == BattleTeam.Monster)
+                    {
+                        _defeatedCount++;
+                        ProgressChanged?.Invoke(_defeatedCount, _monsterCount);
+                    }
+
                     break;
                 case BattleEventType.Enraged:
                     _views[battleEvent.SourceUnitId].PlayEnrage();
                     UnitEnraged?.Invoke(_views[battleEvent.SourceUnitId]);
                     break;
-                case BattleEventType.WaveStarted:
+                case BattleEventType.GroupEngaged:
                     HideFallenUnits();
-                    WaveStarted?.Invoke(battleEvent.Amount, _waveCount);
+                    GroupEngaged?.Invoke(battleEvent.Amount);
                     break;
             }
         }
 
-        // 쓰러진 유닛은 그 웨이브가 끝날 때까지 쓰러진 채로 보이고, 다음 웨이브에는 나오지 않는다.
+        // 쓰러진 유닛은 다음 무리와 싸우기 전까지 쓰러진 채로 보인다.
         private void HideFallenUnits()
         {
             foreach (BattleUnitView view in _views)
@@ -180,7 +196,11 @@ namespace Blacksmith.Battle
             {
                 if (_views[i].Unit.IsAlive)
                 {
-                    _views[i].SetMoving(!IsHolding && _views[i].Unit.Position != _previousPositions[i]);
+                    BattleUnit unit = _views[i].Unit;
+                    Vector2Int previous = _previousPositions[i];
+                    float moved = Vector3.Distance(_toWorld(unit.X, unit.Z), _toWorld(previous.x, previous.y));
+                    float worldSpeed = moved / _tickDuration * _playbackSpeed;
+                    _views[i].SetMoving(!IsHolding && moved > 0f, worldSpeed);
                 }
             }
         }
@@ -190,28 +210,25 @@ namespace Blacksmith.Battle
             for (int i = 0; i < _views.Count; i++)
             {
                 BattleUnit unit = _views[i].Unit;
-                float position = Mathf.Lerp(_previousPositions[i], unit.Position, alpha);
-                _views[i].transform.position = ToWorld(position, unit.Lane);
+                Vector2 position = Vector2.Lerp(_previousPositions[i], new Vector2(unit.X, unit.Z), alpha);
+                Vector3 world = _toWorld(position.x, position.y);
+                if (unit.IsAlive)
+                {
+                    Face(_views[i], world + (world - _views[i].transform.position));
+                }
+
+                _views[i].transform.position = world;
             }
         }
 
-        // 인간형 모델의 정면은 +Z라, 모험가는 진행 방향(위치가 늘어나는 _pathStep 쪽)을 보게 돌려 생성한다.
-        // 몬스터 프리팹은 지금 방향 그대로 둔다.
-        private Quaternion GetSpawnRotation(BattleUnit unit)
+        // 인간형 모델의 정면은 +Z라 모험가를 바라볼 곳으로 돌린다. 몬스터 프리팹은 지금 방향 그대로 둔다.
+        private static void Face(BattleUnitView view, Vector3 point)
         {
-            Vector3 forward = Vector3.ProjectOnPlane(_pathStep, Vector3.up);
-            if (unit.Team != BattleTeam.Adventurer || forward.sqrMagnitude < Mathf.Epsilon)
+            Vector3 forward = Vector3.ProjectOnPlane(point - view.transform.position, Vector3.up);
+            if (view.Unit.Team == BattleTeam.Adventurer && forward.sqrMagnitude > 0.0001f)
             {
-                return Quaternion.identity;
+                view.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
             }
-
-            return Quaternion.LookRotation(forward, Vector3.up);
-        }
-
-        // BattleUnit.Lane은 반 칸 단위라 절반을 곱한다.
-        private Vector3 ToWorld(float position, int lane)
-        {
-            return _pathOrigin.position + _pathStep * position + _laneStep * (lane * 0.5f);
         }
 
         private void Clear()

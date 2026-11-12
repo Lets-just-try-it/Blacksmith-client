@@ -129,22 +129,22 @@ namespace Blacksmith.Tests
                     MaxTicks = 20000,
                     MarchSpeed = 10,
                     FormationSpacing = 100,
-                    WaveSpawnDistance = 1000,
+                    LaneSpacing = 160,
                     DamageVariancePercent = 10,
                     DeathChancePercent = 10,
                 },
             };
             setup.Adventurers.Add(AdventurerSetupRules.Create(adventurer, JobStats, Skill));
-            var stage = new WaveSetup();
-            stage.Monsters.Add(new MonsterSetup
+            setup.Map = BattleTestMaps.Open();
+            setup.Groups.Add(BattleTestMaps.Group(false, 20.5f, new MonsterSetup
             {
                 MonsterId = 1,
                 Stats = new UnitStats { MaxHp = 150, Attack = 15, Defense = 2, AttackRange = 100, AttackIntervalTicks = 25, MoveSpeed = 12 },
-            });
-            setup.Waves.Add(stage);
+                SightRange = 1200,
+            }));
 
             BattleResult result = new BattleSimulation(setup).RunToEnd();
-            return $"{result.IsVictory}/{result.WavesCleared}/{result.EndTick}/{result.Adventurers[0].DamageDealt}";
+            return $"{result.IsVictory}/{result.GroupsCleared}/{result.EndTick}/{result.Adventurers[0].DamageDealt}";
         }
     }
 }

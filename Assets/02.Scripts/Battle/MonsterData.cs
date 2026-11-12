@@ -16,6 +16,8 @@ namespace Blacksmith.Battle
         [SerializeField] private List<SkillData> _skills = new List<SkillData>();
         [Tooltip("체력이 HpPercent% 이하로 처음 떨어지면 한 번 강해진다. HpPercent가 0이면 분노하지 않는다.")]
         [SerializeField] private EnrageData _enrage;
+        [Tooltip("[추정] 무리의 시야 거리(1칸 = 100). 모험가가 이 거리 안에 들어오면 무리 전체가 다가온다. 무리에서 가장 긴 값을 쓴다")]
+        [SerializeField, Min(0)] private int _sightRange = 1200;
         [SerializeField] private BattleUnitView _viewPrefab;
 
         public int MonsterId => _monsterId;
@@ -33,6 +35,7 @@ namespace Blacksmith.Battle
                 Skills = _skills.ToArray(),
                 Enrage = _enrage,
                 SpawnOffset = spawnOffset,
+                SightRange = _sightRange,
             };
         }
     }

@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Blacksmith.Battle
 {
-    // 지금 싸우는 웨이브를 "웨이브 2/3"처럼 보여 준다.
-    public class BattleWaveLabel : MonoBehaviour
+    // 토벌 진행도를 "토벌 3/8"처럼 보여 준다 (docs/GAME_CONCEPT.md 7.1).
+    public class BattleProgressLabel : MonoBehaviour
     {
         [SerializeField] private BattlePlayer _player;
         [SerializeField] private TMP_Text _text;
@@ -16,17 +16,17 @@ namespace Blacksmith.Battle
 
         private void OnEnable()
         {
-            _player.WaveStarted += HandleWaveStarted;
+            _player.ProgressChanged += HandleProgressChanged;
         }
 
         private void OnDisable()
         {
-            _player.WaveStarted -= HandleWaveStarted;
+            _player.ProgressChanged -= HandleProgressChanged;
         }
 
-        private void HandleWaveStarted(int wave, int waveCount)
+        private void HandleProgressChanged(int defeated, int total)
         {
-            _text.text = $"웨이브 {wave + 1}/{waveCount}";
+            _text.text = $"토벌 {defeated}/{total}";
         }
     }
 }

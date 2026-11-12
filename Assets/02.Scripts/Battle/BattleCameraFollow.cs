@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Blacksmith.Battle
 {
-    // 스테이지마다 앞으로 전진하는 모험가 파티의 중심을 따라간다. 분노는 보스만 하므로 분노할 때 화면을 흔든다.
+    // 맵을 걷는 모험가 파티의 중심을 따라간다. 전투가 시작되면 파티 위치로 바로 옮긴다. 분노는 보스만 하므로 분노할 때 화면을 흔든다.
     public class BattleCameraFollow : MonoBehaviour
     {
         [SerializeField] private BattlePlayer _player;
@@ -15,6 +15,7 @@ namespace Blacksmith.Battle
         private Vector3 _velocity;
         private Vector3 _followPosition;
         private float _shakeRemaining;
+        private bool _hasTarget;
 
         private void Awake()
         {
@@ -33,7 +34,15 @@ namespace Blacksmith.Battle
 
         private void LateUpdate()
         {
-            if (TryGetPartyCenter(out Vector3 center))
+            bool hasTarget = TryGetPartyCenter(out Vector3 center);
+            if (hasTarget && !_hasTarget)
+            {
+                _followPosition = center + _offset;
+                _velocity = Vector3.zero;
+            }
+
+            _hasTarget = hasTarget;
+            if (hasTarget)
             {
                 _followPosition = Vector3.SmoothDamp(_followPosition, center + _offset, ref _velocity, _smoothTime);
             }

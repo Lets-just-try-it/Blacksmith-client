@@ -11,6 +11,7 @@ namespace Blacksmith.Battle
         private static readonly int HitHash = Animator.StringToHash("Hit");
         private static readonly int FallHash = Animator.StringToHash("Fall");
         private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
+        private static readonly int SpeedHash = Animator.StringToHash("Speed");
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
         [SerializeField] private Animator _animator;
@@ -31,11 +32,15 @@ namespace Blacksmith.Battle
         [Tooltip("잡몹만 쓴다. 비워 두면 체력바를 표시하지 않는다.")]
         [SerializeField] private BattleUnitHpBar _hpBar;
 
+        // 애니메이터에 Speed가 있으면(인간형) 속도로 대기·걷기·달리기를 섞고, 없으면 IsMoving으로 이동 동작을 켠다.
+        private bool _hasSpeed;
+
         public BattleUnit Unit { get; private set; }
 
         public void Bind(BattleUnit unit, Quaternion cameraRotation)
         {
             Unit = unit;
+            _hasSpeed = _animator != null && HasParameter(_animator, SpeedHash);
             if (_hpBar != null)
             {
                 _hpBar.FaceCamera(cameraRotation);
@@ -51,12 +56,35 @@ namespace Blacksmith.Battle
             }
         }
 
-        public void SetMoving(bool isMoving)
+        // worldSpeed는 화면에서 움직이는 속도(m/초)다. 인간형은 이 값으로 걷기·달리기를 고른다.
+        public void SetMoving(bool isMoving, float worldSpeed = 0f)
         {
-            if (_animator != null)
+            if (_animator == null)
+            {
+                return;
+            }
+
+            if (_hasSpeed)
+            {
+                _animator.SetFloat(SpeedHash, isMoving ? worldSpeed : 0f);
+            }
+            else
             {
                 _animator.SetBool(IsMovingHash, isMoving);
             }
+        }
+
+        private static bool HasParameter(Animator animator, int hash)
+        {
+            foreach (AnimatorControllerParameter parameter in animator.parameters)
+            {
+                if (parameter.nameHash == hash)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void PlayAttack()

@@ -17,7 +17,7 @@ namespace Blacksmith.Battle
         [SerializeField] private BattleChannel _channel;
         [SerializeField] private BattleState _battleState;
         [SerializeField] private BattlePlayer _player;
-        [Tooltip("전투마다 시드로 스테이지 맵 바닥을 만든다")]
+        [Tooltip("전투 설정의 스테이지 맵에 바닥을 깔고, 전투 좌표를 월드 좌표로 바꾼다")]
         [SerializeField] private StageMapView _stageMap;
         [SerializeField] private BattleHud _hud;
         [SerializeField] private BattleBossHpBar _bossHpBar;
@@ -47,6 +47,7 @@ namespace Blacksmith.Battle
             _battleState.Started += PlayBattle;
             _battleState.ResultConfirmed += PassResult;
             _player.UnitSpawned += HandleUnitSpawned;
+            _player.GroupEngaged += HandleGroupEngaged;
             _player.Finished += HandleFinished;
             _resultView.ContinueClicked += HandleContinueClicked;
         }
@@ -57,6 +58,7 @@ namespace Blacksmith.Battle
             _battleState.Started -= PlayBattle;
             _battleState.ResultConfirmed -= PassResult;
             _player.UnitSpawned -= HandleUnitSpawned;
+            _player.GroupEngaged -= HandleGroupEngaged;
             _player.Finished -= HandleFinished;
             _resultView.ContinueClicked -= HandleContinueClicked;
         }
@@ -98,15 +100,9 @@ namespace Blacksmith.Battle
             StopAllCoroutines();
             BattleResult result = new BattleSimulation(_battleState.CurrentSetup).RunToEnd();
             _rewards = _battleState.CalculateRewards(result);
-            _lootDrops.Prepare(_battleState.CurrentSetup, _rewards);
-            if (_stageMap != null)
-            {
-                DungeonData dungeon = _battleState.CurrentDungeon;
-                _stageMap.Build(_battleState.CurrentSetup.Seed, dungeon.StageMap, dungeon.GetMobGroupCount(_battleState.Stage),
-                    dungeon.IsBossStage(_battleState.Stage));
-            }
-
-            _player.Play(_battleState.CurrentSetup, _rules.TicksPerSecond, GetPrefab);
+            _lootDrops.Prepare(_battleState.CurrentSetup, _rewards, result);
+            _stageMap.Build(_battleState.CurrentSetup.Map, _battleState.CurrentDungeon.StageMap);
+            _player.Play(_battleState.CurrentSetup, _rules.TicksPerSecond, GetPrefab, _stageMap.ToWorld);
         }
 
         private BattleUnitView GetPrefab(BattleUnit unit)
@@ -120,13 +116,6 @@ namespace Blacksmith.Battle
         {
             if (view.Unit.Team != BattleTeam.Adventurer)
             {
-                MonsterData monster = _battleState.CurrentDungeon.FindMonster(view.Unit.SourceId);
-                if (monster.IsBoss)
-                {
-                    _bossHpBar.Show(view.Unit, monster.DisplayName);
-                    _bossIntro.Play(monster.DisplayName);
-                }
-
                 return;
             }
 
@@ -136,6 +125,26 @@ namespace Blacksmith.Battle
             if (view.TryGetComponent(out AdventurerLook look))
             {
                 look.Show(adventurer, _itemCatalog);
+            }
+        }
+
+        // 보스는 잡몹 무리를 모두 토벌한 뒤 보스 자리에 나타나고, 파티가 다가가 보스가 움직이기 시작할 때 등장 연출을 보여 준다.
+        private void HandleGroupEngaged(int groupIndex)
+        {
+            if (!_battleState.CurrentSetup.Groups[groupIndex].IsBoss)
+            {
+                return;
+            }
+
+            foreach (BattleUnitView view in _player.Views)
+            {
+                if (view.Unit.Team == BattleTeam.Monster && view.Unit.GroupIndex == groupIndex)
+                {
+                    MonsterData monster = _battleState.CurrentDungeon.FindMonster(view.Unit.SourceId);
+                    _bossHpBar.Show(view.Unit, monster.DisplayName);
+                    _bossIntro.Play(monster.DisplayName);
+                    return;
+                }
             }
         }
 
@@ -149,7 +158,7 @@ namespace Blacksmith.Battle
             yield return new WaitForSeconds(_resultDelay);
             _resultView.Show(result, _rewards, _battleState.CurrentDungeon.DisplayName,
                 DungeonMapLabels.GetStageName(_battleState.CurrentDungeon, _battleState.Stage),
-                _battleState.CurrentSetup.Waves.Count, id => _channel.FindAdventurer(id)?.Name ?? id.ToString(),
+                _battleState.CurrentSetup.Groups.Count, id => _channel.FindAdventurer(id)?.Name ?? id.ToString(),
                 GetItemName, _battleState.HasStateAuthority);
         }
 
@@ -167,7 +176,7 @@ namespace Blacksmith.Battle
 
         private void PassResult(BattleResult result, BattleRewards rewards)
         {
-            Debug.Log($"전투 결과 반영: {(result.IsVictory ? "승리" : "패배")}, 웨이브 {result.WavesCleared}개, 골드 {rewards.Gold}");
+            Debug.Log($"전투 결과 반영: {(result.IsVictory ? "승리" : "패배")}, 무리 {result.GroupsCleared}개, 골드 {rewards.Gold}");
             _channel.ConfirmResult(new BattleOutcome { DungeonId = _battleState.DungeonId, Stage = _battleState.Stage, Result = result, Rewards = rewards });
         }
     }
