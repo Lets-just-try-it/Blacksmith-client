@@ -187,6 +187,7 @@ MonoBehaviour:
   _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
   _battleState: {fileID: 795122207}
   _player: {fileID: 96188544}
+  _stageMap: {fileID: 103957487}
   _hud: {fileID: 1600078454}
   _bossHpBar: {fileID: 122689906}
   _bossIntro: {fileID: 1405440781}
@@ -197,6 +198,51 @@ MonoBehaviour:
   _adventurerGeneration: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
   _itemCatalog: {fileID: 11400000, guid: 3d2a0086023e1c546b12a3cb2047b43e, type: 2}
   _resultDelay: 1.5
+--- !u!1 &103957486
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 103957488}
+  - component: {fileID: 103957487}
+  m_Layer: 0
+  m_Name: StageMap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &103957487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 103957486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eebd0ae8d26490c4f8ead381342da03d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.StageMapView
+  _defaultData: {fileID: 11400000, guid: 974f2ba4d8d9fdf46b5909624db75135, type: 2}
+--- !u!4 &103957488
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 103957486}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1000, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &122689904
 GameObject:
   m_ObjectHideFlags: 0
@@ -308,7 +354,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &402678476
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2823,3 +2869,4 @@ SceneRoots:
   - {fileID: 2142154687}
   - {fileID: 795122209}
   - {fileID: 1023184480}
+  - {fileID: 103957488}

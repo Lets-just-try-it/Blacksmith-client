@@ -76,3 +76,4 @@ MonoBehaviour:
     - {fileID: 11400000, guid: a87e5bdb8cdfb044eb88ad9eb106311a, type: 2}
     IsBoss: 1
     Boss: {fileID: 11400000, guid: 29f9c18c23e4a3b4bbe879fc250c0085, type: 2}
+  _stageMap: {fileID: 11400000, guid: 974f2ba4d8d9fdf46b5909624db75135, type: 2}
