@@ -36,12 +36,12 @@ namespace Blacksmith.Battle
         // rewards.Adventurers는 result.Adventurers와 같은 순서다.
         // 다음으로 넘어가는 것은 호스트만 할 수 있어 canContinue가 false면 버튼을 숨긴다.
         public void Show(BattleResult result, BattleRewards rewards, string dungeonName, string stageName, int groupCount,
-            Func<int, string> getAdventurerName, Func<int, string> getItemName, bool canContinue)
+            Func<int, string> getAdventurerName, bool canContinue)
         {
             _continueButton.gameObject.SetActive(canContinue);
             ClearRows();
             _titleText.text = result.IsVictory ? "승리" : "패배";
-            _stageText.text = $"{dungeonName} {stageName} · 무리 {result.GroupsCleared}/{groupCount} 토벌\n{FormatRewards(rewards, getItemName)}";
+            _stageText.text = $"{dungeonName} {stageName} · 무리 {result.GroupsCleared}/{groupCount} 토벌\n{FormatRewards(rewards)}";
 
             for (int i = 0; i < result.Adventurers.Count; i++)
             {
@@ -59,8 +59,8 @@ namespace Blacksmith.Battle
             _panel.SetActive(false);
         }
 
-        // 장신구 효과로 늘어난 값은 괄호로 따로 보여 준다.
-        private static string FormatRewards(BattleRewards rewards, Func<int, string> getItemName)
+        // 장신구 효과로 늘어난 값은 괄호로 따로 보여 준다. 재료는 전투 보상이 아니라 다음 날 채집으로 얻는다.
+        private static string FormatRewards(BattleRewards rewards)
         {
             var text = new StringBuilder($"보상: 골드 {rewards.Gold}");
             if (rewards.GoldBonus > 0)
@@ -68,30 +68,7 @@ namespace Blacksmith.Battle
                 text.Append($"(토파즈 +{rewards.GoldBonus})");
             }
 
-            foreach (MaterialReward material in rewards.Materials)
-            {
-                text.Append($", {getItemName(material.MaterialId)} ×{material.Count}");
-                int bonus = FindCount(rewards.BonusMaterials, material.MaterialId);
-                if (bonus > 0)
-                {
-                    text.Append($"(에메랄드 +{bonus})");
-                }
-            }
-
             return text.ToString();
-        }
-
-        private static int FindCount(IReadOnlyList<MaterialReward> materials, int materialId)
-        {
-            foreach (MaterialReward material in materials)
-            {
-                if (material.MaterialId == materialId)
-                {
-                    return material.Count;
-                }
-            }
-
-            return 0;
         }
 
         private void HandleContinueClicked()

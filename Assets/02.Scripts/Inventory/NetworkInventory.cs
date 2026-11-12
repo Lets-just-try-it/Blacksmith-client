@@ -95,6 +95,47 @@ namespace Blacksmith.Inventory
             return true;
         }
 
+        // 여러 물건이 함께 다 들어갈 자리가 있는지. 격자에 넣어 보고 되돌린다.
+        public bool CanAddAll(IReadOnlyList<ItemStack> items)
+        {
+            LoadGrid();
+            bool canAdd = AddAllToGrid(items);
+            LoadGrid();
+            return canAdd;
+        }
+
+        // 호스트 전용. 하나라도 들어가지 않으면 아무것도 넣지 않는다.
+        public bool TryAddAll(IReadOnlyList<ItemStack> items)
+        {
+            if (!HasStateAuthority)
+            {
+                return false;
+            }
+
+            LoadGrid();
+            if (!AddAllToGrid(items))
+            {
+                LoadGrid();
+                return false;
+            }
+
+            SaveGrid();
+            return true;
+        }
+
+        private bool AddAllToGrid(IReadOnlyList<ItemStack> items)
+        {
+            foreach (ItemStack item in items)
+            {
+                if (!item.IsEmpty && !_grid.TryAdd(item))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         // 호스트 전용.
         public bool TryRemove(int slot, int count, out ItemStack removed)
         {

@@ -189,7 +189,6 @@ MonoBehaviour:
   _bossHpBar: {fileID: 122689906}
   _bossIntro: {fileID: 1405440781}
   _resultView: {fileID: 1841884511}
-  _lootDrops: {fileID: 1023184479}
   _corpses: {fileID: 1221348041}
   _rules: {fileID: 11400000, guid: 73dc434290e55f544a6b3c50e71a7a38, type: 2}
   _adventurerBattle: {fileID: 11400000, guid: b708d40e053c196478bf13506299259f, type: 2}
@@ -225,6 +224,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eebd0ae8d26490c4f8ead381342da03d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.StageMapView
+  _addColliders: 0
+  _wallHeight: 3
 --- !u!4 &103957488
 Transform:
   m_ObjectHideFlags: 0
@@ -788,6 +789,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 695dc67ae2be88e4bba73c41d02e3981, type: 2}
   _adventurerBattle: {fileID: 11400000, guid: b708d40e053c196478bf13506299259f, type: 2}
   _adventurerLevel: {fileID: 11400000, guid: 1c84aa393b703ec4585dab0f30ee4dc3, type: 2}
+  _Seed: 0
   _DungeonId: 0
   _Stage: 0
 --- !u!114 &795122208
@@ -1034,59 +1036,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 990992323}
   m_CullTransparentMesh: 1
---- !u!1 &1023184478
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1023184480}
-  - component: {fileID: 1023184479}
-  m_Layer: 0
-  m_Name: LootDrops
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1023184479
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1023184478}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb8e53b6fd69c404a8c4a39210adee99, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleLootDrops
-  _player: {fileID: 96188544}
-  _catalog: {fileID: 11400000, guid: 3d2a0086023e1c546b12a3cb2047b43e, type: 2}
-  _dropPrefab: {fileID: 1992192406307815490, guid: 0e6bdf232f9f4a447b8a17ff33589a54, type: 3}
-  _dropRoot: {fileID: 2092884274}
-  _camera: {fileID: 979634402}
-  _forwardDistance: 1.3
-  _spacing: 0.7
-  _perRow: 4
---- !u!4 &1023184480
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1023184478}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2092884274}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1061513744
 GameObject:
   m_ObjectHideFlags: 0
@@ -2767,37 +2716,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2077831047}
   m_CullTransparentMesh: 1
---- !u!1 &2092884273
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2092884274}
-  m_Layer: 0
-  m_Name: DropRoot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2092884274
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2092884273}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1023184480}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2142154683
 GameObject:
   m_ObjectHideFlags: 0
@@ -2914,6 +2832,5 @@ SceneRoots:
   - {fileID: 979634403}
   - {fileID: 2142154687}
   - {fileID: 795122209}
-  - {fileID: 1023184480}
   - {fileID: 103957488}
   - {fileID: 1221348042}

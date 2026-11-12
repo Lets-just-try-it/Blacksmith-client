@@ -28,13 +28,15 @@ namespace Blacksmith.Battle
 
         [SerializeField] private int _dungeonId;
         [SerializeField] private string _displayName;
-        [Tooltip("[추정] 잡몹 한 마리를 쓰러뜨려 받는 보상. 그 무리를 토벌해야 받는다")]
+        [Tooltip("[추정] 잡몹 한 마리를 쓰러뜨려 받는 보상(골드·경험치)과 다음 날 그 시체를 갈무리해 얻는 부산물·보석 확률")]
         [SerializeField] private MonsterReward _mobReward = new MonsterReward();
-        [Tooltip("[추정] 보스를 쓰러뜨려 받는 보상")]
+        [Tooltip("[추정] 보스를 쓰러뜨려 받는 보상과 갈무리 확률")]
         [SerializeField] private MonsterReward _bossReward = new MonsterReward();
         [Tooltip("[추정] 한 무리 안에서 몬스터끼리 앞뒤로 벌어지는 거리")]
         [SerializeField, Min(0)] private int _monsterSpacing = 150;
         [SerializeField] private List<StageEntry> _stages = new List<StageEntry>();
+        [Tooltip("다음 날 채집 맵의 광맥과 바닥에서 나오는 광석의 아이템 번호 (docs/GAME_CONCEPT.md 7.2)")]
+        [SerializeField] private int _oreItemId;
         [Tooltip("이 던전의 스테이지 맵 생성 수치와 바닥")]
         [SerializeField] private StageMapData _stageMap;
 
@@ -42,6 +44,7 @@ namespace Blacksmith.Battle
         public string DisplayName => _displayName;
         public StageMapData StageMap => _stageMap;
         public int StageCount => _stages.Count;
+        public int OreItemId => _oreItemId;
 
         public bool IsBossStage(int stage)
         {

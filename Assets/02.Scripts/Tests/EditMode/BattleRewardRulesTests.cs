@@ -19,20 +19,15 @@ namespace Blacksmith.Tests
         {
             return new List<GroupReward>
             {
-                Group(new MonsterReward { Gold = 100, Experience = 40, Materials = { Material(1, 1) } }),
+                Group(new MonsterReward { Gold = 100, Experience = 40, ChanceDrops = { Drop(1, 100, 1) } }),
                 Group(new MonsterReward { Gold = 75, Experience = 30 }, new MonsterReward { Gold = 75, Experience = 30 }),
-                Group(new MonsterReward { Gold = 300, Experience = 120, Materials = { Material(1, 2), Material(2, 1) } }),
+                Group(new MonsterReward { Gold = 300, Experience = 120 }),
             };
         }
 
         private static GroupReward Group(params MonsterReward[] monsters)
         {
             return new GroupReward(monsters);
-        }
-
-        private static MaterialReward Material(int id, int count)
-        {
-            return new MaterialReward { MaterialId = id, Count = count };
         }
 
         private static Dictionary<int, AdventurerData> Party()
@@ -101,14 +96,11 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Victory_GivesAllGroupGoldAndMergedMaterials()
+        public void Victory_GivesAllGroupGold()
         {
             BattleRewards rewards = Calculate(Result(true, 3, Adventurer(1, 3), Adventurer(2, 3)));
 
             Assert.AreEqual(550, rewards.Gold);
-            Assert.AreEqual(2, rewards.Materials.Count);
-            Assert.AreEqual(Material(1, 3), rewards.Materials[0]);
-            Assert.AreEqual(Material(2, 1), rewards.Materials[1]);
         }
 
         [Test]
@@ -117,8 +109,6 @@ namespace Blacksmith.Tests
             BattleRewards rewards = Calculate(Result(false, 1, Adventurer(1, 1, true), Adventurer(2, 0, true)));
 
             Assert.AreEqual(100, rewards.Gold);
-            Assert.AreEqual(1, rewards.Materials.Count);
-            Assert.AreEqual(Material(1, 1), rewards.Materials[0]);
         }
 
         [Test]
@@ -174,23 +164,6 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void MaterialAccessory_BoostsOreButNotGems()
-        {
-            var groups = new List<GroupReward>
-            {
-                Group(new MonsterReward { Materials = { Material(13, 10) }, GemDrops = { Drop(3, 100, 18) } }),
-            };
-            Dictionary<int, AdventurerData> party = Party();
-            BattleRewards rewards = BattleRewardRules.Calculate(Setup(Effect(AccessoryEffectKind.MaterialBonus, 2), default),
-                groups, Result(true, 1, Adventurer(1, 1), Adventurer(2, 1)), id => party[id], LevelRules);
-
-            Assert.AreEqual(11, CountOf(rewards.Materials, 13));
-            Assert.AreEqual(1, CountOf(rewards.BonusMaterials, 13));
-            Assert.AreEqual(3, CountOf(rewards.Materials, 18));
-            Assert.AreEqual(0, CountOf(rewards.BonusMaterials, 18));
-        }
-
-        [Test]
         public void ExperienceAccessory_BoostsOnlyWearer()
         {
             BattleRewards rewards = Calculate(Result(true, 3, Adventurer(1, 3), Adventurer(2, 3)),
@@ -199,17 +172,6 @@ namespace Blacksmith.Tests
             Assert.AreEqual(220 + 33, rewards.Adventurers[0].ExperienceGained);
             Assert.AreEqual(33, rewards.Adventurers[0].ExperienceBonus);
             Assert.AreEqual(220, rewards.Adventurers[1].ExperienceGained);
-        }
-
-        [Test]
-        public void Defeat_KeepsLootOfClearedGroupsOnly()
-        {
-            BattleRewards rewards = Calculate(Result(false, 1, Adventurer(1, 1, true), Adventurer(2, 1, true)));
-
-            Assert.AreEqual(3, rewards.GroupLoots.Count);
-            Assert.AreEqual(1, rewards.GroupLoots[0].Monsters.Count);
-            Assert.AreEqual(0, rewards.GroupLoots[1].Monsters.Count);
-            Assert.AreEqual(0, rewards.GroupLoots[2].Monsters.Count);
         }
 
         [Test]
@@ -223,7 +185,6 @@ namespace Blacksmith.Tests
             Assert.AreEqual(400, rewards.Gold);
             Assert.AreEqual(160, rewards.Adventurers[0].ExperienceGained);
             Assert.AreEqual(120, rewards.Adventurers[1].ExperienceGained);
-            Assert.AreEqual(0, rewards.GroupLoots[1].Monsters.Count);
         }
 
         [Test]
@@ -242,12 +203,19 @@ namespace Blacksmith.Tests
         {
             var monster = new MonsterReward { ChanceDrops = { Drop(1, 100, 15) } };
             var groups = new List<GroupReward> { Group(monster, monster), Group(monster, monster, monster) };
-            Dictionary<int, AdventurerData> party = Party();
 
-            BattleRewards rewards = BattleRewardRules.Calculate(Setup(default, default), groups,
-                Result(true, 2, Adventurer(1, 2), Adventurer(2, 2)), id => party[id], LevelRules);
+            IReadOnlyList<GroupLoot> loots = BattleDropRules.Roll(groups, 5);
 
-            Assert.AreEqual(5, CountOf(rewards.Materials, 15));
+            int total = 0;
+            foreach (GroupLoot group in loots)
+            {
+                foreach (MonsterLoot loot in group.Monsters)
+                {
+                    total += CountOf(loot.Materials, 15);
+                }
+            }
+
+            Assert.AreEqual(5, total);
         }
 
         [Test]

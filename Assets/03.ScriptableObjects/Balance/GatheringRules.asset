@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892e9367c28d87042bd98202b8bd2be7, type: 3}
+  m_Name: GatheringRules
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.GatheringRulesData
+  _oreVeins: 6
+  _trees: 5
+  _looseOre: 6
+  _looseWood: 6
+  _minSpacing: 6
+  _startClearance: 8
+  _wallMargin: 2
+  _woodItemId: 54
+  _oreVeinMin: 3
+  _oreVeinMax: 5
+  _treeMin: 2
+  _treeMax: 4
+  _looseOreMin: 1
+  _looseOreMax: 1
+  _looseWoodMin: 1
+  _looseWoodMax: 2
+  _corpsePileSeconds: 3
+  _oreVeinSeconds: 3
+  _treeSeconds: 3
+  _looseSeconds: 0.5

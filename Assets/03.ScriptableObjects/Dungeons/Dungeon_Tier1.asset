@@ -17,9 +17,6 @@ MonoBehaviour:
   _mobReward:
     Gold: 35
     Experience: 20
-    Materials:
-    - MaterialId: 13
-      Count: 1
     ChanceDrops:
     - Rolls: 1
       ChancePercent: 35
@@ -37,9 +34,6 @@ MonoBehaviour:
   _bossReward:
     Gold: 400
     Experience: 200
-    Materials:
-    - MaterialId: 13
-      Count: 10
     ChanceDrops:
     - Rolls: 2
       ChancePercent: 50
@@ -56,24 +50,25 @@ MonoBehaviour:
       MaterialIds: 12000000130000001400000015000000
   _monsterSpacing: 150
   _stages:
-  - WaveMonsterCounts: 0100000002000000
+  - GroupMonsterCounts: 0100000002000000
     MobPool:
     - {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
     - {fileID: 11400000, guid: b3175517a493bc447ade8ab00ed6e68e, type: 2}
     IsBoss: 0
     Boss: {fileID: 0}
-  - WaveMonsterCounts: 020000000300000003000000
+  - GroupMonsterCounts: 020000000300000003000000
     MobPool:
     - {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
     - {fileID: 11400000, guid: b3175517a493bc447ade8ab00ed6e68e, type: 2}
     - {fileID: 11400000, guid: a87e5bdb8cdfb044eb88ad9eb106311a, type: 2}
     IsBoss: 0
     Boss: {fileID: 0}
-  - WaveMonsterCounts: 0200000003000000
+  - GroupMonsterCounts: 0200000003000000
     MobPool:
     - {fileID: 11400000, guid: 638e5d9e85b6c184c99090543f8165b0, type: 2}
     - {fileID: 11400000, guid: b3175517a493bc447ade8ab00ed6e68e, type: 2}
     - {fileID: 11400000, guid: a87e5bdb8cdfb044eb88ad9eb106311a, type: 2}
     IsBoss: 1
     Boss: {fileID: 11400000, guid: 29f9c18c23e4a3b4bbe879fc250c0085, type: 2}
+  _oreItemId: 13
   _stageMap: {fileID: 11400000, guid: 974f2ba4d8d9fdf46b5909624db75135, type: 2}

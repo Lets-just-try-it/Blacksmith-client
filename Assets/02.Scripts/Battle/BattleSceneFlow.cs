@@ -23,7 +23,6 @@ namespace Blacksmith.Battle
         [SerializeField] private BattleBossHpBar _bossHpBar;
         [SerializeField] private BattleBossIntro _bossIntro;
         [SerializeField] private BattleResultView _resultView;
-        [SerializeField] private BattleLootDrops _lootDrops;
         [SerializeField] private BattleCorpses _corpses;
         [SerializeField] private BattleRulesData _rules;
         [SerializeField] private AdventurerBattleData _adventurerBattle;
@@ -101,7 +100,6 @@ namespace Blacksmith.Battle
             StopAllCoroutines();
             BattleResult result = new BattleSimulation(_battleState.CurrentSetup).RunToEnd();
             _rewards = _battleState.CalculateRewards(result);
-            _lootDrops.Prepare(_battleState.CurrentSetup, _rewards, result);
             _corpses.Prepare(result, _battleState.CurrentDungeon.FindMonster, _stageMap.ToWorld);
             _stageMap.Build(_battleState.CurrentSetup.Map, _battleState.CurrentDungeon.StageMap);
             _player.Play(_battleState.CurrentSetup, _rules.TicksPerSecond, GetPrefab, _stageMap.ToWorld);
@@ -161,13 +159,7 @@ namespace Blacksmith.Battle
             _resultView.Show(result, _rewards, _battleState.CurrentDungeon.DisplayName,
                 DungeonMapLabels.GetStageName(_battleState.CurrentDungeon, _battleState.Stage),
                 _battleState.CurrentSetup.Groups.Count, id => _channel.FindAdventurer(id)?.Name ?? id.ToString(),
-                GetItemName, _battleState.HasStateAuthority);
-        }
-
-        private string GetItemName(int itemId)
-        {
-            ItemData item = _itemCatalog.Find(itemId);
-            return item != null ? item.DisplayName : $"#{itemId}";
+                _battleState.HasStateAuthority);
         }
 
         // 호스트에서만 눌린다.

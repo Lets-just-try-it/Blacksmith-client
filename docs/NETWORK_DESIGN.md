@@ -82,10 +82,11 @@
 3. 호스트는 다음 틱의 `FixedUpdateNetwork`에서 `NetworkCharacterController.Teleport`로 옮기고 속도를 0으로 만든 뒤, `[Networked] TravelCount`를 1 늘린다. 속도를 남기면 도착한 뒤 미끄러져 반대편 포털에 다시 닿는다.
 4. 요청한 클라이언트는 `TravelCount`가 바뀐 것을 `ChangeDetector`로 받으면 잠금을 풀고 화면을 밝힌다. 카메라(`ForgeTestCameraFollow`)는 대상이 일정 거리 이상 떨어지면 따라가지 않고 바로 옮긴다.
 
-- 호스트가 옮기는 경우(다음 날을 시작하며 모든 플레이어를 대장간으로 모을 때)는 `PlayerAreaTravel.TravelByHost`로 3단계만 한다. 전투 결과를 반영한 뒤에는 전투 씬 전환 페이드가, 파견을 건너뛸 때는 파견 창이 화면을 가리고 있어 따로 어둡게 하지 않는다.
+- 호스트가 옮기는 경우(파견해 전투 씬이 낮 화면을 덮을 때와 다음 날을 시작할 때 모든 플레이어를 대장간으로 모은다)는 `PlayerAreaTravel.TravelByHost`로 3단계만 한다. 전투 결과를 반영한 뒤에는 전투 씬 전환 페이드가 화면을 가리고 있어 따로 어둡게 하지 않는다. 파견을 건너뛸 때는 호스트가 `DispatchState.IsSkipping`과 `TickTimer`를 켜고, 각 참가자의 `DispatchSkipFade`가 이를 보고 화면을 어둡게 한다. 타이머가 끝나면 호스트가 옮기고 다음 날을 시작하며, 참가자는 잠시 뒤 밝힌다.
 - 광장의 던전 문(`Battle/DungeonGate`)도 같은 방법으로 채집 맵(x = 2000)에 보낸다. 채집할 곳(`GatheringSiteState.HasSite`)이 없으면 옮기지 않고 안내만 띄운다. 채집 맵 바닥은 각 참가자가 같은 시드로 만들어 따로 동기화하지 않는다.
   - 메모리를 아끼려고 들어갈 때 만든다. 들어가는 본인은 `Travel`의 `onScreenDark`(화면이 다 어두워진 뒤, 이동 요청 직전)에서 만든다. 호스트는 다른 플레이어의 캐릭터도 물리로 움직이므로, 그 플레이어가 문 트리거에 닿으면 이동 요청이 오기 전에 만든다.
   - 채집할 맵이 바뀌면(다음 날) 지난 맵은 참가자마다 맵 영역 안에 플레이어가 없을 때 버린다. 파견을 건너뛴 날처럼 안에 남은 플레이어가 있으면 바닥이 꺼지지 않게 나올 때까지 둔다.
+- 채집 맵의 채집할 것(시체 더미, 광맥 등)은 자리와 채집량을 시드와 시체 자리로 참가자마다 만들고, 상태(캐는 중·다 캠)만 호스트 소유 `GatheringNodesState`에 둔다. 클라이언트는 `GatheringPlayerActions.RpcRequestGather`로 요청하고, 호스트는 맵 시드, 낮 여부, 먼저 캐는 사람, 개인 인벤토리 자리를 확인한 뒤 `TickTimer`로 끝나면 재료를 넣는다. 거절은 요청자에게만 RPC로 알린다.
 - 도착 지점은 반대편 포털의 트리거 바깥에 캐릭터 반지름 이상 떨어뜨려 둔다.
 - 화면 페이드는 씬마다 하나 두는 `ScreenFader`(`UI/`, 프리팹 `04.Prefabs/UI/ScreenFader`)가 하고, Player 프리팹이나 Additive 씬처럼 인스펙터로 참조할 수 없는 쪽도 Runtime 에셋 `ScreenFadeChannel`로 요청한다. 페이더가 없는 테스트 씬에서는 요청이 바로 끝난다.
 - 로비에서 세션을 시작하면 화면을 어둡게 한 채 `Game` 씬으로 넘어가고, `Game`의 페이더는 검은 화면으로 시작해 내 플레이어가 스폰되면(`NetworkPlayer.Spawned`) 밝아진다.

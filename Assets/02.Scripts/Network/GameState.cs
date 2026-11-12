@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Blacksmith.Core;
 using Fusion;
 using UnityEngine;
@@ -12,8 +13,8 @@ namespace Blacksmith.Network
     {
         [SerializeField] private DayCycleData _dayCycle;
 
-        // 진행 중인 작업(미니게임)이 있는지. 대장간이 등록한다. 등록하지 않으면 없는 것으로 본다.
-        private Func<bool> _isWorkInProgress;
+        // 진행 중인 작업(미니게임, 채집)이 있는지 알려 주는 곳들. 대장간과 채집이 등록한다. 하나라도 true면 진행 중이다.
+        private readonly List<Func<bool>> _workInProgressSources = new List<Func<bool>>();
         private ChangeDetector _changes;
 
         [Networked] public int Day { get; private set; }
@@ -50,9 +51,17 @@ namespace Blacksmith.Network
             IsReady && Phase == DayPhase.Day ? _dayCycle.DaySeconds - RemainingDaySeconds : _dayCycle.DaySeconds,
             _dayCycle.DaySeconds, _dayCycle.OpenHour, _dayCycle.CloseHour);
 
-        public void SetWorkInProgressSource(Func<bool> isWorkInProgress)
+        public void AddWorkInProgressSource(Func<bool> isWorkInProgress)
         {
-            _isWorkInProgress = isWorkInProgress;
+            if (!_workInProgressSources.Contains(isWorkInProgress))
+            {
+                _workInProgressSources.Add(isWorkInProgress);
+            }
+        }
+
+        public void RemoveWorkInProgressSource(Func<bool> isWorkInProgress)
+        {
+            _workInProgressSources.Remove(isWorkInProgress);
         }
 
         public override void Spawned()
@@ -74,8 +83,7 @@ namespace Blacksmith.Network
                 return;
             }
 
-            bool isWorkInProgress = _isWorkInProgress != null && _isWorkInProgress();
-            DayPhase next = DayCycleRules.Next(Phase, PhaseTimer.ExpiredOrNotRunning(Runner), isWorkInProgress);
+            DayPhase next = DayCycleRules.Next(Phase, PhaseTimer.ExpiredOrNotRunning(Runner), IsAnyWorkInProgress());
             if (next == Phase)
             {
                 return;
@@ -135,6 +143,19 @@ namespace Blacksmith.Network
             {
                 PhaseTimer = TickTimer.CreateFromSeconds(Runner, 0f);
             }
+        }
+
+        private bool IsAnyWorkInProgress()
+        {
+            foreach (Func<bool> source in _workInProgressSources)
+            {
+                if (source())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void BeginDay(int day)

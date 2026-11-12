@@ -20,11 +20,9 @@ namespace Blacksmith.Core.Battle
         public int Gold;
         // 이 몬스터의 무리를 쓰러지지 않고 토벌한 모험가가 받는다.
         public int Experience;
-        // 반드시 받는 재료(광석)
-        public List<MaterialReward> Materials = new List<MaterialReward>();
-        // 확률로 받는 부재료. 광석과 함께 에메랄드 효과를 받는다
+        // 다음 날 이 몬스터의 시체를 갈무리해 확률로 얻는 부산물(가죽, 힘줄, 마석 등). 전투 보상이 아니다 (docs/GAME_CONCEPT.md 7.4)
         public List<ChanceDrop> ChanceDrops = new List<ChanceDrop>();
-        // 확률로 받는 보석. 에메랄드 효과를 받지 않는다
+        // 다음 날 시체를 갈무리해 확률로 얻는 보석
         public List<ChanceDrop> GemDrops = new List<ChanceDrop>();
     }
 
@@ -94,69 +92,33 @@ namespace Blacksmith.Core.Battle
         // 토파즈 효과를 더한 값이다.
         public int Gold { get; }
         public int GoldBonus { get; }
-        // 토벌한 무리의 재료와 에메랄드 효과로 늘어난 재료를 모두 합친 값이다.
-        public IReadOnlyList<MaterialReward> Materials { get; }
-        public IReadOnlyList<MaterialReward> BonusMaterials { get; }
-        // 무리마다(BattleSetup.Groups 순서) 몬스터별로 나온 재료다. 토벌하지 못한 무리는 몬스터가 비어 있다. 전투 화면의 드랍 연출이 쓴다.
-        public IReadOnlyList<GroupLoot> GroupLoots { get; }
         public IReadOnlyList<AdventurerReward> Adventurers { get; }
 
-        public BattleRewards(int gold, int goldBonus, IReadOnlyList<MaterialReward> materials,
-            IReadOnlyList<MaterialReward> bonusMaterials, IReadOnlyList<GroupLoot> groupLoots,
-            IReadOnlyList<AdventurerReward> adventurers)
+        public BattleRewards(int gold, int goldBonus, IReadOnlyList<AdventurerReward> adventurers)
         {
             Gold = gold;
             GoldBonus = goldBonus;
-            Materials = materials;
-            BonusMaterials = bonusMaterials;
-            GroupLoots = groupLoots;
             Adventurers = adventurers;
         }
     }
 
     // 전투 결과로 보상과 경험치를 정한다. 호스트가 계산한 값을 게임 상태에 반영한다. (docs/GAME_CONCEPT.md 7.1)
+    // 보상은 골드와 경험치뿐이다. 재료는 다음 날 채집으로 얻는다(GatheringYieldRules).
     public static class BattleRewardRules
     {
-        // groups는 이번 전투의 무리 보상을 BattleSetup.Groups 순서로 담는다. setup은 그 전투의 설정이다(시드, 장신구 효과).
+        // groups는 이번 전투의 무리 보상을 BattleSetup.Groups 순서로 담는다. setup은 그 전투의 설정이다(장신구 효과).
         // 패배해도 토벌한 무리의 보상을 주고, 경험치는 모험가마다 쓰러지기 전까지 토벌한 무리만큼 준다.
-        // 장신구 효과: 토파즈·에메랄드는 파티 합산으로 늘리고, 사파이어는 입은 모험가 본인 경험치만 늘린다. 늘어난 수가 소수면 올림한다.
+        // 장신구 효과: 토파즈는 파티 합산으로 골드를 늘리고, 사파이어는 입은 모험가 본인 경험치만 늘린다. 늘어난 수가 소수면 올림한다.
         public static BattleRewards Calculate(BattleSetup setup, IReadOnlyList<GroupReward> groups, BattleResult result,
             Func<int, AdventurerData> findAdventurer, AdventurerLevelRules levelRules)
         {
-            IReadOnlyList<GroupLoot> allLoots = BattleDropRules.Roll(groups, setup.Seed);
-            var groupLoots = new GroupLoot[groups.Count];
-            for (int i = 0; i < groupLoots.Length; i++)
-            {
-                groupLoots[i] = new GroupLoot(Array.Empty<MonsterLoot>());
-            }
-
             int baseGold = 0;
-            var boostable = new List<MaterialReward>();
-            var gems = new List<MaterialReward>();
             foreach (int group in result.ClearedGroups)
             {
                 baseGold += groups[group].Gold;
-                foreach (MonsterLoot loot in allLoots[group].Monsters)
-                {
-                    MaterialMath.AddAll(boostable, loot.Materials);
-                    MaterialMath.AddAll(gems, loot.Gems);
-                }
-
-                groupLoots[group] = allLoots[group];
             }
 
             int goldBonus = Bonus(baseGold, SumPartyPercent(setup, AccessoryEffectKind.GoldBonus));
-            int materialPercent = SumPartyPercent(setup, AccessoryEffectKind.MaterialBonus);
-            var bonusMaterials = new List<MaterialReward>();
-            foreach (MaterialReward material in boostable)
-            {
-                MaterialMath.Add(bonusMaterials, material.MaterialId, Bonus(material.Count, materialPercent));
-            }
-
-            var materials = new List<MaterialReward>();
-            MaterialMath.AddAll(materials, boostable);
-            MaterialMath.AddAll(materials, bonusMaterials);
-            MaterialMath.AddAll(materials, gems);
 
             var adventurers = new List<AdventurerReward>(result.Adventurers.Count);
             foreach (AdventurerBattleResult adventurerResult in result.Adventurers)
@@ -172,7 +134,7 @@ namespace Blacksmith.Core.Battle
                 adventurers.Add(new AdventurerReward(adventurer.AdventurerId, gained, experienceBonus, adventurer.Level, progress));
             }
 
-            return new BattleRewards(baseGold + goldBonus, goldBonus, materials, bonusMaterials, groupLoots, adventurers);
+            return new BattleRewards(baseGold + goldBonus, goldBonus, adventurers);
         }
 
         // amount의 percent%를 올림한 값이다.
