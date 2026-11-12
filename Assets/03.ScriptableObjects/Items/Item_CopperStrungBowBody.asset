@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbcfb2dd476991a4587f9773886dd2fe, type: 3}
+  m_Name: Item_CopperStrungBowBody
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Inventory.ItemData
+  _itemId: 62
+  _displayName: "\uC2DC\uC704\uB97C \uAC74 \uAD6C\uB9AC \uD65C \uBAB8\uCCB4"
+  _icon: {fileID: 0}
+  _color: {r: 0.72, g: 0.45, b: 0.2, a: 1}
+  _kind: 1
+  _tier: 1
+  _equipmentSlot: 0
+  _weaponType: 0
+  _statBonus:
+    MaxHp: 0
+    Attack: 0
+    Defense: 0
+  _wornPart: 
+  _accessoryEffect: 0

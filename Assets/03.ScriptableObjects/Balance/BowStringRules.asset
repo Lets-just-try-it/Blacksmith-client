@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e16d725e42ff0a4c91e73387fbb7f7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.BowStringRulesData
+  _introTime: 1
+  _endDelay: 1
+  _minRadius: 0.8
+  _centerFollow: 1.2
+  _flexPerCell: 0.3
+  _slidePerCell: 0.11
+  _slipRate: 0.5
+  _wrapWeight: 0.6
+  _successScore: 0.6
+  _difficulties:
+  - Wraps: 3
+    SpeedLo: 3.5
+    SpeedHi: 9
+    SlipSpeed: 14
+    TimeLimit: 50
+    WindowWidth: 0.22
+    WindowDrift: 0.06
+    ParTime: 6
+  - Wraps: 4
+    SpeedLo: 4
+    SpeedHi: 8
+    SlipSpeed: 13
+    TimeLimit: 50
+    WindowWidth: 0.17
+    WindowDrift: 0.1
+    ParTime: 5
+  - Wraps: 5
+    SpeedLo: 4.5
+    SpeedHi: 7.5
+    SlipSpeed: 12
+    TimeLimit: 50
+    WindowWidth: 0.13
+    WindowDrift: 0.14
+    ParTime: 4.5

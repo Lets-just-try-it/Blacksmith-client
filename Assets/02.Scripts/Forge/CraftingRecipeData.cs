@@ -92,7 +92,8 @@ namespace Blacksmith.Forge
                     Debug.LogWarning($"단계 {i}: 마지막 단계의 결과물만 장비여야 한다.", this);
                 }
 
-                if (i > 0 && _steps[i - 1].Output != step.Input)
+                // 재료(참나무 목재 등)로 새로 시작하는 단계는 앞 단계와 이어지지 않아도 된다. 중간 형태를 받는 단계만 앞 단계의 결과물이어야 한다.
+                if (i > 0 && step.Input.Kind == ItemKind.Intermediate && _steps[i - 1].Output != step.Input)
                 {
                     Debug.LogWarning($"단계 {i}: 받는 물건이 앞 단계의 결과물과 달라 이어지지 않는다.", this);
                 }

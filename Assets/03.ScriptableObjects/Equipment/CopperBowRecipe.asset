@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e59036c743440542a8abed1fbc6a3f4, type: 3}
+  m_Name: CopperBowRecipe
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.CraftingRecipeData
+  _displayName: "\uAD6C\uB9AC \uD65C"
+  _steps:
+  - Station: 0
+    Input: {fileID: 11400000, guid: 06a4ba720df9b634080e6cd430474cfd, type: 2}
+    InputCount: 1
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: a6b9c544fb1db6e43b6673b369be3f84, type: 2}
+    Variant: 0
+  - Station: 11
+    Input: {fileID: 11400000, guid: a6b9c544fb1db6e43b6673b369be3f84, type: 2}
+    InputCount: 4
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: 0f04ebd183f2cd649aa298d1bb7a2314, type: 2}
+    Variant: 0
+  - Station: 9
+    Input: {fileID: 11400000, guid: 0f04ebd183f2cd649aa298d1bb7a2314, type: 2}
+    InputCount: 1
+    ExtraInputs:
+    - Item: {fileID: 11400000, guid: 246a4ebd0a0bf244a9018bf560b507b7, type: 2}
+      Count: 1
+    Output: {fileID: 11400000, guid: 430f32cd6b5cc2c4e96961a533eb01cc, type: 2}
+    Variant: 0
+  - Station: 12
+    Input: {fileID: 11400000, guid: 430f32cd6b5cc2c4e96961a533eb01cc, type: 2}
+    InputCount: 1
+    ExtraInputs:
+    - Item: {fileID: 11400000, guid: 6274ad8b83a23cb43bc75c821100b304, type: 2}
+      Count: 2
+    Output: {fileID: 11400000, guid: 9296f7d55be9ed34386c77ddac78fd36, type: 2}
+    Variant: 0
+  - Station: 7
+    Input: {fileID: 11400000, guid: 9296f7d55be9ed34386c77ddac78fd36, type: 2}
+    InputCount: 1
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: 6830b0e411edae841ab0c5e9acdf1a54, type: 2}
+    Variant: 0

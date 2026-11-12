@@ -475,6 +475,18 @@ namespace Blacksmith.Forge
                     return "조립";
                 case CraftingStationKind.Jewelry:
                     return "장신구";
+                case CraftingStationKind.BowShooting:
+                    return "시험 사격";
+                case CraftingStationKind.StaffSetting:
+                    return "마석 박기";
+                case CraftingStationKind.BowCarving:
+                    return "활 깎기";
+                case CraftingStationKind.BowFitting:
+                    return "보강쇠 달기";
+                case CraftingStationKind.BowBending:
+                    return "활 몸체 휘기";
+                case CraftingStationKind.BowStringing:
+                    return "시위 걸기";
                 default:
                     return kind.ToString();
             }
