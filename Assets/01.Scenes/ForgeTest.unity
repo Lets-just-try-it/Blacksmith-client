@@ -1184,6 +1184,7 @@ MonoBehaviour:
   _inventory: {fileID: 2082279646}
   _supplyItem: {fileID: 11400000, guid: 06a4ba720df9b634080e6cd430474cfd, type: 2}
   _supplyCount: 10
+  _extraSupplies: []
   _roster: {fileID: 944958973}
   _generation: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
 --- !u!114 &513847051
@@ -1201,6 +1202,7 @@ MonoBehaviour:
   _runnerPrefab: {fileID: 5914704923920884787, guid: 1756fbad4667fa54fbde43a22aa3621a, type: 3}
   _gameScenePath: Assets/01.Scenes/ForgeTest.unity
   _maxPlayers: 4
+  _offlineForDevelopment: 0
 --- !u!4 &513847052
 Transform:
   m_ObjectHideFlags: 0
@@ -1869,6 +1871,22 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 5290818758922786037, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: Flags
+      value: 262146
+      objectReference: {fileID: 0}
+    - target: {fileID: 5290818758922786037, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: SortKey
+      value: 823988692
+      objectReference: {fileID: 0}
+    - target: {fileID: 5290818758922786037, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5290818758922786037, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+      propertyPath: 'NetworkedBehaviours.Array.data[0]'
+      value: 
+      objectReference: {fileID: 670489813}
     - target: {fileID: 5340857596336528873, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
       propertyPath: m_TextStyleHashCode
       value: -1183493901
@@ -2286,6 +2304,17 @@ Canvas:
   m_CorrespondingSourceObject: {fileID: 2399225789225044935, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
   m_PrefabInstance: {fileID: 622512718}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &670489813 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7518024317909450893, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
+  m_PrefabInstance: {fileID: 622512718}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd2339fff04b13e4d8cad87facce2137, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.ForgeStationState
 --- !u!114 &869659258 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1266059807550820297, guid: d4a9d3e1291c4d7499b879723e6835d3, type: 3}
