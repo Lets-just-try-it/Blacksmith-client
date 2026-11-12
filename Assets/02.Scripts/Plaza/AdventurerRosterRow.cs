@@ -17,14 +17,12 @@ namespace Blacksmith.Plaza
 
         public void Show(AdventurerData adventurer, string jobName, Sprite portrait)
         {
-            AdventurerStats stats = AdventurerStatRules.GetCurrentStats(adventurer);
-            AdventurerStats growth = adventurer.GrowthStats;
             HumanoidAppearance appearance = adventurer.Appearance;
 
             _portrait.enabled = true;
             _portrait.sprite = portrait;
             _nameText.text = $"{adventurer.Name}  {jobName} Lv.{adventurer.Level}";
-            _statsText.text = $"체력 {stats.MaxHp} (+{growth.MaxHp})   공격 {stats.Attack} (+{growth.Attack})   방어 {stats.Defense} (+{growth.Defense})";
+            _statsText.text = AdventurerLabels.FormatStats(adventurer, "   ");
             // 프리셋 번호는 0부터 세지만 화면에는 1부터 보여 준다.
             _detailText.text =
                 $"헤어 {appearance.HairStyle + 1} · 눈 {appearance.EyeStyle + 1} · 입 {appearance.MouthStyle + 1} · " +
