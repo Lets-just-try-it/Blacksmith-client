@@ -41,6 +41,7 @@ namespace Blacksmith.Network
                 return;
             }
 
+            Runner.SetPlayerObject(player, null);
             Runner.Despawn(playerObject);
         }
 
@@ -73,6 +74,8 @@ namespace Blacksmith.Network
             Transform spawnPoint = _spawnPoints[_players.Count % _spawnPoints.Length];
             NetworkObject playerObject = Runner.Spawn(_playerPrefab, spawnPoint.position, spawnPoint.rotation, player);
             _players.Add(player, playerObject);
+            // 다른 영역이 PlayerRef만으로 플레이어 오브젝트를 찾을 수 있게 한다(Runner.TryGetPlayerObject, 호스트에서 유효).
+            Runner.SetPlayerObject(player, playerObject);
         }
     }
 }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3760912580620947924}
   - component: {fileID: 8244110144371639291}
   - component: {fileID: 8892665978331172127}
+  - component: {fileID: 4795541079580575544}
   m_Layer: 0
   m_Name: NameLabel
   m_TagString: Untagged
@@ -181,6 +182,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 8244110144371639291}
   m_maskType: 0
+--- !u!114 &4795541079580575544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1861821464395336283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e6159f79af44c3479694c7fceec75a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Utils.KeepWorldRotation
 --- !u!1 &3297426559148965951
 GameObject:
   m_ObjectHideFlags: 0
@@ -196,6 +209,7 @@ GameObject:
   - component: {fileID: 6397728602422628048}
   - component: {fileID: 8815979172946617305}
   - component: {fileID: 4021064285779168718}
+  - component: {fileID: 5382058124905252649}
   m_Layer: 0
   m_Name: RecruitCandidate
   m_TagString: Untagged
@@ -266,6 +280,7 @@ MonoBehaviour:
   - {fileID: 6397728602422628048}
   - {fileID: 1290614939215284808}
   - {fileID: 8815979172946617305}
+  - {fileID: 5382058124905252649}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &1290614939215284808
 MonoBehaviour:
@@ -284,6 +299,7 @@ MonoBehaviour:
   _seat: {fileID: 8815979172946617305}
   _look: {fileID: 4021064285779168718}
   _catalog: {fileID: 11400000, guid: 3d2a0086023e1c546b12a3cb2047b43e, type: 2}
+  _statsChannel: {fileID: 11400000, guid: 9b53bf6cd260b7f4caae53c667c4c2c6, type: 2}
 --- !u!114 &6397728602422628048
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,6 +372,24 @@ MonoBehaviour:
   _view: {fileID: 4491157987964679972}
   _armorBox: {fileID: 0}
   _accessoryBox: {fileID: 0}
+--- !u!114 &5382058124905252649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3297426559148965951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d664347093aa3964eaf3713c4d53c162, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Plaza.CandidateWander
+  _seat: {fileID: 8815979172946617305}
+  _radius: 1
+  _walkSpeed: 0.7
+  _turnSpeed: 240
+  _idleSeconds: {x: 2, y: 5}
+  _minStep: 0.4
 --- !u!1 &4417830548946922931
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,6 +401,7 @@ GameObject:
   - component: {fileID: 8126649867738679949}
   - component: {fileID: 3695654290760863248}
   - component: {fileID: 8088140651411307513}
+  - component: {fileID: 8603483321981755985}
   m_Layer: 0
   m_Name: TalkPrompt
   m_TagString: Untagged
@@ -537,6 +572,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 3695654290760863248}
   m_maskType: 0
+--- !u!114 &8603483321981755985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4417830548946922931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e6159f79af44c3479694c7fceec75a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Utils.KeepWorldRotation
 --- !u!1 &6313059908937835304
 GameObject:
   m_ObjectHideFlags: 0
@@ -548,6 +595,7 @@ GameObject:
   - component: {fileID: 7300734278935815965}
   - component: {fileID: 8908375519032816297}
   - component: {fileID: 8060029329988714321}
+  - component: {fileID: 3379680342957442046}
   m_Layer: 0
   m_Name: BusyMark
   m_TagString: Untagged
@@ -718,6 +766,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 8908375519032816297}
   m_maskType: 0
+--- !u!114 &3379680342957442046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6313059908937835304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e6159f79af44c3479694c7fceec75a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Utils.KeepWorldRotation
 --- !u!1001 &6946181480376538415
 PrefabInstance:
   m_ObjectHideFlags: 0

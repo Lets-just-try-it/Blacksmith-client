@@ -61,6 +61,9 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 - 규칙 `Core/Adventurers`: `AdventurerData`, `AdventurerGenerator`(후보 1~4명), `AdventurerStatRules`, 레벨 `AdventurerLevelRules`(필요 경험치 데이터 `Battle/AdventurerLevelData`).
 - `Plaza/`: 관리 목록 `AdventurerRosterState`(최대 8), `PlazaRecruitment`, `RecruitCandidate`(대화에서 "영입하기"로 영입).
+- 매일 교체: `PlazaRecruitment`가 `GameState.PhaseChanged`로 날짜가 바뀐 낮에 남은 후보를 디스폰하고 새로 뽑는다. `GameState`가 없는 `PlazaTest`에서는 스폰 때 한 번만 뽑는다.
+- 배회: `CandidateWander`(호스트가 움직이고 `NetworkTransform`이 복제)가 스폰 자리 반경 1m를 걷다 멈춘다. 말을 걸면 멈춰 플레이어를 바라본다. 플레이어도 대화 중 상대 쪽으로 돈다(`DialoguePlayerActions`). 후보가 플레이어를 찾도록 `PlayerSpawner`가 `Runner.SetPlayerObject`로 등록한다. 이름표 등은 `Utils/KeepWorldRotation`으로 방향을 유지한다.
+- 능력치 창: 영입 대화 중 말을 건 플레이어 화면 왼쪽에 뜬다(`RecruitCandidate` → `RecruitStatsChannel` → `RecruitStatsPanel`, 프리팹 `04.Prefabs/UI/Plaza/RecruitStatsUI`를 `Game`·`PlazaTest`에 배치). 문구는 관리 목록과 같은 `AdventurerLabels.FormatStats`.
 - 초상화는 임시 이미지다(`AdventurerPortraitProvider`).
 
 ### 인간형 캐릭터 (구현)
@@ -99,6 +102,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 - 실제 마우스 조작: 제작 목록 끌어다 놓기, 장신구 미니게임, 장비 착용 창, 파견 창·지도 버튼.
 - 두 명 접속: 작업대 사용권 거절, 인벤토리·장비 착용, 파견 창·지도(참가자 보기 전용), 낮·밤 전환, `Game` 씬 전체 흐름. (Host 이동, 영입, 대화, 전투 재생은 두 명으로 확인했다.)
+- 광장 후보: 두 명 접속에서 클라이언트 화면의 배회·방향, 클라이언트 플레이어가 대화 상대 쪽으로 도는 것, 클라이언트의 능력치 창. 실제 결과창으로 다음 날을 넘겼을 때의 후보 교체(스크립트로만 넘겨 봄).
 - 실제 미니게임 도중 낮이 끝나는 경우.
 - 보스 등장 연출, 바닥 드랍, 토벌 진행도의 플레이 모드 화면(무리 이동·교전은 `BattleTest`로 확인함). 두 명 접속에서 무리 전투가 같게 재생되는지.
 - 스테이지 맵: 두 명 접속에서 같은 맵이 나오는지, 전투 카메라로 본 맵 가장자리.
@@ -111,7 +115,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 2. 역할별 남은 기능
    - 대장간: 조립·활 몸체 휘기·활 깎기·시위 걸기·시험 사격 작업대 직접 확인(미니게임 끝까지, 장비 완성), 단조·담금질을 최신 프로토타입과 대조, 장신구에 다른 보석 섞는 규칙(처음 넣은 보석이 효과), 미스릴 장비 아이템, 대장간 업그레이드와 해금, 실제 효과음.
    - 전투: 시체 아트, 교전 중 유닛끼리 겹침, 몬스터 아트와 수치, 보스 등장 때 카메라, 장비별 이펙트, 티어별 장비 능력치, 전투 도중 들어온 참가자 재생 맞추기, 부상·사망과 부서진 목걸이를 관리 목록에 반영, 사망 시 장비 제거, 공용 창고가 가득 찼을 때 보상 처리.
-   - 광장: 낮이 시작될 때 후보 다시 뽑기(기획 6.1 [미정]), 부상·사망 반영 API, 초상화([고도화]).
+   - 광장: 부상·사망 반영 API, 초상화([고도화]).
    - 인간형 모델: 손에 든 물건을 `ItemSocket_Hold`에 얹기, 미니게임별 작업 동작, 갑옷·장신구 모델, 걷기·공격·쓰러짐 화면 확인.
    - 인벤토리: 재접속한 플레이어의 슬롯 이어 주기, 손에 든 물건 모델·아이콘, 투구·갑옷·장신구 벗기기 기능 제거(교체만), 슬롯이 가득 찼을 때 제작 결과 처리, 파견 뒤 장비 반환.
    - 대화: 튜토리얼·클리어 컷씬에서 `SharedDialogue` 사용, 명성 등 조건 값, `Game` 씬 배치 확인.

@@ -10,6 +10,8 @@ namespace Blacksmith.Dialogue
     {
         [SerializeField] private DialogueChannel _channel;
         [SerializeField, Min(0f)] private float _interactRadius = 1.5f;
+        [Tooltip("대화하는 동안 대화 상대 쪽으로 도는 속도(도/s)")]
+        [SerializeField, Min(1f)] private float _faceTurnSpeed = 540f;
 
         private readonly Collider[] _hits = new Collider[16];
         private DialogueSeat _promptedSeat;
@@ -53,6 +55,12 @@ namespace Blacksmith.Dialogue
                 DialogueTarget = default;
             }
 
+            // 호스트와 예측하는 클라이언트가 같은 틱에 같은 회전을 계산한다. 대화 중에는 입력이 잠겨 이동이 몸을 돌리지 않는다.
+            if (IsTalking && Runner.TryFindObject(DialogueTarget, out NetworkObject target))
+            {
+                FaceTowards(target.transform.position);
+            }
+
             if (!GetInput(out PlayerNetworkInput input))
             {
                 return;
@@ -84,6 +92,20 @@ namespace Blacksmith.Dialogue
             DialogueSeat nearest = IsTalking || _channel.IsOpen ? null : FindNearestSeat();
             ShowPromptOn(nearest != null && !nearest.IsBusy ? nearest : null);
             SyncSeatDialogue();
+        }
+
+        // 대화가 끝나도 되돌리지 않는다. 대화할 때 보던 방향이 그대로 남는다.
+        private void FaceTowards(Vector3 position)
+        {
+            Vector3 direction = position - transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude < 0.0001f)
+            {
+                return;
+            }
+
+            Quaternion facing = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, facing, _faceTurnSpeed * Runner.DeltaTime);
         }
 
         // 함께 보는 대화를 이 PC에서 다 읽었을 때 SharedDialogue가 부른다.
