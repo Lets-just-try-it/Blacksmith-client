@@ -50,13 +50,13 @@ MonoBehaviour:
       MaterialIds: 12000000130000001400000015000000
   _monsterSpacing: 150
   _stages:
-  - GroupMonsterCounts: 020000000300000003000000
+  - GroupMonsterCounts: 02000000020000000300000003000000
     MobPool:
     - {fileID: 11400000, guid: 29bb8bb99433a6549acd6103f531efa2, type: 2}
     - {fileID: 11400000, guid: 649f1b774a39ae049a646e7f1714e584, type: 2}
     IsBoss: 0
     Boss: {fileID: 0}
-  - GroupMonsterCounts: 03000000030000000400000004000000
+  - GroupMonsterCounts: 0300000003000000030000000400000004000000
     MobPool:
     - {fileID: 11400000, guid: 471b2a2b1b1fa9d4eb32fb4eee1facc9, type: 2}
     - {fileID: 11400000, guid: 29bb8bb99433a6549acd6103f531efa2, type: 2}
@@ -64,7 +64,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 3f874b70188f8774395a9e0f02752622, type: 2}
     IsBoss: 0
     Boss: {fileID: 0}
-  - GroupMonsterCounts: 030000000300000004000000
+  - GroupMonsterCounts: 03000000030000000400000004000000
     MobPool:
     - {fileID: 11400000, guid: 471b2a2b1b1fa9d4eb32fb4eee1facc9, type: 2}
     - {fileID: 11400000, guid: 29bb8bb99433a6549acd6103f531efa2, type: 2}

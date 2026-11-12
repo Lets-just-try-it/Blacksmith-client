@@ -51,7 +51,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 데이터: `DungeonData`(`Dungeon_Tier1`, `Dungeon_Tier2`만 있음), `03.ScriptableObjects/Monsters`, `AdventurerBattle`(직업별 전투 수치·스킬 표).
 - 흐름: 던전 지도 `DungeonMapView` → 파견 창 `DispatchView`/`DispatchState` → `BattleSceneLoader`가 `Battle` 씬 Additive 로드 → `BattleSceneFlow` 재생, `BattleState` 동기화 → 결과창 확인 → `DungeonProgressState` 반영, `BattleRewardApplier`(`Game` 씬만)가 골드·경험치 반영. 전투 보상에 재료는 없다(다음 날 채집). 전투 중 낮 화면은 `DaySceneBattleCover`가 끈다.
 - 지도는 씬마다 `DispatchUI`의 `DungeonMap`에 `_state`·`_progress`를 연결해야 켜진다. `DispatchTest`와 `Game`에 연결했다.
-- 스테이지 맵: `Core/Battle/StageMapGenerator`가 전투 시드로 타원 덩어리를 이어 붙인 넓은 맵을 만들고, `StageMapValidator`가 한 덩어리·구멍 없음·최소 폭을 확인한다. `Battle` 씬의 `StageMap`(`StageMapView`)이 시작 지점을 원점에 두고 바닥 메시를 깐다. 수치와 바닥 머티리얼(던전마다 하나)은 `StageMap_Tier1`·`StageMap_Tier2`(던전 데이터가 참조), 바닥은 `ThirdParty/FloorTiles01`이다. `Core/Battle/StageLayoutGenerator`가 같은 시드로 몬스터 무리·보스 스폰 지점을 정한다. 맵과 스폰 지점은 `DungeonData.AddGroupsTo`가 `BattleSetup`에 넣는다.
+- 스테이지 맵: `Core/Battle/StageMapGenerator`가 전투 시드로 타원 덩어리를 이어 붙인 넓은 맵을 만들고, `StageMapValidator`가 한 덩어리·구멍 없음·최소 폭을 확인한다. `Battle` 씬의 `StageMap`(`StageMapView`)이 시작 지점을 원점에 두고 바닥 메시를 깐다. 수치와 바닥 머티리얼(던전마다 하나)은 `StageMap_Tier1`·`StageMap_Tier2`(던전 데이터가 참조, 단계가 오를수록 맵과 무리 수가 커짐), 바닥은 `ThirdParty/FloorTiles01`이다. `Core/Battle/StageLayoutGenerator`가 같은 시드로 몬스터 무리·보스 스폰 지점을 정한다. 맵과 스폰 지점은 `DungeonData.AddGroupsTo`가 `BattleSetup`에 넣는다.
 - 전투: 잡몹 무리는 처음부터 스폰 지점에 서 있고, 모험가는 처음에만 대열로 서고, 그 뒤로는 남은 무리 중 걸어서 가장 가까운 무리로 각자 격자 경로를 따라 걸으며 서로 비켜 선다(NavMesh 안 씀, 걷는 속도는 `BattleRules`의 `_marchSpeed`, 원거리가 앞서면 `_lineUpSpeedPercent`만큼 속도를 바꿔 근접이 앞에 서게 함). 인간형 유닛은 화면 이동 속도를 애니메이터 `Speed`에 넣어 대기·걷기·달리기 블렌드를 쓴다(`BattleUnitView`). 모험가가 무리 시야(`MonsterData` 시야 거리)에 들면 무리가 다가와 싸운다. 잡몹 무리를 모두 토벌하면 보스가 보스 자리에 나타난다. 결과는 토벌 순서(`BattleResult.ClearedGroups`)로 보상·경험치를 계산한다. 화면에 토벌 진행도(`BattleProgressLabel`)를 보여 준다.
 - 시체: 몬스터가 쓰러지면 잠시 뒤 그 자리의 시체(`BattleCorpses`, 그레이박스 `04.Prefabs/Characters/Monsters/MonsterCorpse`, 몬스터 데이터의 시체 프리팹이 있으면 그것)로 바뀌어 남는다. 같은 무리 시체끼리 겹치면 옆으로 비켜 놓아 시체 무리로 보인다. 자리는 `BattleResult.Corpses`에 남는다.
 - 채집할 맵: 낮 씬 `DispatchSession`의 `GatheringSiteState`(호스트 소유)가 이긴 전투의 던전·스테이지·시드·시체 자리를 담고, 다음 밤에 파견하지 않거나 져서 결과를 반영하면 비운다. 맵은 `DungeonData.GenerateMap(seed)`로 다시 만든다. `Game`·`DispatchTest`·`ForgeTest`에 연결했다.
@@ -106,7 +106,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 광장 후보: 두 명 접속에서 클라이언트 화면의 배회·방향, 클라이언트 플레이어가 대화 상대 쪽으로 도는 것, 클라이언트의 능력치 창. 실제 결과창으로 다음 날을 넘겼을 때의 후보 교체(스크립트로만 넘겨 봄).
 - 실제 미니게임 도중 낮이 끝나는 경우.
 - 보스 등장 연출, 토벌 진행도의 플레이 모드 화면(무리 이동·교전은 `BattleTest`로 확인함). 두 명 접속에서 무리 전투가 같게 재생되는지.
-- 스테이지 맵: 두 명 접속에서 같은 맵이 나오는지, 전투 카메라로 본 맵 가장자리.
+- 스테이지 맵: 두 명 접속에서 같은 맵이 나오는지, 전투 카메라로 본 맵 가장자리. 줄인 맵 크기와 늘린 2단계 무리 수의 플레이 모드 확인(1단계 1스테이지 1명 클리어, 2단계 난이도, 1단계 채집 맵의 자원 밀도).
 - 채집할 맵(`GatheringSiteState`): 플레이 모드에서 승리·패배·파견 건너뛰기 뒤 값이 바뀌는지, 참가자에게 같은 값이 보이는지.
 - 채집 맵 입구: 혼자(호스트) 막힘 안내·들어가기·돌아오기, 들어갈 때 생성(화면이 검을 때)·지난 맵을 안에 있는 동안 유지하고 나오면 버리기만 확인했다. 맵 생성 동안 호스트 화면이 멈칫하는지(다른 플레이어가 들어갈 때 호스트 화면은 가려지지 않는다). 클라이언트가 들어가는지, 실제 전투 승리 뒤 들어가는지, 맵 가장자리를 걸어서 막히는지.
 - 채집: 혼자(호스트)에서 실제 승리한 전투의 화면과 다음 날 채집 맵의 자원 자리가 모두 같은 것, 스크립트로 넣은 채집할 맵으로 배치, 캐기(재료가 개인 인벤토리로), 캐는 중 다른 요청 거절, 낮이 끝날 때 영업 마감 대기와 마감 중 거절, E 키로 직접 캐기와 조작 잠금, 채집 맵·전투 화면의 그레이박스 모습, 걸어서 던전 문에 부딪혔을 때 안내가 한 번만 뜨는 것만 확인했다. 개인 인벤토리가 찼을 때, 두 명이 같은 것을 동시에 캐려 할 때, 클라이언트의 채집.
