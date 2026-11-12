@@ -16,7 +16,7 @@ MonoBehaviour:
   _displayName: "\uAD6C\uB9AC \uC8FC\uAD34"
   _icon: {fileID: 0}
   _color: {r: 0.72, g: 0.45, b: 0.2, a: 1}
-  _kind: 1
+  _kind: 0
   _tier: 1
   _equipmentSlot: 0
   _weaponType: 0
@@ -25,3 +25,4 @@ MonoBehaviour:
     Attack: 0
     Defense: 0
   _wornPart: 
+  _accessoryEffect: 0
