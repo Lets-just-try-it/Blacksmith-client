@@ -54,7 +54,8 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 스테이지 맵: `Core/Battle/StageMapGenerator`가 전투 시드로 타원 덩어리를 이어 붙인 넓은 맵을 만들고, `StageMapValidator`가 한 덩어리·구멍 없음·최소 폭을 확인한다. `Battle` 씬의 `StageMap`(`StageMapView`)이 시작 지점을 원점에 두고 바닥 메시를 깐다. 수치와 바닥 머티리얼(던전마다 하나)은 `StageMap_Tier1`·`StageMap_Tier2`(던전 데이터가 참조), 바닥은 `ThirdParty/FloorTiles01`이다. `Core/Battle/StageLayoutGenerator`가 같은 시드로 몬스터 무리·보스 스폰 지점을 정한다. 맵과 스폰 지점은 `DungeonData.AddGroupsTo`가 `BattleSetup`에 넣는다.
 - 전투: 잡몹 무리는 처음부터 스폰 지점에 서 있고, 모험가는 처음에만 대열로 서고, 그 뒤로는 남은 무리 중 걸어서 가장 가까운 무리로 각자 격자 경로를 따라 걸으며 서로 비켜 선다(NavMesh 안 씀, 걷는 속도는 `BattleRules`의 `_marchSpeed`, 원거리가 앞서면 `_lineUpSpeedPercent`만큼 속도를 바꿔 근접이 앞에 서게 함). 인간형 유닛은 화면 이동 속도를 애니메이터 `Speed`에 넣어 대기·걷기·달리기 블렌드를 쓴다(`BattleUnitView`). 모험가가 무리 시야(`MonsterData` 시야 거리)에 들면 무리가 다가와 싸운다. 잡몹 무리를 모두 토벌하면 보스가 보스 자리에 나타난다. 결과는 토벌 순서(`BattleResult.ClearedGroups`)로 보상·경험치를 계산한다. 화면에 토벌 진행도(`BattleProgressLabel`)를 보여 준다.
 - 시체: 몬스터가 쓰러지면 잠시 뒤 그 자리의 시체(`BattleCorpses`, 그레이박스 `04.Prefabs/Characters/Monsters/MonsterCorpse`, 몬스터 데이터의 시체 프리팹이 있으면 그것)로 바뀌어 남는다. 같은 무리 시체끼리 겹치면 옆으로 비켜 놓아 시체 무리로 보인다. 자리는 `BattleResult.Corpses`에 남는다.
-- 채집할 맵: 낮 씬 `DispatchSession`의 `GatheringSiteState`(호스트 소유)가 이긴 전투의 던전·스테이지·시드·시체 자리를 담고, 다음 밤에 파견하지 않거나 져서 결과를 반영하면 비운다. 맵은 `DungeonData.GenerateMap(seed)`로 다시 만든다. 채집 화면은 아직 없어 이 값을 쓰는 곳이 없다. `Game`·`DispatchTest`·`ForgeTest`에 연결했다.
+- 채집할 맵: 낮 씬 `DispatchSession`의 `GatheringSiteState`(호스트 소유)가 이긴 전투의 던전·스테이지·시드·시체 자리를 담고, 다음 밤에 파견하지 않거나 져서 결과를 반영하면 비운다. 맵은 `DungeonData.GenerateMap(seed)`로 다시 만든다. `Game`·`DispatchTest`·`ForgeTest`에 연결했다.
+- 채집 맵 입구: `Game` 씬 광장 북쪽의 `DungeonGate`(문)에 닿으면 채집할 곳이 있으면 채집 맵 시작 지점으로 옮기고, 없으면 "던전에 몬스터가 잔뜩 있습니다. 위험합니다."를 띄운다(`ForgeNotice` 재사용). 채집 맵은 x = 2000의 `GatheringSite`(`GatheringSiteView`)가 같은 시드로 바닥만 깔고(`StageMapView` 충돌 켬: 바닥과 가장자리 벽), 시작 지점 옆 `PlazaReturnPortal`로 광장에 돌아온다. 맵은 참가자마다 들어갈 때 화면이 어두워진 사이에 만들고(호스트는 다른 플레이어가 문에 닿을 때), 채집할 맵이 바뀌면 안에 플레이어가 없을 때 버린다. 시체·자원·채집 상호작용은 아직 없다.
 - 몬스터 재료 드랍이 아직 있다. 2026-11-10 기획과 달라 바꿀 대상이다(남은 작업 3).
 
 ### 모험가 영입 (진행 중)
@@ -79,7 +80,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 ### 구역 이동·화면 페이드 (구현)
 
-- `04.Prefabs/Town/AreaPortal`, `Game` 씬의 `ForgePlazaLink`, `ScreenFader`/`ScreenFadeChannel`(`docs/NETWORK_DESIGN.md` 3.2절). 전투 결과 반영 뒤 `PlayerSpawner.ReturnAllToSpawnPoints`로 모두 대장간으로 옮긴다.
+- `04.Prefabs/Town/AreaPortal`, `Game` 씬의 `ForgePlazaLink`, `ScreenFader`/`ScreenFadeChannel`(`docs/NETWORK_DESIGN.md` 3.2절). 전투 결과를 반영하거나 파견을 건너뛰면 `PlayerSpawner.ReturnAllToSpawnPoints`로 모두 대장간으로 옮긴다(채집 맵에 있던 플레이어 포함).
 
 ### Photon Fusion 2 (진행 중)
 
@@ -107,6 +108,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 보스 등장 연출, 바닥 드랍, 토벌 진행도의 플레이 모드 화면(무리 이동·교전은 `BattleTest`로 확인함). 두 명 접속에서 무리 전투가 같게 재생되는지.
 - 스테이지 맵: 두 명 접속에서 같은 맵이 나오는지, 전투 카메라로 본 맵 가장자리.
 - 채집할 맵(`GatheringSiteState`): 플레이 모드에서 승리·패배·파견 건너뛰기 뒤 값이 바뀌는지, 참가자에게 같은 값이 보이는지.
+- 채집 맵 입구: 혼자(호스트) 막힘 안내·들어가기·돌아오기, 들어갈 때 생성(화면이 검을 때)·지난 맵을 안에 있는 동안 유지하고 나오면 버리기만 확인했다. 맵 생성 동안 호스트 화면이 멈칫하는지(다른 플레이어가 들어갈 때 호스트 화면은 가려지지 않는다). 클라이언트가 들어가는지, 실제 전투 승리 뒤 들어가는지, 맵 가장자리를 걸어서 막히는지.
 - 빌드한 실행 파일에서의 전체 흐름.
 
 ## 남은 작업

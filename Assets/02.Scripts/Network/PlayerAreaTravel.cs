@@ -1,3 +1,4 @@
+using System;
 using Blacksmith.UI;
 using Fusion;
 using UnityEngine;
@@ -39,7 +40,8 @@ namespace Blacksmith.Network
         }
 
         // 입력 권한을 가진 클라이언트 전용. 이동 중에 다시 불리면 무시한다.
-        public async void Travel(Vector3 position, Quaternion rotation)
+        // onScreenDark는 화면이 다 어두워진 뒤 이동을 요청하기 직전에 불린다. 도착지를 준비하는 무거운 일을 화면이 가려진 동안 한다.
+        public async void Travel(Vector3 position, Quaternion rotation, Action onScreenDark = null)
         {
             if (!HasInputAuthority || _isTraveling)
             {
@@ -56,6 +58,7 @@ namespace Blacksmith.Network
                 return;
             }
 
+            onScreenDark?.Invoke();
             RpcRequestTravel(position, rotation);
         }
 
