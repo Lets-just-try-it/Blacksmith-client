@@ -63,6 +63,12 @@ namespace Blacksmith.Battle
             return _dungeons[tierIndex];
         }
 
+        // 없는 ID면 null이다.
+        public DungeonData FindDungeon(int dungeonId)
+        {
+            return Array.Find(_dungeons, dungeon => dungeon.DungeonId == dungeonId);
+        }
+
         public int GetClearedStages(int dungeonId)
         {
             return IsReady && ClearedStages.TryGet(dungeonId, out int cleared) ? cleared : 0;
