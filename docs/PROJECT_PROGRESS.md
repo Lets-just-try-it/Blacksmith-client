@@ -77,7 +77,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 ### 구역 이동·화면 페이드 (구현)
 
-- `04.Prefabs/Town/AreaPortal`, `Game` 씬의 `ForgePlazaLink`, `ScreenFader`/`ScreenFadeChannel`(`docs/NETWORK_DESIGN.md` 3.2절). 전투 결과 반영 뒤 `PlayerSpawner.ReturnAllToSpawnPoints`로 모두 대장간으로 옮긴다.
+- `04.Prefabs/Town/AreaPortal`, `Game` 씬의 `ForgePlazaLink`, `ScreenFader`/`ScreenFadeChannel`(`docs/NETWORK_DESIGN.md` 3.2절). 전투 결과를 반영하거나 파견을 건너뛰면 `PlayerSpawner.ReturnAllToSpawnPoints`로 모두 대장간으로 옮긴다(채집 맵에 있던 플레이어 포함).
 
 ### Photon Fusion 2 (진행 중)
 
