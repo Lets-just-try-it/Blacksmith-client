@@ -75,7 +75,7 @@ namespace Blacksmith.Battle
 
             List<List<MonsterData>> groups = BuildGroups(stage, setup.Seed, out bool hasBossGroup);
             int mobGroupCount = hasBossGroup ? groups.Count - 1 : groups.Count;
-            StageMap map = StageMapGenerator.Generate(setup.Seed, _stageMap.ToSettings());
+            StageMap map = GenerateMap(setup.Seed);
             StageLayout layout = StageLayoutGenerator.Generate(map, setup.Seed, mobGroupCount, hasBossGroup, _stageMap.ToLayoutSettings());
             setup.Map = map;
             for (int g = 0; g < groups.Count; g++)
@@ -91,6 +91,17 @@ namespace Blacksmith.Battle
 
                 setup.Groups.Add(group);
             }
+        }
+
+        // 전투 시드로 스테이지 맵을 만든다. 다음 날 채집하는 맵도 같은 시드로 같은 맵을 만든다.
+        public StageMap GenerateMap(int seed)
+        {
+            if (_stageMap == null)
+            {
+                throw new InvalidOperationException(name + "에 스테이지 맵 데이터가 없다.");
+            }
+
+            return StageMapGenerator.Generate(seed, _stageMap.ToSettings());
         }
 
         // AddGroupsTo와 같은 시드로 같은 구성을 만들어 무리 보상을 같은 순서로 돌려준다.
