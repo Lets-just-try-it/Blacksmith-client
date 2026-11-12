@@ -53,7 +53,7 @@ namespace Blacksmith.Battle
             Dungeon = dungeon;
             Map = dungeon.GenerateMap(_site.Seed);
             Corpses = corpses;
-            Nodes = GatheringLayoutRules.Generate(Map, corpses, _site.Seed, _rules.ToLayoutSettings(), MaxNodes);
+            Nodes = BuildNodes(Map, corpses, _site.Seed, _rules);
             // 시체 더미는 그 전투에서 굴린 몬스터별 드랍과 같다.
             _corpseLoots = BattleDropRules.Roll(dungeon.GetGroupRewards(_site.Stage, _site.Seed), _site.Seed);
             _hasBuilt = true;
@@ -61,6 +61,19 @@ namespace Blacksmith.Battle
             _builtSeed = _site.Seed;
             _builtCorpseCount = corpses.Count;
             return true;
+        }
+
+        // 전투 화면(BattleGatheringPreview)과 채집 맵이 같은 자리를 쓰도록 둘 다 이 함수로 만든다.
+        // 채집할 맵에는 시체 자리가 GatheringSiteState.MaxCorpses개까지만 남으므로 전투 화면에서도 그만큼만 쓴다.
+        public static List<GatheringNode> BuildNodes(StageMap map, IReadOnlyList<BattleCorpse> corpses, int seed, GatheringRulesData rules)
+        {
+            var kept = new List<BattleCorpse>();
+            for (int i = 0; i < corpses.Count && i < GatheringSiteState.MaxCorpses; i++)
+            {
+                kept.Add(corpses[i]);
+            }
+
+            return GatheringLayoutRules.Generate(map, kept, seed, rules.ToLayoutSettings(), MaxNodes);
         }
 
         // TryRefresh가 성공한 뒤에 부른다.
