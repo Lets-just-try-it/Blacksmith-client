@@ -11,6 +11,7 @@ namespace Blacksmith.Forge
         private readonly int _height;
         private readonly float _scale;
         private readonly Color32[] _pixels;
+        private Color32[] _snapshot;
         private Color32[] _tile;
         private int _tileRows;
 
@@ -63,6 +64,21 @@ namespace Blacksmith.Forge
                 int source = ((row + shift) % _tileRows + _tileRows) % _tileRows;
                 System.Array.Copy(_tile, source * _width, _pixels, (_height - 1 - row) * _width, _width);
             }
+        }
+
+        // 지금 그려진 그림을 저장해 두고, 매 프레임 복사만으로 되돌린다. 바뀌지 않는 바탕을 매번 다시 그리지 않을 때 쓴다.
+        public void SaveSnapshot()
+        {
+            if (_snapshot == null)
+            {
+                _snapshot = new Color32[_pixels.Length];
+            }
+            System.Array.Copy(_pixels, _snapshot, _pixels.Length);
+        }
+
+        public void RestoreSnapshot()
+        {
+            System.Array.Copy(_snapshot, _pixels, _pixels.Length);
         }
 
         public void Apply()

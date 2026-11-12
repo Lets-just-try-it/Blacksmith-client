@@ -24,6 +24,10 @@ namespace Blacksmith.Forge
         private PlateGame _game;
         private RectTransform _rect;
         private float _pulse;
+        // 바뀌지 않는 바탕(쇠판, 허용 띠, 밑그림 점선)을 저장해 둔 조각과 상태. 조각이 바뀔 때만 다시 그린다.
+        private PlateGame.Part _cachedPart;
+        private bool _cachedDone;
+        private bool _hasCache;
 
         private float BoardWidth => PlateGame.Width * Unit;
         private float BoardHeight => PlateGame.Height * Unit;
@@ -47,11 +51,14 @@ namespace Blacksmith.Forge
         public void Bind(PlateGame game)
         {
             _game = game;
+            _hasCache = false;
         }
 
         public void Unbind()
         {
             _game = null;
+            _hasCache = false;
+            _cachedPart = null;
             Clear();
         }
 
@@ -90,9 +97,19 @@ namespace Blacksmith.Forge
             }
 
             _pulse += deltaTime;
-            _canvas.Clear(Frame);
-            DrawBoard();
+            PlateGame.Part part = _game.Phase != PlateGame.PhaseKind.Done ? _game.CurrentPart : null;
+            if (!_hasCache || part != _cachedPart || (part != null && part.Done != _cachedDone))
+            {
+                BuildBackground(part);
+            }
 
+            _canvas.RestoreSnapshot();
+            if (part != null)
+            {
+                DrawProgress(part);
+            }
+
+            DrawCursor(part);
             _canvas.Apply();
         }
 
@@ -114,6 +131,21 @@ namespace Blacksmith.Forge
 
         // ------------------------------------------------------------------ 쇠판
 
+        private void BuildBackground(PlateGame.Part part)
+        {
+            _canvas.Clear(Frame);
+            DrawBoard();
+            if (part != null)
+            {
+                DrawBand(part);
+            }
+
+            _canvas.SaveSnapshot();
+            _cachedPart = part;
+            _cachedDone = part != null && part.Done;
+            _hasCache = true;
+        }
+
         private void DrawBoard()
         {
             Rect board = new Rect(Margin, Margin, BoardWidth, BoardHeight);
@@ -127,14 +159,6 @@ namespace Blacksmith.Forge
 
             Outline(board, new Color(1f, 1f, 1f, 0.5f), 2f);
             DrawRivets(board);
-
-            PlateGame.Part part = _game.CurrentPart;
-            if (part != null && _game.Phase != PlateGame.PhaseKind.Done)
-            {
-                DrawPart(part);
-            }
-
-            DrawCursor(part);
         }
 
         private void DrawRivets(Rect board)
@@ -146,9 +170,10 @@ namespace Blacksmith.Forge
             }
         }
 
-        private void DrawPart(PlateGame.Part part)
+        // 허용 띠(홈)와 밑그림 점선. 조각이 같으면 그대로라 한 번만 그려 저장한다.
+        // 불순물 구간은 붉고 좁다. 점마다 원을 그리지 않고 굵은 선으로 잇는다.
+        private void DrawBand(PlateGame.Part part)
         {
-            // 허용 띠(홈): 불순물 구간은 붉고 좁다. 점마다 원을 그리지 않고 굵은 선으로 잇는다.
             for (int i = 0; i + 2 < part.N; i += 2)
             {
                 Vector2 from = ToCanvas(part.X[i], part.Y[i]);
@@ -166,12 +191,16 @@ namespace Blacksmith.Forge
                 _canvas.Line(from, to, Mathf.Max(4f, width - 6f), inner);
             }
 
-            // 밑그림 점선: 아직 오리지 않은 곳만 보인다.
-            for (int i = part.Head + 1; i < part.N; i += 3)
+            // 밑그림 점선. 오린 자국이 위를 덮으므로 처음부터 끝까지 그려 둔다.
+            for (int i = 0; i < part.N; i += 3)
             {
                 _canvas.Circle(ToCanvas(part.X[i], part.Y[i]), 1.6f, new Color(1f, 1f, 1f, 0.85f));
             }
+        }
 
+        // 매 프레임 바뀌는 부분: 길 안내 화살표, 오린 자국, 오린 끝.
+        private void DrawProgress(PlateGame.Part part)
+        {
             if (!part.Done)
             {
                 for (int k = 1; k <= 3; k++)
