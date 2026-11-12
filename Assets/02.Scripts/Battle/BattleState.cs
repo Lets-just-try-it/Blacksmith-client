@@ -83,7 +83,7 @@ namespace Blacksmith.Battle
         }
 
         // 호스트 전용. 이전 전투의 결과를 반영하기 전에는 새 전투를 시작하지 않는다.
-        // clearedStages는 파견을 확정할 때의 진행 상황이다. 고른 stage 하나의 웨이브를 모두 싸운다.
+        // clearedStages는 파견을 확정할 때의 진행 상황이다. 고른 stage 하나의 몬스터 무리를 모두 싸운다.
         public bool StartBattle(int seed, int dungeonId, int clearedStages, int stage, IReadOnlyList<int> partyIds)
         {
             DungeonData dungeon = FindDungeon(dungeonId);
@@ -137,7 +137,7 @@ namespace Blacksmith.Battle
 
         private BattleRewards CalculateRewards(BattleSetup setup, BattleResult result, DungeonData dungeon)
         {
-            return BattleRewardRules.Calculate(setup, dungeon.GetWaveRewards(Stage, setup.Seed), result,
+            return BattleRewardRules.Calculate(setup, dungeon.GetGroupRewards(Stage, setup.Seed), result,
                 _findAdventurer, _adventurerLevel.ToRules());
         }
 
@@ -156,7 +156,7 @@ namespace Blacksmith.Battle
                 setup.Adventurers.Add(_adventurerBattle.ToSetup(_findAdventurer(PartyIds[i])));
             }
 
-            dungeon.AddWavesTo(setup, Stage);
+            dungeon.AddGroupsTo(setup, Stage);
             return setup;
         }
     }

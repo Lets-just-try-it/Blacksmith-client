@@ -15,7 +15,7 @@ namespace Blacksmith.Tests
                 MaxTicks = 20000,
                 MarchSpeed = 10,
                 FormationSpacing = 100,
-                WaveSpawnDistance = 1000,
+                LaneSpacing = 160,
                 DamageVariancePercent = 10,
                 DeathChancePercent = 30,
             };
@@ -37,21 +37,14 @@ namespace Blacksmith.Tests
             };
         }
 
-        private static WaveSetup Wave(bool isBoss, params MonsterSetup[] monsters)
-        {
-            var wave = new WaveSetup { IsBoss = isBoss };
-            wave.Monsters.AddRange(monsters);
-            return wave;
-        }
-
         private static MonsterSetup Monster(int id, int hp, int attack, int offset = 0)
         {
-            return new MonsterSetup { MonsterId = id, Stats = Stats(hp, attack), SpawnOffset = offset };
+            return new MonsterSetup { MonsterId = id, Stats = Stats(hp, attack), SpawnOffset = offset, SightRange = 1500 };
         }
 
         private static BattleSetup CreateSetup(int seed, int adventurerAttack, int monsterAttack)
         {
-            var setup = new BattleSetup { Seed = seed, Rules = CreateRules() };
+            var setup = new BattleSetup { Seed = seed, Rules = CreateRules(), Map = BattleTestMaps.Open() };
             setup.Adventurers.Add(new AdventurerSetup
             {
                 AdventurerId = 1,
@@ -64,9 +57,9 @@ namespace Blacksmith.Tests
                 Stats = Stats(200, adventurerAttack, 400),
                 Skill = new SkillData { Kind = SkillKind.HealLowestAlly, PowerPercent = 150 },
             });
-            setup.Waves.Add(Wave(false, Monster(10, 80, monsterAttack), Monster(10, 80, monsterAttack, 150)));
-            setup.Waves.Add(Wave(false, Monster(11, 120, monsterAttack), Monster(11, 120, monsterAttack, 150)));
-            setup.Waves.Add(Wave(true, Monster(20, 600, monsterAttack * 2)));
+            setup.Groups.Add(BattleTestMaps.Group(false, 18.5f, Monster(10, 80, monsterAttack), Monster(10, 80, monsterAttack, 150)));
+            setup.Groups.Add(BattleTestMaps.Group(false, 38.5f, Monster(11, 120, monsterAttack), Monster(11, 120, monsterAttack, 150)));
+            setup.Groups.Add(BattleTestMaps.Group(true, 58.5f, Monster(20, 600, monsterAttack * 2)));
             return setup;
         }
 
@@ -100,21 +93,24 @@ namespace Blacksmith.Tests
             BattleRules rules = CreateRules();
             rules.MeleeRangeMax = 200;
             rules.MaxRowSize = 3;
-            var setup = new BattleSetup { Seed = 1, Rules = rules };
+            var setup = new BattleSetup { Seed = 1, Rules = rules, Map = BattleTestMaps.Open() };
             for (int i = 0; i < ranges.Length; i++)
             {
                 setup.Adventurers.Add(new AdventurerSetup { AdventurerId = i + 1, Stats = Stats(100, 10, ranges[i]) });
             }
 
+            setup.Groups.Add(BattleTestMaps.Group(false, 60.5f, Monster(10, 80, 5)));
             return new BattleSimulation(setup);
         }
 
+        // 첫 무리가 +X 쪽에 있어 대열은 +X를 본다. 줄은 뒤(-X)로 100씩, 옆자리 반 칸은 -Z 쪽으로 80씩 벌어진다.
         private static void AssertSpot(BattleSimulation simulation, int partyIndex, int lane, int position)
         {
             BattleUnit unit = simulation.Units[partyIndex];
             Assert.AreEqual(partyIndex + 1, unit.SourceId);
             Assert.AreEqual(lane, unit.Lane, $"#{partyIndex + 1} lane");
-            Assert.AreEqual(position, unit.Position, $"#{partyIndex + 1} position");
+            Assert.AreEqual(250 + position, unit.X, $"#{partyIndex + 1} x");
+            Assert.AreEqual(1250 - lane * 80, unit.Z, $"#{partyIndex + 1} z");
         }
 
         [Test]
@@ -216,28 +212,28 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void StrongParty_ClearsAllWaves()
+        public void StrongParty_ClearsAllGroups()
         {
             BattleResult result = new BattleSimulation(CreateSetup(1, 60, 5)).RunToEnd();
 
             Assert.IsTrue(result.IsVictory);
-            Assert.AreEqual(3, result.WavesCleared);
+            CollectionAssert.AreEqual(new[] { 0, 1, 2 }, result.ClearedGroups);
         }
 
         [Test]
-        public void StrongParty_EveryAdventurerClearsAllWaves()
+        public void StrongParty_EveryAdventurerClearsAllGroups()
         {
             BattleResult result = new BattleSimulation(CreateSetup(1, 60, 5)).RunToEnd();
 
             foreach (AdventurerBattleResult adventurer in result.Adventurers)
             {
                 Assert.IsFalse(adventurer.IsInjured);
-                Assert.AreEqual(3, adventurer.WavesCleared);
+                Assert.AreEqual(3, adventurer.GroupsCleared);
             }
         }
 
         [Test]
-        public void AdventurerWavesCleared_CountsOnlyClearsBeforeFalling()
+        public void AdventurerGroupsCleared_CountsOnlyClearsBeforeFalling()
         {
             // 이 시드에서는 모험가 1이 중간에 쓰러지고 모험가 2가 끝까지 남아 승리한다.
             var simulation = new BattleSimulation(CreateSetup(1, 15, 10));
@@ -258,7 +254,7 @@ namespace Blacksmith.Tests
                         fallen.Add(fellId);
                     }
 
-                    if (e.Type == BattleEventType.WaveCleared)
+                    if (e.Type == BattleEventType.GroupCleared)
                     {
                         foreach (int adventurerId in new[] { 1, 2 })
                         {
@@ -273,8 +269,8 @@ namespace Blacksmith.Tests
 
             foreach (AdventurerBattleResult adventurer in simulation.Result.Adventurers)
             {
-                Assert.AreEqual(expected[adventurer.AdventurerId], adventurer.WavesCleared);
-                Assert.LessOrEqual(adventurer.WavesCleared, simulation.Result.WavesCleared);
+                Assert.AreEqual(expected[adventurer.AdventurerId], adventurer.GroupsCleared);
+                Assert.LessOrEqual(adventurer.GroupsCleared, simulation.Result.GroupsCleared);
             }
 
             Assert.AreNotEqual(expected[1], expected[2]);
@@ -330,7 +326,7 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void HpAndMana_CarryOverToNextWave()
+        public void HpAndMana_CarryOverToNextGroup()
         {
             BattleSetup setup = CreateSetup(5, 30, 12);
             setup.Adventurers.RemoveAt(1);
@@ -339,7 +335,7 @@ namespace Blacksmith.Tests
             {
                 foreach (BattleEvent e in simulation.Step())
                 {
-                    if (e.Type == BattleEventType.WaveStarted && e.Amount > 0)
+                    if (e.Type == BattleEventType.GroupEngaged && e.Amount > 0)
                     {
                         Assert.Less(simulation.Units[0].Hp, simulation.Units[0].Stats.MaxHp);
                         return;
@@ -347,7 +343,7 @@ namespace Blacksmith.Tests
                 }
             }
 
-            Assert.Fail("두 번째 웨이브가 시작되지 않았다.");
+            Assert.Fail("두 번째 무리와 싸우지 않았다.");
         }
 
         [Test]
@@ -378,9 +374,9 @@ namespace Blacksmith.Tests
         // 쓰러지지 않는 모험가 한 명과 보스 한 마리만 싸운다. 보스는 UnitId 1이다.
         private static BattleSetup CreateBossSetup(int adventurerAttack, MonsterSetup boss)
         {
-            var setup = new BattleSetup { Seed = 11, Rules = CreateRules() };
+            var setup = new BattleSetup { Seed = 11, Rules = CreateRules(), Map = BattleTestMaps.Open() };
             setup.Adventurers.Add(new AdventurerSetup { AdventurerId = 1, Stats = Stats(100000, adventurerAttack, maxMana: 0) });
-            setup.Waves.Add(Wave(true, boss));
+            setup.Groups.Add(BattleTestMaps.Group(true, 20.5f, boss));
             return setup;
         }
 
@@ -450,6 +446,141 @@ namespace Blacksmith.Tests
             }
 
             Assert.IsFalse(simulation.Units[1].IsEnraged);
+        }
+
+        [Test]
+        public void Party_GoesToNearestGroupFirst()
+        {
+            var setup = new BattleSetup { Seed = 2, Rules = CreateRules(), Map = BattleTestMaps.Open() };
+            setup.Adventurers.Add(new AdventurerSetup { AdventurerId = 1, Stats = Stats(100000, 60, maxMana: 0) });
+            setup.Groups.Add(BattleTestMaps.Group(false, 70.5f, Monster(10, 50, 1)));
+            setup.Groups.Add(BattleTestMaps.Group(false, 25.5f, Monster(11, 50, 1)));
+
+            BattleResult result = new BattleSimulation(setup).RunToEnd();
+
+            Assert.IsTrue(result.IsVictory);
+            CollectionAssert.AreEqual(new[] { 1, 0 }, result.ClearedGroups);
+        }
+
+        [Test]
+        public void Group_WaitsAtSpawnUntilAdventurerInSight()
+        {
+            var simulation = new BattleSimulation(CreateSetup(4, 30, 12));
+            BattleUnit far = simulation.Units[simulation.Units.Count - 1];
+            int startX = far.X;
+            while (!simulation.IsFinished)
+            {
+                foreach (BattleEvent e in simulation.Step())
+                {
+                    if (e.Type == BattleEventType.GroupEngaged && e.Amount == far.GroupIndex)
+                    {
+                        return;
+                    }
+                }
+
+                Assert.AreEqual(startX, far.X);
+                Assert.IsFalse(far.IsActive);
+            }
+
+            Assert.Fail("두 번째 무리와 싸우지 않았다.");
+        }
+
+        [Test]
+        public void Boss_AppearsOnlyAfterMobGroupsCleared()
+        {
+            var simulation = new BattleSimulation(CreateSetup(1, 60, 5));
+            int mobGroupsCleared = 0;
+            while (!simulation.IsFinished)
+            {
+                foreach (BattleEvent e in simulation.Step())
+                {
+                    if (e.Type == BattleEventType.GroupCleared && e.Amount < 2)
+                    {
+                        mobGroupsCleared++;
+                    }
+                }
+
+                bool hasBoss = simulation.Units.Count > 2 + 4;
+                Assert.AreEqual(mobGroupsCleared == 2, hasBoss);
+            }
+        }
+
+        [Test]
+        public void Party_WalksAroundWallsAndStaysOnFloor()
+        {
+            // ㄱ자 맵: 아래쪽 가로 길(z 0~11)과 오른쪽 세로 길(x 48~59). 무리는 세로 길 위쪽 끝에 있다.
+            var floor = new bool[60, 60];
+            for (int x = 0; x < 60; x++)
+            {
+                for (int z = 0; z < 60; z++)
+                {
+                    floor[x, z] = z < 12 || x >= 48;
+                }
+            }
+
+            var map = new StageMap(floor, new MapPoint(3.5f, 6.5f));
+            var setup = new BattleSetup { Seed = 5, Rules = CreateRules(), Map = map };
+            setup.Adventurers.Add(new AdventurerSetup { AdventurerId = 1, Stats = Stats(100000, 60, 120, 0) });
+            setup.Adventurers.Add(new AdventurerSetup { AdventurerId = 2, Stats = Stats(100000, 60, 450, 0) });
+            setup.Groups.Add(new MonsterGroupSetup { Spawn = new MapPoint(53.5f, 55.5f), Monsters = { Monster(10, 50, 1) } });
+
+            var simulation = new BattleSimulation(setup);
+            while (!simulation.IsFinished)
+            {
+                foreach (BattleEvent e in simulation.Step())
+                {
+                    // 모퉁이를 돈 뒤에도 뒤처진 모험가 없이 함께 무리를 만난다.
+                    if (e.Type == BattleEventType.GroupEngaged)
+                    {
+                        long dx = simulation.Units[0].X - simulation.Units[1].X;
+                        long dz = simulation.Units[0].Z - simulation.Units[1].Z;
+                        Assert.LessOrEqual(dx * dx + dz * dz, 600L * 600L);
+                    }
+                }
+
+                foreach (BattleUnit unit in simulation.Units)
+                {
+                    Assert.IsTrue(map.IsFloor(unit.X / BattleSpace.UnitsPerCell, unit.Z / BattleSpace.UnitsPerCell),
+                        $"{simulation.Tick}틱 유닛 {unit.UnitId}: ({unit.X}, {unit.Z})");
+                }
+            }
+
+            Assert.IsTrue(simulation.Result.IsVictory);
+        }
+
+        [Test]
+        public void Adventurer_ClosesGapShorterThanOneStepAxis()
+        {
+            // 모험가(사거리 150)와 몬스터 사이가 비스듬히 151이라 한 걸음이 1이다. 내림하면 두 축 모두 0이 되어 멈췄다.
+            var setup = new BattleSetup { Seed = 3, Rules = CreateRules(), Map = BattleTestMaps.Open() };
+            setup.Adventurers.Add(new AdventurerSetup { AdventurerId = 1, Stats = Stats(100000, 60, 150, 0) });
+            var monster = new MonsterSetup { MonsterId = 10, Stats = Stats(50, 1, 200), SightRange = 1500 };
+            setup.Groups.Add(new MonsterGroupSetup { Spawn = new MapPoint(2.81f, BattleTestMaps.CenterZ + 1.48f), Monsters = { monster } });
+
+            BattleResult result = new BattleSimulation(setup).RunToEnd();
+
+            Assert.IsTrue(result.IsVictory);
+            Assert.Less(result.EndTick, 200);
+        }
+
+        [Test]
+        public void PathField_StepsTowardTargetAroundWall()
+        {
+            var floor = new bool[5, 3];
+            for (int x = 0; x < 5; x++)
+            {
+                floor[x, 0] = floor[x, 2] = true;
+            }
+
+            floor[4, 1] = true;
+            var field = new StagePathField(new StageMap(floor, new MapPoint(0.5f, 0.5f)), 0, 2);
+
+            Assert.AreEqual(0, field.CostAt(0, 2));
+            Assert.AreEqual(StagePathField.Unreachable, field.CostAt(1, 1));
+            Assert.IsTrue(field.TryNextCell(0, 0, out int nextX, out int nextZ));
+            Assert.AreEqual(1, nextX);
+            Assert.AreEqual(0, nextZ);
+            Assert.AreEqual(100, field.CostAt(0, 0));
         }
     }
 }

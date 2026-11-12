@@ -47,12 +47,13 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 ### 던전·파견·자동 전투 (진행 중)
 
-- 규칙 `Core/Battle`: `BattleSimulation`(시드 기반, 대열, 스킬, 분노), `BattleWaveRules`, `BattleRewardRules`, `BattleDropRules`, `DungeonProgressRules`, `DispatchRules`, `AccessoryEffect`.
+- 규칙 `Core/Battle`: `BattleSimulation`(시드 기반, 맵 위 무리 전투, 대열, 스킬, 분노), `StagePathField`(8방향 격자 경로), `BattleGroupRules`, `BattleRewardRules`, `BattleDropRules`, `DungeonProgressRules`, `DispatchRules`, `AccessoryEffect`.
 - 데이터: `DungeonData`(`Dungeon_Tier1`, `Dungeon_Tier2`만 있음), `03.ScriptableObjects/Monsters`, `AdventurerBattle`(직업별 전투 수치·스킬 표).
 - 흐름: 던전 지도 `DungeonMapView` → 파견 창 `DispatchView`/`DispatchState` → `BattleSceneLoader`가 `Battle` 씬 Additive 로드 → `BattleSceneFlow` 재생, `BattleState` 동기화 → 결과창 확인 → `DungeonProgressState` 반영, `BattleRewardApplier`(`Game` 씬만)가 골드·재료·경험치 반영. 전투 중 낮 화면은 `DaySceneBattleCover`가 끈다.
 - 지도는 씬마다 `DispatchUI`의 `DungeonMap`에 `_state`·`_progress`를 연결해야 켜진다. `DispatchTest`와 `Game`에 연결했다.
-- 스테이지 맵: `Core/Battle/StageMapGenerator`가 전투 시드로 타원 덩어리를 이어 붙인 넓은 맵을 만들고, `StageMapValidator`가 한 덩어리·구멍 없음·최소 폭을 확인한다. `Battle` 씬의 `StageMap`(`StageMapView`)이 시작 지점을 원점에 두고 바닥 메시를 깐다. 수치와 바닥 머티리얼(던전마다 하나)은 `StageMap_Tier1`·`StageMap_Tier2`(던전 데이터가 참조), 바닥은 `ThirdParty/FloorTiles01`이다. 모험가는 아직 맵과 상관없이 직선으로 걷는다(NavMesh 이동은 남은 작업 3의 8방향 이동).
-- 지금 전투는 웨이브 방식이고 몬스터 재료 드랍이 있다. 둘 다 2026-11-10 기획과 달라 바꿀 대상이다(남은 작업 3).
+- 스테이지 맵: `Core/Battle/StageMapGenerator`가 전투 시드로 타원 덩어리를 이어 붙인 넓은 맵을 만들고, `StageMapValidator`가 한 덩어리·구멍 없음·최소 폭을 확인한다. `Battle` 씬의 `StageMap`(`StageMapView`)이 시작 지점을 원점에 두고 바닥 메시를 깐다. 수치와 바닥 머티리얼(던전마다 하나)은 `StageMap_Tier1`·`StageMap_Tier2`(던전 데이터가 참조), 바닥은 `ThirdParty/FloorTiles01`이다. `Core/Battle/StageLayoutGenerator`가 같은 시드로 몬스터 무리·보스 스폰 지점을 정한다. 맵과 스폰 지점은 `DungeonData.AddGroupsTo`가 `BattleSetup`에 넣는다.
+- 전투: 잡몹 무리는 처음부터 스폰 지점에 서 있고, 모험가는 처음에만 대열로 서고, 그 뒤로는 남은 무리 중 걸어서 가장 가까운 무리로 각자 격자 경로를 따라 걸으며 서로 비켜 선다(NavMesh 안 씀, 걷는 속도는 `BattleRules`의 `_marchSpeed`, 원거리가 앞서면 `_lineUpSpeedPercent`만큼 속도를 바꿔 근접이 앞에 서게 함). 인간형 유닛은 화면 이동 속도를 애니메이터 `Speed`에 넣어 대기·걷기·달리기 블렌드를 쓴다(`BattleUnitView`). 모험가가 무리 시야(`MonsterData` 시야 거리)에 들면 무리가 다가와 싸운다. 잡몹 무리를 모두 토벌하면 보스가 보스 자리에 나타난다. 결과는 토벌 순서(`BattleResult.ClearedGroups`)로 보상·경험치를 계산한다. 화면에 토벌 진행도(`BattleProgressLabel`)를 보여 준다.
+- 몬스터 재료 드랍이 아직 있다. 2026-11-10 기획과 달라 바꿀 대상이다(남은 작업 3).
 
 ### 모험가 영입 (진행 중)
 
@@ -97,7 +98,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 실제 마우스 조작: 제작 목록 끌어다 놓기, 장신구 미니게임, 장비 착용 창, 파견 창·지도 버튼.
 - 두 명 접속: 작업대 사용권 거절, 인벤토리·장비 착용, 파견 창·지도(참가자 보기 전용), 낮·밤 전환, `Game` 씬 전체 흐름. (Host 이동, 영입, 대화, 전투 재생은 두 명으로 확인했다.)
 - 실제 미니게임 도중 낮이 끝나는 경우.
-- 웨이브 표시, 보스 연출, 바닥 드랍의 플레이 모드 화면.
+- 보스 등장 연출, 바닥 드랍, 토벌 진행도의 플레이 모드 화면(무리 이동·교전은 `BattleTest`로 확인함). 두 명 접속에서 무리 전투가 같게 재생되는지.
 - 스테이지 맵: 두 명 접속에서 같은 맵이 나오는지, 전투 카메라로 본 맵 가장자리.
 - 빌드한 실행 파일에서의 전체 흐름.
 
@@ -106,7 +107,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 1. `main`과 `dev`에 브랜치 보호를 설정한다. `main`은 첫 출시 준비 때 `release/` 브랜치를 병합해 채운다.
 2. 역할별 남은 기능
    - 대장간: 조립·활 몸체 휘기·활 깎기·시위 걸기·시험 사격 작업대 직접 확인(미니게임 끝까지, 장비 완성), 단조·담금질을 최신 프로토타입과 대조, 장신구에 다른 보석 섞는 규칙(처음 넣은 보석이 효과), 미스릴 장비 아이템, 대장간 업그레이드와 해금, 실제 효과음.
-   - 전투: 몬스터 아트와 수치, 보스 등장 때 카메라, 장비별 이펙트, 티어별 장비 능력치, 전투 도중 들어온 참가자 재생 맞추기, 부상·사망과 부서진 목걸이를 관리 목록에 반영, 사망 시 장비 제거, 공용 창고가 가득 찼을 때 보상 처리.
+   - 전투: 토벌한 무리 자리에 시체 더미 남기기, 전투한 맵(시드·시체 자리)을 다음 파견 전까지 유지, 교전 중 유닛끼리 겹침, 몬스터 아트와 수치, 보스 등장 때 카메라, 장비별 이펙트, 티어별 장비 능력치, 전투 도중 들어온 참가자 재생 맞추기, 부상·사망과 부서진 목걸이를 관리 목록에 반영, 사망 시 장비 제거, 공용 창고가 가득 찼을 때 보상 처리.
    - 광장: 낮이 시작될 때 후보 다시 뽑기(기획 6.1 [미정]), 부상·사망 반영 API, 초상화([고도화]).
    - 인간형 모델: 손에 든 물건을 `ItemSocket_Hold`에 얹기, 미니게임별 작업 동작, 갑옷·장신구 모델, 걷기·공격·쓰러짐 화면 확인.
    - 인벤토리: 재접속한 플레이어의 슬롯 이어 주기, 손에 든 물건 모델·아이콘, 투구·갑옷·장신구 벗기기 기능 제거(교체만), 슬롯이 가득 찼을 때 제작 결과 처리, 파견 뒤 장비 반환.
@@ -114,7 +115,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
    - 공통: `ForgeTest`에 던전 지도 연결(대장간 담당), 밤 연출과 `DaySceneBattleCover`(임시)를 합칠지, 저장 구조(`DungeonProgressState` 포함)와 `GameState` 스폰 시점, 장비 보정과 직업별 공격 방식(`AdventurerSetupRules`, `AdventurerBattle`).
 3. 데모 1을 위해 2026-11-10 기획(`docs/GAME_CONCEPT.md`)과 지금 구현이 다른 부분을 맞춘다. 담당자는 팀에서 정한다(기획 13절).
    - 제거: 전투 보상의 재료·보석 드랍(`BattleDropRules`, 결과창 재료 표시, 드랍 연출), 치료비 회복.
-   - 변경: 재료 한 칸 최대 32개(지금 99), 1티어 광석 이름 청동(데이터는 구리), 부산물 이름(짐승 가죽 → 가죽, 질긴 힘줄 → 힘줄, 마석 조각 → 마석)과 뼈·목재 추가, 웨이브를 8방향 이동 맵의 몬스터 무리로, 부상 상태를 부상수치로, 에메랄드 효과 대상.
+   - 변경: 재료 한 칸 최대 32개(지금 99), 1티어 광석 이름 청동(데이터는 구리), 부산물 이름(짐승 가죽 → 가죽, 질긴 힘줄 → 힘줄, 마석 조각 → 마석)과 뼈·목재 추가, 부상 상태를 부상수치로, 에메랄드 효과 대상.
    - 추가: 던전 채집(절차적 맵, 자원 스폰, 묻힌 보물 상자, 어두운 던전 시야), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 여관, 친밀도, 장비 내구도와 녹이기, 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
 4. 가격 등 다른 `Core` 규칙에도 시드 결정성 EditMode 테스트를 추가한다.
 5. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 임시 폰트다(SIL OFL 1.1, `05.Art/Fonts`).

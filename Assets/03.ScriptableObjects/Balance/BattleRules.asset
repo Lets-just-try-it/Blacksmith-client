@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleRulesData
   _ticksPerSecond: 20
   _maxTicks: 20000
-  _marchSpeed: 10
+  _marchSpeed: 40
   _formationSpacing: 160
+  _laneSpacing: 160
   _meleeRangeMax: 200
   _maxRowSize: 3
-  _stageSpawnDistance: 1000
   _damageVariancePercent: 10
   _deathChancePercent: 10

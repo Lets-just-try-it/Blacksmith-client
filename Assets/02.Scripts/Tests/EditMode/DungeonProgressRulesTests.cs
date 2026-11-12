@@ -7,9 +7,15 @@ namespace Blacksmith.Tests
     {
         private const int StageCount = 3;
 
-        private static BattleResult Result(bool isVictory, int wavesCleared)
+        private static BattleResult Result(bool isVictory, int groupsCleared)
         {
-            return new BattleResult(isVictory, wavesCleared, 0, new AdventurerBattleResult[0]);
+            var cleared = new int[groupsCleared];
+            for (int i = 0; i < groupsCleared; i++)
+            {
+                cleared[i] = i;
+            }
+
+            return new BattleResult(isVictory, cleared, 0, new AdventurerBattleResult[0]);
         }
 
         [Test]

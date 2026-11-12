@@ -18,38 +18,47 @@ namespace Blacksmith.Core.Battle
         public BattleTeam Team { get; }
         // 모험가는 AdventurerId, 몬스터는 MonsterId다. 연출에서 외형과 이펙트를 찾는 데 쓴다.
         public int SourceId { get; }
-        public int WaveIndex { get; }
-        // 웨이브 안에서 몇 번째로 나온 몬스터인지. 몬스터별 드랍을 찾는 데 쓴다. 모험가는 -1이다.
-        public int WaveSlot { get; }
-        // 옆으로 선 자리. 연출만 쓴다. 반 칸 단위이고 0이 길 가운데라, 줄마다 가운데에 맞춰 설 수 있다(2명 → -1, 1 / 3명 → -2, 0, 2).
+        // 몬스터가 속한 무리 번호(BattleSetup.Groups 순서). 모험가는 -1이다.
+        public int GroupIndex { get; }
+        // 무리 안에서 몇 번째 몬스터인지. 몬스터별 드랍을 찾는 데 쓴다. 모험가는 -1이다.
+        public int GroupSlot { get; }
+        // 대열의 줄(0이 앞줄)과 옆자리. 옆자리는 반 칸 단위이고 0이 가운데라, 줄마다 가운데에 맞춰 설 수 있다(2명 → -1, 1 / 3명 → -2, 0, 2).
+        public int Row { get; }
         public int Lane { get; }
         // 분노하면 공격력과 공격 간격이 바뀐다.
         public UnitStats Stats { get; internal set; }
         public EnrageData Enrage { get; }
 
-        public int Position { get; internal set; }
+        // 맵 위치(BattleSpace 단위)
+        public int X { get; internal set; }
+        public int Z { get; internal set; }
+        // 몬스터는 무리가 모험가를 발견해야 움직이고 싸운다. 모험가는 늘 참이다.
+        public bool IsActive { get; internal set; }
         public int Hp { get; internal set; }
         public int Mana { get; internal set; }
         public int AttackCooldown { get; internal set; }
         public bool IsFallen { get; internal set; }
         public bool IsEnraged { get; internal set; }
         public int DamageDealt { get; internal set; }
-        // 쓰러지지 않은 채 클리어한 웨이브 수다. 경험치 계산에 쓴다.
-        public int WavesCleared { get; internal set; }
+        // 쓰러지지 않은 채 토벌한 무리 수다. 경험치 계산에 쓴다.
+        public int GroupsCleared { get; internal set; }
 
-        internal BattleUnit(int unitId, BattleTeam team, int sourceId, int waveIndex, int waveSlot, int lane,
-            UnitStats stats, IReadOnlyList<SkillData> skills, EnrageData enrage, int position)
+        internal BattleUnit(int unitId, BattleTeam team, int sourceId, int groupIndex, int groupSlot, int row, int lane,
+            UnitStats stats, IReadOnlyList<SkillData> skills, EnrageData enrage, int x, int z)
         {
             UnitId = unitId;
             Team = team;
             SourceId = sourceId;
-            WaveIndex = waveIndex;
-            WaveSlot = waveSlot;
+            GroupIndex = groupIndex;
+            GroupSlot = groupSlot;
+            Row = row;
             Lane = lane;
             Stats = stats;
             _skills = skills ?? Array.Empty<SkillData>();
             Enrage = enrage;
-            Position = position;
+            X = x;
+            Z = z;
+            IsActive = team == BattleTeam.Adventurer;
             Hp = stats.MaxHp;
         }
 

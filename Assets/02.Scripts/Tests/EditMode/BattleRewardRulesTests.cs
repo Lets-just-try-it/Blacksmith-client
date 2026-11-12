@@ -15,19 +15,19 @@ namespace Blacksmith.Tests
         };
 
         // 웨이브 골드·경험치는 그 웨이브 몬스터의 합이다: 100/40, 150/60, 300/120
-        private static List<WaveReward> Waves()
+        private static List<GroupReward> Groups()
         {
-            return new List<WaveReward>
+            return new List<GroupReward>
             {
-                Wave(new MonsterReward { Gold = 100, Experience = 40, Materials = { Material(1, 1) } }),
-                Wave(new MonsterReward { Gold = 75, Experience = 30 }, new MonsterReward { Gold = 75, Experience = 30 }),
-                Wave(new MonsterReward { Gold = 300, Experience = 120, Materials = { Material(1, 2), Material(2, 1) } }),
+                Group(new MonsterReward { Gold = 100, Experience = 40, Materials = { Material(1, 1) } }),
+                Group(new MonsterReward { Gold = 75, Experience = 30 }, new MonsterReward { Gold = 75, Experience = 30 }),
+                Group(new MonsterReward { Gold = 300, Experience = 120, Materials = { Material(1, 2), Material(2, 1) } }),
             };
         }
 
-        private static WaveReward Wave(params MonsterReward[] monsters)
+        private static GroupReward Group(params MonsterReward[] monsters)
         {
-            return new WaveReward(monsters);
+            return new GroupReward(monsters);
         }
 
         private static MaterialReward Material(int id, int count)
@@ -48,7 +48,7 @@ namespace Blacksmith.Tests
             AccessoryEffect accessory2 = default)
         {
             Dictionary<int, AdventurerData> party = Party();
-            return BattleRewardRules.Calculate(Setup(accessory1, accessory2), Waves(), result, id => party[id], LevelRules);
+            return BattleRewardRules.Calculate(Setup(accessory1, accessory2), Groups(), result, id => party[id], LevelRules);
         }
 
         private static BattleSetup Setup(AccessoryEffect accessory1, AccessoryEffect accessory2)
@@ -83,18 +83,25 @@ namespace Blacksmith.Tests
             return count;
         }
 
-        private static BattleResult Result(bool isVictory, int wavesCleared, params AdventurerBattleResult[] adventurers)
+        // 무리를 0번부터 차례로 groupsCleared개 토벌한 결과
+        private static BattleResult Result(bool isVictory, int groupsCleared, params AdventurerBattleResult[] adventurers)
         {
-            return new BattleResult(isVictory, wavesCleared, 100, adventurers);
+            var cleared = new int[groupsCleared];
+            for (int i = 0; i < groupsCleared; i++)
+            {
+                cleared[i] = i;
+            }
+
+            return new BattleResult(isVictory, cleared, 100, adventurers);
         }
 
-        private static AdventurerBattleResult Adventurer(int id, int wavesCleared, bool isInjured = false, bool isDead = false)
+        private static AdventurerBattleResult Adventurer(int id, int groupsCleared, bool isInjured = false, bool isDead = false)
         {
-            return new AdventurerBattleResult(id, isInjured, isDead, 0, wavesCleared);
+            return new AdventurerBattleResult(id, isInjured, isDead, 0, groupsCleared);
         }
 
         [Test]
-        public void Victory_GivesAllWaveGoldAndMergedMaterials()
+        public void Victory_GivesAllGroupGoldAndMergedMaterials()
         {
             BattleRewards rewards = Calculate(Result(true, 3, Adventurer(1, 3), Adventurer(2, 3)));
 
@@ -105,7 +112,7 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Defeat_GivesRewardsOnlyForClearedWaves()
+        public void Defeat_GivesRewardsOnlyForClearedGroups()
         {
             BattleRewards rewards = Calculate(Result(false, 1, Adventurer(1, 1, true), Adventurer(2, 0, true)));
 
@@ -115,7 +122,7 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Experience_CountsWavesClearedBeforeFalling()
+        public void Experience_CountsGroupsClearedBeforeFalling()
         {
             BattleRewards rewards = Calculate(Result(true, 3, Adventurer(1, 3), Adventurer(2, 1, true)));
 
@@ -169,13 +176,13 @@ namespace Blacksmith.Tests
         [Test]
         public void MaterialAccessory_BoostsOreButNotGems()
         {
-            var waves = new List<WaveReward>
+            var groups = new List<GroupReward>
             {
-                Wave(new MonsterReward { Materials = { Material(13, 10) }, GemDrops = { Drop(3, 100, 18) } }),
+                Group(new MonsterReward { Materials = { Material(13, 10) }, GemDrops = { Drop(3, 100, 18) } }),
             };
             Dictionary<int, AdventurerData> party = Party();
             BattleRewards rewards = BattleRewardRules.Calculate(Setup(Effect(AccessoryEffectKind.MaterialBonus, 2), default),
-                waves, Result(true, 1, Adventurer(1, 1), Adventurer(2, 1)), id => party[id], LevelRules);
+                groups, Result(true, 1, Adventurer(1, 1), Adventurer(2, 1)), id => party[id], LevelRules);
 
             Assert.AreEqual(11, CountOf(rewards.Materials, 13));
             Assert.AreEqual(1, CountOf(rewards.BonusMaterials, 13));
@@ -195,17 +202,34 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Defeat_KeepsLootOfClearedWavesOnly()
+        public void Defeat_KeepsLootOfClearedGroupsOnly()
         {
             BattleRewards rewards = Calculate(Result(false, 1, Adventurer(1, 1, true), Adventurer(2, 1, true)));
 
-            Assert.AreEqual(1, rewards.WaveLoots.Count);
+            Assert.AreEqual(3, rewards.GroupLoots.Count);
+            Assert.AreEqual(1, rewards.GroupLoots[0].Monsters.Count);
+            Assert.AreEqual(0, rewards.GroupLoots[1].Monsters.Count);
+            Assert.AreEqual(0, rewards.GroupLoots[2].Monsters.Count);
+        }
+
+        [Test]
+        public void ClearOrder_DecidesRewardsAndExperience()
+        {
+            // 무리 2를 먼저, 무리 0을 나중에 토벌했고 모험가 2는 무리 2만 토벌하고 쓰러졌다.
+            var result = new BattleResult(false, new[] { 2, 0 }, 100,
+                new[] { Adventurer(1, 2, true), Adventurer(2, 1, true) });
+            BattleRewards rewards = Calculate(result);
+
+            Assert.AreEqual(400, rewards.Gold);
+            Assert.AreEqual(160, rewards.Adventurers[0].ExperienceGained);
+            Assert.AreEqual(120, rewards.Adventurers[1].ExperienceGained);
+            Assert.AreEqual(0, rewards.GroupLoots[1].Monsters.Count);
         }
 
         [Test]
         public void DropRoll_GivesOneLootPerMonster()
         {
-            IReadOnlyList<WaveLoot> loots = BattleDropRules.Roll(Waves(), 3);
+            IReadOnlyList<GroupLoot> loots = BattleDropRules.Roll(Groups(), 3);
 
             Assert.AreEqual(3, loots.Count);
             Assert.AreEqual(1, loots[0].Monsters.Count);
@@ -217,10 +241,10 @@ namespace Blacksmith.Tests
         public void DropRoll_MoreMonstersRollMoreTimes()
         {
             var monster = new MonsterReward { ChanceDrops = { Drop(1, 100, 15) } };
-            var waves = new List<WaveReward> { Wave(monster, monster), Wave(monster, monster, monster) };
+            var groups = new List<GroupReward> { Group(monster, monster), Group(monster, monster, monster) };
             Dictionary<int, AdventurerData> party = Party();
 
-            BattleRewards rewards = BattleRewardRules.Calculate(Setup(default, default), waves,
+            BattleRewards rewards = BattleRewardRules.Calculate(Setup(default, default), groups,
                 Result(true, 2, Adventurer(1, 2), Adventurer(2, 2)), id => party[id], LevelRules);
 
             Assert.AreEqual(5, CountOf(rewards.Materials, 15));
@@ -230,14 +254,14 @@ namespace Blacksmith.Tests
         public void DropRoll_SameSeedGivesSameLoot()
         {
             var monster = new MonsterReward { ChanceDrops = { Drop(2, 50, 15), Drop(2, 50, 16) }, GemDrops = { Drop(2, 30, 18, 19, 20, 21) } };
-            var waves = new List<WaveReward> { Wave(monster, monster), Wave(monster) };
+            var groups = new List<GroupReward> { Group(monster, monster), Group(monster) };
 
-            IReadOnlyList<WaveLoot> first = BattleDropRules.Roll(waves, 42);
-            IReadOnlyList<WaveLoot> second = BattleDropRules.Roll(waves, 42);
+            IReadOnlyList<GroupLoot> first = BattleDropRules.Roll(groups, 42);
+            IReadOnlyList<GroupLoot> second = BattleDropRules.Roll(groups, 42);
 
-            for (int i = 0; i < waves.Count; i++)
+            for (int i = 0; i < groups.Count; i++)
             {
-                for (int j = 0; j < waves[i].Monsters.Count; j++)
+                for (int j = 0; j < groups[i].Monsters.Count; j++)
                 {
                     CollectionAssert.AreEqual(first[i].Monsters[j].Materials, second[i].Monsters[j].Materials);
                     CollectionAssert.AreEqual(first[i].Monsters[j].Gems, second[i].Monsters[j].Gems);
@@ -248,12 +272,12 @@ namespace Blacksmith.Tests
         [Test]
         public void DropRoll_ChanceBoundsAreRespected()
         {
-            var waves = new List<WaveReward>
+            var groups = new List<GroupReward>
             {
-                Wave(new MonsterReward { ChanceDrops = { Drop(4, 100, 15), Drop(4, 0, 16) }, GemDrops = { Drop(2, 100, 18, 19) } }),
+                Group(new MonsterReward { ChanceDrops = { Drop(4, 100, 15), Drop(4, 0, 16) }, GemDrops = { Drop(2, 100, 18, 19) } }),
             };
 
-            MonsterLoot loot = BattleDropRules.Roll(waves, 1)[0].Monsters[0];
+            MonsterLoot loot = BattleDropRules.Roll(groups, 1)[0].Monsters[0];
 
             Assert.AreEqual(4, CountOf(loot.Materials, 15));
             Assert.AreEqual(0, CountOf(loot.Materials, 16));

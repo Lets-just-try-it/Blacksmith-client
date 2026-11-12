@@ -32,16 +32,16 @@ namespace Blacksmith.Battle
             _continueButton.onClick.RemoveListener(HandleContinueClicked);
         }
 
-        // stageName은 싸운 스테이지 이름, waveCount는 그 스테이지의 웨이브 수다.
+        // stageName은 싸운 스테이지 이름, groupCount는 그 스테이지의 몬스터 무리 수다.
         // rewards.Adventurers는 result.Adventurers와 같은 순서다.
         // 다음으로 넘어가는 것은 호스트만 할 수 있어 canContinue가 false면 버튼을 숨긴다.
-        public void Show(BattleResult result, BattleRewards rewards, string dungeonName, string stageName, int waveCount,
+        public void Show(BattleResult result, BattleRewards rewards, string dungeonName, string stageName, int groupCount,
             Func<int, string> getAdventurerName, Func<int, string> getItemName, bool canContinue)
         {
             _continueButton.gameObject.SetActive(canContinue);
             ClearRows();
             _titleText.text = result.IsVictory ? "승리" : "패배";
-            _stageText.text = $"{dungeonName} {stageName} · 웨이브 {result.WavesCleared}/{waveCount} 클리어\n{FormatRewards(rewards, getItemName)}";
+            _stageText.text = $"{dungeonName} {stageName} · 무리 {result.GroupsCleared}/{groupCount} 토벌\n{FormatRewards(rewards, getItemName)}";
 
             for (int i = 0; i < result.Adventurers.Count; i++)
             {

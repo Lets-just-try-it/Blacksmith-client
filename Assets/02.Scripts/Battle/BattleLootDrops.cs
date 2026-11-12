@@ -6,8 +6,8 @@ using UnityEngine;
 namespace Blacksmith.Battle
 {
     // 실제로 얻는 재료를 몬스터가 쓰러질 때 바닥에 떨어뜨려 보여 준다 (docs/GAME_CONCEPT.md 7.1 "보상과 경험치").
-    // 보상 계산(BattleRewards)과 같은 값을 쓰고, 클리어한 웨이브의 재료만 보여 준다. 결과에는 영향을 주지 않는다.
-    // 몬스터마다 자기가 떨어뜨린 재료를 보여 주고, 에메랄드로 늘어난 몫은 마지막으로 클리어한 웨이브에서 마지막에 쓰러진 몬스터에 더한다.
+    // 보상 계산(BattleRewards)과 같은 값을 쓰고, 토벌한 무리의 재료만 보여 준다. 결과에는 영향을 주지 않는다.
+    // 몬스터마다 자기가 떨어뜨린 재료를 보여 주고, 에메랄드로 늘어난 몫은 마지막으로 토벌한 무리에서 마지막에 쓰러진 몬스터에 더한다.
     public class BattleLootDrops : MonoBehaviour
     {
         [SerializeField] private BattlePlayer _player;
@@ -24,11 +24,12 @@ namespace Blacksmith.Battle
         [Tooltip("한 줄에 놓는 전리품 수. 넘치면 다음 줄로 카메라 쪽에 더 놓는다")]
         [SerializeField, Min(1)] private int _perRow = 4;
 
-        // 웨이브마다 몬스터별로 떨어뜨릴 재료와 그 웨이브에서 지금까지 쓰러진 수
-        private readonly List<List<List<MaterialReward>>> _waveLoots = new List<List<List<MaterialReward>>>();
+        // 무리마다 몬스터별로 떨어뜨릴 재료와 그 무리에서 지금까지 쓰러진 수
+        private readonly List<List<List<MaterialReward>>> _groupLoots = new List<List<List<MaterialReward>>>();
         private readonly List<int> _fallenCounts = new List<int>();
         private readonly List<BattleLootDropView> _drops = new List<BattleLootDropView>();
         private IReadOnlyList<MaterialReward> _bonusMaterials = new List<MaterialReward>();
+        private int _lastClearedGroup = -1;
 
         private void OnEnable()
         {
@@ -41,15 +42,15 @@ namespace Blacksmith.Battle
         }
 
         // 재생을 시작할 때 부른다.
-        public void Prepare(BattleSetup setup, BattleRewards rewards)
+        public void Prepare(BattleSetup setup, BattleRewards rewards, BattleResult result)
         {
             Clear();
-            for (int i = 0; i < setup.Waves.Count; i++)
+            for (int i = 0; i < setup.Groups.Count; i++)
             {
                 var monsters = new List<List<MaterialReward>>();
-                if (i < rewards.WaveLoots.Count)
+                if (i < rewards.GroupLoots.Count)
                 {
-                    foreach (MonsterLoot monster in rewards.WaveLoots[i].Monsters)
+                    foreach (MonsterLoot monster in rewards.GroupLoots[i].Monsters)
                     {
                         var loot = new List<MaterialReward>();
                         Merge(loot, monster.Materials);
@@ -58,30 +59,31 @@ namespace Blacksmith.Battle
                     }
                 }
 
-                _waveLoots.Add(monsters);
+                _groupLoots.Add(monsters);
                 _fallenCounts.Add(0);
             }
 
             _bonusMaterials = rewards.BonusMaterials;
+            _lastClearedGroup = result.GroupsCleared > 0 ? result.ClearedGroups[result.GroupsCleared - 1] : -1;
         }
 
         private void HandleUnitFell(BattleUnitView view)
         {
             BattleUnit unit = view.Unit;
-            if (unit.Team != BattleTeam.Monster || unit.WaveIndex < 0 || unit.WaveIndex >= _waveLoots.Count)
+            if (unit.Team != BattleTeam.Monster || unit.GroupIndex < 0 || unit.GroupIndex >= _groupLoots.Count)
             {
                 return;
             }
 
-            List<List<MaterialReward>> monsters = _waveLoots[unit.WaveIndex];
-            if (unit.WaveSlot < 0 || unit.WaveSlot >= monsters.Count)
+            List<List<MaterialReward>> monsters = _groupLoots[unit.GroupIndex];
+            if (unit.GroupSlot < 0 || unit.GroupSlot >= monsters.Count)
             {
                 return;
             }
 
-            var mine = new List<MaterialReward>(monsters[unit.WaveSlot]);
-            int fallen = ++_fallenCounts[unit.WaveIndex];
-            if (fallen == monsters.Count && IsLastClearedWave(unit.WaveIndex))
+            var mine = new List<MaterialReward>(monsters[unit.GroupSlot]);
+            int fallen = ++_fallenCounts[unit.GroupIndex];
+            if (fallen == monsters.Count && unit.GroupIndex == _lastClearedGroup)
             {
                 Merge(mine, _bonusMaterials);
             }
@@ -90,11 +92,6 @@ namespace Blacksmith.Battle
             {
                 Spawn(view.transform.position, mine[i], i, mine.Count);
             }
-        }
-
-        private bool IsLastClearedWave(int wave)
-        {
-            return wave + 1 >= _waveLoots.Count || _waveLoots[wave + 1].Count == 0;
         }
 
         private void Spawn(Vector3 origin, MaterialReward material, int index, int count)
@@ -138,9 +135,10 @@ namespace Blacksmith.Battle
             }
 
             _drops.Clear();
-            _waveLoots.Clear();
+            _groupLoots.Clear();
             _fallenCounts.Clear();
             _bonusMaterials = new List<MaterialReward>();
+            _lastClearedGroup = -1;
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Blacksmith.Core.Battle
             return next < stageCount ? next : stageCount - 1;
         }
 
-        // 스테이지의 웨이브를 모두 이겨야 그 스테이지를 클리어한다. 웨이브 도중에 지면 진행 상황은 그대로다.
+        // 스테이지의 몬스터 무리를 모두 토벌해야 그 스테이지를 클리어한다. 도중에 지면 진행 상황은 그대로다.
         // 클리어한 스테이지를 다시 싸우면 진행 상황은 그대로다.
         public static int ApplyResult(int clearedStages, int stage, BattleResult result)
         {

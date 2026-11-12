@@ -26,39 +26,39 @@ namespace Blacksmith.Core.Battle
         }
     }
 
-    // 웨이브 하나에서 나온 재료다. Monsters는 그 웨이브에 나온 몬스터와 같은 순서다.
-    public sealed class WaveLoot
+    // 몬스터 무리 하나에서 나온 재료다. Monsters는 그 무리의 몬스터와 같은 순서다.
+    public sealed class GroupLoot
     {
         public IReadOnlyList<MonsterLoot> Monsters { get; }
 
-        public WaveLoot(IReadOnlyList<MonsterLoot> monsters)
+        public GroupLoot(IReadOnlyList<MonsterLoot> monsters)
         {
             Monsters = monsters;
         }
     }
 
     // 몬스터마다 재료 드랍을 굴린다 (docs/GAME_CONCEPT.md 7.1 "보상과 경험치").
-    // 몬스터가 많고 웨이브가 많을수록 굴리는 횟수가 늘어 기대 드랍도 는다.
+    // 몬스터가 많고 무리가 많을수록 굴리는 횟수가 늘어 기대 드랍도 는다.
     // 같은 시드면 같은 결과라, 결과창 보상과 전투 화면의 드랍 연출이 같은 값을 쓴다.
     public static class BattleDropRules
     {
         // 전투 시뮬레이션과 같은 시드를 쓰되 다른 난수열이 나오게 섞는 값이다. 밸런스 수치가 아니다.
         private const int SeedSalt = 0x5EED_D20B;
 
-        // 싸운 모든 웨이브를 순서대로 굴린다. 클리어하지 못한 웨이브의 결과는 받는 쪽이 버린다.
-        public static IReadOnlyList<WaveLoot> Roll(IReadOnlyList<WaveReward> waves, int seed)
+        // 스테이지의 모든 무리를 BattleSetup.Groups 순서로 굴린다. 토벌하지 못한 무리의 결과는 받는 쪽이 버린다.
+        public static IReadOnlyList<GroupLoot> Roll(IReadOnlyList<GroupReward> groups, int seed)
         {
             var random = new Random(seed ^ SeedSalt);
-            var loots = new List<WaveLoot>(waves.Count);
-            foreach (WaveReward wave in waves)
+            var loots = new List<GroupLoot>(groups.Count);
+            foreach (GroupReward group in groups)
             {
-                var monsters = new List<MonsterLoot>(wave.Monsters.Count);
-                foreach (MonsterReward monster in wave.Monsters)
+                var monsters = new List<MonsterLoot>(group.Monsters.Count);
+                foreach (MonsterReward monster in group.Monsters)
                 {
                     monsters.Add(RollMonster(monster, random));
                 }
 
-                loots.Add(new WaveLoot(monsters));
+                loots.Add(new GroupLoot(monsters));
             }
 
             return loots;
