@@ -13,11 +13,19 @@ namespace Blacksmith.Battle
         [SerializeField] private StageMapData _defaultData;
 
         private GameObject _floor;
+        private float _cellSize = 1f;
+        private MapPoint _start;
 
-        public void Build(int seed, StageMapData data)
+        // 몬스터 무리와 보스의 스폰 지점. 아직 전투가 쓰지 않아 씬 뷰 기즈모로만 보인다.
+        public StageLayout Layout { get; private set; }
+
+        public void Build(int seed, StageMapData data, int mobGroupCount, bool hasBoss)
         {
             data = data != null ? data : _defaultData;
             StageMap map = StageMapGenerator.Generate(seed, data.ToSettings());
+            Layout = StageLayoutGenerator.Generate(map, seed, mobGroupCount, hasBoss, data.ToLayoutSettings());
+            _cellSize = data.CellSize;
+            _start = map.Start;
             Clear();
             if (data.FloorMaterial == null)
             {
@@ -75,6 +83,32 @@ namespace Blacksmith.Battle
                 Vector3 position = new Vector3(x * cellSize, 0f, z * cellSize) + offset;
                 vertices.Add(position);
                 uvs.Add(new Vector2(position.x / textureSize, position.z / textureSize));
+            }
+        }
+
+        // 맵 칸 좌표를 월드 좌표로 바꾼다. 시작 지점이 이 오브젝트의 위치다.
+        public Vector3 ToWorld(MapPoint point)
+        {
+            return transform.TransformPoint((point.X - _start.X) * _cellSize, 0f, (point.Z - _start.Z) * _cellSize);
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (Layout == null)
+            {
+                return;
+            }
+
+            Gizmos.color = Color.red;
+            foreach (MapPoint group in Layout.MobGroups)
+            {
+                Gizmos.DrawWireSphere(ToWorld(group), 3f * _cellSize);
+            }
+
+            if (Layout.HasBoss)
+            {
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawWireSphere(ToWorld(Layout.Boss), 5f * _cellSize);
             }
         }
 

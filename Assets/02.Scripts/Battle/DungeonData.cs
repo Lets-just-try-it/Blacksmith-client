@@ -45,6 +45,12 @@ namespace Blacksmith.Battle
             return IsValid(stage) && _stages[stage].IsBoss;
         }
 
+        // 맵에 스폰 지점을 둘 잡몹 무리 수. 보스는 따로 센다(IsBossStage).
+        public int GetMobGroupCount(int stage)
+        {
+            return IsValid(stage) ? _stages[stage].WaveMonsterCounts.Count : 0;
+        }
+
         // 모든 웨이브를 이기면 받는 골드다. 웨이브마다 몬스터 수가 정해져 있어 구성이 달라도 같다.
         public int GetStageGold(int stage)
         {

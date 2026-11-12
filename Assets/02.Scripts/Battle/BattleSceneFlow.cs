@@ -101,7 +101,9 @@ namespace Blacksmith.Battle
             _lootDrops.Prepare(_battleState.CurrentSetup, _rewards);
             if (_stageMap != null)
             {
-                _stageMap.Build(_battleState.CurrentSetup.Seed, _battleState.CurrentDungeon.StageMap);
+                DungeonData dungeon = _battleState.CurrentDungeon;
+                _stageMap.Build(_battleState.CurrentSetup.Seed, dungeon.StageMap, dungeon.GetMobGroupCount(_battleState.Stage),
+                    dungeon.IsBossStage(_battleState.Stage));
             }
 
             _player.Play(_battleState.CurrentSetup, _rules.TicksPerSecond, GetPrefab);

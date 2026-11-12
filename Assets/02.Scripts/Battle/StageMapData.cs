@@ -34,6 +34,14 @@ namespace Blacksmith.Battle
         [Tooltip("변형 뒤 남은 바닥이 덩어리 넓이의 이 비율(%)보다 작으면 다시 만든다")]
         [SerializeField, Range(0, 100)] private int _minKeptPercent = 70;
 
+        [Header("스폰 지점 (칸 단위)")]
+        [Tooltip("[추정] 몬스터 무리는 시작 지점에서 이 직선 거리 이상 떨어진다. 파견 직후 화면에 무리가 보이지 않게 전투 카메라 범위보다 넉넉히 둔다")]
+        [SerializeField, Min(0)] private int _minStartDistance = 40;
+        [Tooltip("[추정] 몬스터 무리(보스 포함)끼리 떨어지는 최소 직선 거리")]
+        [SerializeField, Min(0)] private int _minGroupSpacing = 32;
+        [Tooltip("[추정] 스폰 칸에서 가장 가까운 맵 가장자리까지 걷는 최소 칸 수")]
+        [SerializeField, Min(0)] private int _wallMargin = 4;
+
         [Header("바닥")]
         [Tooltip("[추정] 바닥 한 칸의 월드 크기")]
         [SerializeField, Min(0.1f)] private float _cellSize = 1f;
@@ -63,6 +71,16 @@ namespace Blacksmith.Battle
                 EdgeScale = _edgeScale,
                 MinWidth = _minWidth,
                 MinKeptPercent = _minKeptPercent,
+            };
+        }
+
+        public StageLayoutSettings ToLayoutSettings()
+        {
+            return new StageLayoutSettings
+            {
+                MinStartDistance = _minStartDistance,
+                MinGroupSpacing = _minGroupSpacing,
+                WallMargin = _wallMargin,
             };
         }
     }
