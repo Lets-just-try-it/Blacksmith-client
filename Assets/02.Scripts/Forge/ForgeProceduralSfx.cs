@@ -63,6 +63,64 @@ namespace Blacksmith.Forge
             });
         }
 
+        // 톱이 낄 때 나무가 삐걱대는 소리
+        public static AudioClip Creak()
+        {
+            float phase = 0f;
+            float lowPass = 0f;
+            return Make("creak", 0.55f, t =>
+            {
+                float frequency = 150f + 70f * Mathf.Sin(t * 22f) + 60f * t;
+                phase += 2f * Mathf.PI * frequency / SampleRate;
+                lowPass += (Noise() - lowPass) * 0.15f;
+                float saw = (phase / Mathf.PI) % 2f - 1f;
+                float envelope = Mathf.Clamp01(t * 25f) * Mathf.Exp(-t * 4f);
+                return (saw * 0.45f + lowPass * 0.5f) * envelope * 0.9f;
+            });
+        }
+
+        // 통나무가 켜져 둘로 갈라져 떨어지는 소리: 나무 갈라지는 딱 소리와 둔탁한 쿵
+        public static AudioClip LogSplit()
+        {
+            float lowPass = 0f;
+            return Make("logsplit", 0.5f, t =>
+            {
+                lowPass += (Noise() - lowPass) * 0.35f;
+                float crack = Noise() * Mathf.Exp(-t * 90f) * 0.9f;
+                float thudTime = Mathf.Max(0f, t - 0.12f);
+                float thud = Mathf.Sin(2f * Mathf.PI * 70f * thudTime) * Mathf.Exp(-thudTime * 14f) * (t > 0.12f ? 1f : 0f);
+                float wood = lowPass * Mathf.Exp(-t * 20f) * 0.8f;
+                return (crack + thud * 1.1f + wood) * 0.9f;
+            });
+        }
+
+        // 시위를 놓는 "팅" 소리: 낮은 현의 울림이 금방 잦아든다.
+        public static AudioClip Twang()
+        {
+            return Make("twang", 0.45f, t =>
+            {
+                float envelope = Mathf.Exp(-t * 11f);
+                float vibrato = 1f + 0.03f * Mathf.Sin(t * 60f) * Mathf.Exp(-t * 6f);
+                float tone = Mathf.Sin(2f * Mathf.PI * 210f * vibrato * t) * 0.55f + Mathf.Sin(2f * Mathf.PI * 420f * t) * 0.25f * Mathf.Exp(-t * 8f);
+                float pluck = Noise() * Mathf.Exp(-t * 180f) * 0.5f;
+                return (tone * envelope + pluck) * 0.9f;
+            });
+        }
+
+        // 화살이 과녁에 박히는 "퍽" 소리: 둔탁한 짚단 소리와 짧은 떨림
+        public static AudioClip Thud()
+        {
+            float lowPass = 0f;
+            return Make("thud", 0.4f, t =>
+            {
+                lowPass += (Noise() - lowPass) * 0.12f;
+                float body = Mathf.Sin(2f * Mathf.PI * 95f * t) * Mathf.Exp(-t * 26f);
+                float straw = lowPass * Mathf.Exp(-t * 30f) * 1.4f;
+                float shaft = Mathf.Sin(2f * Mathf.PI * 340f * t) * Mathf.Exp(-t * 18f) * 0.25f * (t > 0.015f ? 1f : 0f);
+                return (body * 0.9f + straw + shaft) * 0.9f;
+            });
+        }
+
         // 돌이 깨지는 둔탁한 소리
         public static AudioClip Rock(int variant)
         {

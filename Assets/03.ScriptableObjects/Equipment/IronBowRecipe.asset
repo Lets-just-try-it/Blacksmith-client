@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e59036c743440542a8abed1fbc6a3f4, type: 3}
+  m_Name: IronBowRecipe
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Forge.CraftingRecipeData
+  _displayName: "\uCCA0 \uD65C"
+  _steps:
+  - Station: 0
+    Input: {fileID: 11400000, guid: aea1a5cef7898394e83cbc803ed180ce, type: 2}
+    InputCount: 1
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: 610fbc0ce5fa3a04a8286aba074dd77a, type: 2}
+    Variant: 0
+  - Station: 11
+    Input: {fileID: 11400000, guid: 610fbc0ce5fa3a04a8286aba074dd77a, type: 2}
+    InputCount: 4
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: ad0bd2ce1a554e34fbc730a39df7e6e3, type: 2}
+    Variant: 0
+  - Station: 9
+    Input: {fileID: 11400000, guid: ad0bd2ce1a554e34fbc730a39df7e6e3, type: 2}
+    InputCount: 1
+    ExtraInputs:
+    - Item: {fileID: 11400000, guid: 246a4ebd0a0bf244a9018bf560b507b7, type: 2}
+      Count: 1
+    Output: {fileID: 11400000, guid: 6099528cb0ecb1a448dc9eaa9a043d80, type: 2}
+    Variant: 0
+  - Station: 12
+    Input: {fileID: 11400000, guid: 6099528cb0ecb1a448dc9eaa9a043d80, type: 2}
+    InputCount: 1
+    ExtraInputs:
+    - Item: {fileID: 11400000, guid: 6274ad8b83a23cb43bc75c821100b304, type: 2}
+      Count: 3
+    Output: {fileID: 11400000, guid: 6c4da93e65deba4448b3dd7819e878a4, type: 2}
+    Variant: 0
+  - Station: 7
+    Input: {fileID: 11400000, guid: 6c4da93e65deba4448b3dd7819e878a4, type: 2}
+    InputCount: 1
+    ExtraInputs: []
+    Output: {fileID: 11400000, guid: 5fb986ec6ae7847428ad36a1bd0c08b9, type: 2}
+    Variant: 0

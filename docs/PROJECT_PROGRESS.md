@@ -17,17 +17,17 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 ### 장비 제작 (진행 중)
 
-- 미니게임: 정제(`SmeltingGame`), 단조(`ForgingGame`), 담금질(`QuenchGame`), 연마(`PolishGame`), 판 성형(`PlateGame`), 조립(`AssembleGame`), 장신구(`NecklaceGame`). 규칙은 `Core/Forge`, 수치는 `03.ScriptableObjects/Balance/*Rules.asset`.
+- 미니게임: 정제(`SmeltingGame`), 단조(`ForgingGame`), 담금질(`QuenchGame`), 연마(`PolishGame`), 판 성형(`PlateGame`), 조립(`AssembleGame`), 활 깎기(`BowSawGame`), 시위 걸기(`BowStringGame`), 활 몸체 휘기(`BowBendGame`), 시험 사격(`BowRangeGame`, 3D 사격장 `BowRangeStage`), 장신구(`NecklaceGame`). 규칙은 `Core/Forge`, 수치는 `03.ScriptableObjects/Balance/*Rules.asset`. 조립 작업대는 `Forge/AssembleStation`(+ `AssembleView`, `AssembleBoardView`, `AssembleStage`)이고, 아직 `ForgeTest`에서 직접 끝까지 해 보지 않았다.
 - 제작 흐름: 작업대 사용권 `ForgeStationState`(호스트) + `ForgeStationLink`, 결과 RPC `ForgePlayerActions`. 공용 제작 목록 창 `CraftingMenuView`, 재료 예약 `Core/Forge/CraftingReservation`, 재료 판정 `Core/Forge/CraftingRequirements`, 정확도 누적·등급 환산 `Core/Forge/CraftingRules`, 레시피 `CraftingRecipeData`.
-- 정제: 광석 1개 → 주괴 1~4개(정확도별, `SmeltingRules.YieldTiers`, 구간은 임시이며 밸런스 테스트 후 확정). 주괴는 등급·정확도 없이 쌓이고(`ItemKind.Material`), 정제 점수는 장비 등급에 들어가지 않는다(`CraftingEntry.ScoredStepsDone`). 레시피: 구리 대검, 철 대검, 구리·철 투구/갑옷(판 성형까지, 조립 작업대 포함), 목걸이 12개. 레시피는 아직 재료 1개 → 장비 1개이고 부재료를 받지 않는다.
+- 정제: 광석 1개 → 주괴 1~4개(정확도별, `SmeltingRules.YieldTiers`, 구간은 임시이며 밸런스 테스트 후 확정). 주괴는 등급·정확도 없이 쌓이고(`ItemKind.Material`), 정제 점수는 장비 등급에 들어가지 않는다(`CraftingEntry.ScoredStepsDone`). 레시피: 구리 대검, 철 대검, 구리·철 투구/갑옷(판 성형 → 조립), 구리·철 활(정제 → 활 몸체 휘기 → 활 깎기 → 시위 걸기 → 시험 사격, 주괴·참나무 목재·힘줄 사용), 목걸이 12개. 레시피는 아직 재료 1개 → 장비 1개이고 부재료를 받지 않는다.
 - 등급: `Core/GradeRule` + `GradeThresholds` (구현).
-- 시험: `ForgeTest`와 `Game`에서 공용 창고의 시험용 광석으로 대검까지 만들 수 있다. 티어별 난이도·판매 기준가 `TierRules`.
+- 시험: `ForgeTest`와 `Game`의 공용 창고에 시험용 재료가 들어 있다(광석, 주괴, 참나무 목재, 힘줄, 보석. 작업 중인 중간 형태 아이템은 넣지 않는다). `ForgeTestStarter`의 지급 목록에서 바꾼다. 티어별 난이도·판매 기준가 `TierRules`.
 - 연출 끄기: `J` 키(`MinigameFeedbackToggle`, `MinigameFeedbackSwitch`).
 - 작업 자세: Player 프리팹의 `Forge/ForgeWorkPose`가 `ForgeStationRegistry`에서 사용 중인 작업대를 찾아 망치질 자세를 켠다.
 
 ### 대장간 맵 (진행 중)
 
-- `04.Prefabs/Town/ForgeRoom` 그레이박스(제작 구역 하나 28m × 18m, 같은 4m × 4m 칸 8개: 작업대 6개, 조립 작업대, 공용 창고, 칸 바닥 표시 `SlotFloor`, 작업대·소품 그레이박스 모양, 입구 통로와 광장 포털 `PlazaExitPortal`, `ForgeDoor`). `ForgeTest`에서 F1~F6 시점, V 1인칭(`ForgeTestCameraFollow`).
+- `04.Prefabs/Town/ForgeRoom` 그레이박스(제작 구역 하나 34m × 26m, 작업 순서대로 배치(가운데 줄 정제·단조·담금질·연마, 앞줄 창고·판 성형·조립·장신구대, 뒷줄 활 몸체 휘기·활 깎기·시위 걸기·시험 사격), 같은 4m × 4m 칸 12개: 작업대 11개(조립, 활 몸체 휘기, 활 깎기, 시위 걸기, 시험 사격 포함), 공용 창고, 칸 바닥 표시 `SlotFloor`, 작업대·소품 그레이박스 모양, 입구 통로와 광장 포털 `PlazaExitPortal`, `ForgeDoor`). `ForgeTest`에서 F1~F6 시점, V 1인칭(`ForgeTestCameraFollow`).
 - 실제 에셋 적용은 남았다. `ForgeTest`는 대장간 담당 영역이다.
 
 ### 인벤토리 (진행 중)
@@ -105,7 +105,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 1. `main`과 `dev`에 브랜치 보호를 설정한다. `main`은 첫 출시 준비 때 `release/` 브랜치를 병합해 채운다.
 2. 역할별 남은 기능
-   - 대장간: 조립 작업대 직접 확인(미니게임 끝까지, 장비 완성), 단조·담금질을 최신 프로토타입과 대조, 활·지팡이 레시피와 제작 단계([미정]), 장신구에 다른 보석 섞는 규칙(처음 넣은 보석이 효과), 미스릴 장비 아이템, 대장간 업그레이드와 해금, 실제 효과음.
+   - 대장간: 조립·활 몸체 휘기·활 깎기·시위 걸기·시험 사격 작업대 직접 확인(미니게임 끝까지, 장비 완성), 단조·담금질을 최신 프로토타입과 대조, 장신구에 다른 보석 섞는 규칙(처음 넣은 보석이 효과), 미스릴 장비 아이템, 대장간 업그레이드와 해금, 실제 효과음.
    - 전투: 몬스터 아트와 수치, 보스 등장 때 카메라, 장비별 이펙트, 티어별 장비 능력치, 전투 도중 들어온 참가자 재생 맞추기, 부상·사망과 부서진 목걸이를 관리 목록에 반영, 사망 시 장비 제거, 공용 창고가 가득 찼을 때 보상 처리.
    - 광장: 낮이 시작될 때 후보 다시 뽑기(기획 6.1 [미정]), 부상·사망 반영 API, 초상화([고도화]).
    - 인간형 모델: 손에 든 물건을 `ItemSocket_Hold`에 얹기, 미니게임별 작업 동작, 갑옷·장신구 모델, 걷기·공격·쓰러짐 화면 확인.

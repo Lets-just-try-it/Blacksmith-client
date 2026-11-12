@@ -15,6 +15,16 @@ namespace Blacksmith.Core.Forge
         Assembly,
         // 장신구: 체인 잇기, 보석 깎기, 장착, 광내기를 한 작업대에서 한다.
         Jewelry,
+        // 활: 활 몸체를 휘고 시위를 건다. 지팡이: 마석을 지팡이 머리에 박는다. 정제한 주괴로 바로 장비를 만든다.
+        BowShooting,
+        StaffSetting,
+        // 활 제작의 앞 두 단계: 참나무 활 몸체 깎기, 보강쇠 달기
+        BowCarving,
+        BowFitting,
+        // 활 제작의 첫 단계: 달군 쇠 몸체를 형틀에 맞춰 휘기
+        BowBending,
+        // 활 제작의 셋째 단계: 힘줄 시위를 감고 활에 걸기
+        BowStringing,
     }
 
     // 미니게임 하나가 끝났을 때 재료가 다음 형태로 바뀌는 규칙이다. 네트워크와 Unity에 의존하지 않는다.
