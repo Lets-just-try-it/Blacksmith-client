@@ -24,6 +24,7 @@ namespace Blacksmith.Battle
         [SerializeField] private BattleBossIntro _bossIntro;
         [SerializeField] private BattleResultView _resultView;
         [SerializeField] private BattleLootDrops _lootDrops;
+        [SerializeField] private BattleCorpses _corpses;
         [SerializeField] private BattleRulesData _rules;
         [SerializeField] private AdventurerBattleData _adventurerBattle;
         [Tooltip("직업 이름을 찾는 데 쓴다")]
@@ -101,6 +102,7 @@ namespace Blacksmith.Battle
             BattleResult result = new BattleSimulation(_battleState.CurrentSetup).RunToEnd();
             _rewards = _battleState.CalculateRewards(result);
             _lootDrops.Prepare(_battleState.CurrentSetup, _rewards, result);
+            _corpses.Prepare(result, _battleState.CurrentDungeon.FindMonster, _stageMap.ToWorld);
             _stageMap.Build(_battleState.CurrentSetup.Map, _battleState.CurrentDungeon.StageMap);
             _player.Play(_battleState.CurrentSetup, _rules.TicksPerSecond, GetPrefab, _stageMap.ToWorld);
         }

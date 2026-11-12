@@ -564,6 +564,47 @@ namespace Blacksmith.Tests
         }
 
         [Test]
+        public void FallenMonsters_LeaveSpreadCorpsesNearWhereTheyFell()
+        {
+            var simulation = new BattleSimulation(CreateSetup(1, 60, 5));
+            var falls = new List<BattleUnit>();
+            var fallSpots = new List<(int X, int Z)>();
+            while (!simulation.IsFinished)
+            {
+                foreach (BattleEvent e in simulation.Step())
+                {
+                    BattleUnit unit = e.Type == BattleEventType.Fell ? simulation.Units[e.TargetUnitId] : null;
+                    if (unit != null && unit.Team == BattleTeam.Monster)
+                    {
+                        falls.Add(unit);
+                        fallSpots.Add((unit.X, unit.Z));
+                    }
+                }
+            }
+
+            IReadOnlyList<BattleCorpse> corpses = simulation.Result.Corpses;
+            Assert.AreEqual(5, corpses.Count);
+            for (int i = 0; i < corpses.Count; i++)
+            {
+                Assert.AreEqual(falls[i].SourceId, corpses[i].MonsterId);
+                Assert.AreEqual(falls[i].GroupIndex, corpses[i].GroupIndex);
+                Assert.AreEqual(falls[i].GroupSlot, corpses[i].GroupSlot);
+                long dx = corpses[i].X - fallSpots[i].X;
+                long dz = corpses[i].Z - fallSpots[i].Z;
+                Assert.LessOrEqual(dx * dx + dz * dz, 270L * 270L, $"시체 {i}가 쓰러진 자리에서 너무 멀다");
+                for (int j = 0; j < i; j++)
+                {
+                    long gx = corpses[i].X - corpses[j].X;
+                    long gz = corpses[i].Z - corpses[j].Z;
+                    if (corpses[i].GroupIndex == corpses[j].GroupIndex)
+                    {
+                        Assert.GreaterOrEqual(gx * gx + gz * gz, 90L * 90L, $"시체 {j}·{i}가 겹친다");
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void PathField_StepsTowardTargetAroundWall()
         {
             var floor = new bool[5, 3];

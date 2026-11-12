@@ -178,12 +178,12 @@ namespace Blacksmith.Battle
             }
         }
 
-        // 쓰러진 유닛은 다음 무리와 싸우기 전까지 쓰러진 채로 보인다.
+        // 쓰러진 모험가는 다음 무리와 싸우기 전까지 쓰러진 채로 보인다. 몬스터는 BattleCorpses가 시체로 바꾼다.
         private void HideFallenUnits()
         {
             foreach (BattleUnitView view in _views)
             {
-                if (view.Unit.IsFallen)
+                if (view.Unit.IsFallen && view.Unit.Team == BattleTeam.Adventurer)
                 {
                     view.gameObject.SetActive(false);
                 }

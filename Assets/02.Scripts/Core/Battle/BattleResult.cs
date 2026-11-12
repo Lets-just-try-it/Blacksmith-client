@@ -25,6 +25,27 @@ namespace Blacksmith.Core.Battle
         }
     }
 
+    // 쓰러진 몬스터 하나가 남긴 시체. 한 무리의 시체가 모여 시체 더미가 되고, 다음 날 같은 자리에서 채집한다 (docs/GAME_CONCEPT.md 7.4).
+    public readonly struct BattleCorpse
+    {
+        public int MonsterId { get; }
+        // BattleSetup.Groups 순서의 무리 번호와 무리 안의 순서
+        public int GroupIndex { get; }
+        public int GroupSlot { get; }
+        // 쓰러진 자리(BattleSpace 단위)
+        public int X { get; }
+        public int Z { get; }
+
+        public BattleCorpse(int monsterId, int groupIndex, int groupSlot, int x, int z)
+        {
+            MonsterId = monsterId;
+            GroupIndex = groupIndex;
+            GroupSlot = groupSlot;
+            X = x;
+            Z = z;
+        }
+    }
+
     public sealed class BattleResult
     {
         public bool IsVictory { get; }
@@ -33,9 +54,13 @@ namespace Blacksmith.Core.Battle
         public int GroupsCleared => ClearedGroups.Count;
         public int EndTick { get; }
         public IReadOnlyList<AdventurerBattleResult> Adventurers { get; }
+        // 쓰러진 몬스터의 시체를 쓰러진 순서대로 담는다.
+        public IReadOnlyList<BattleCorpse> Corpses { get; }
 
-        public BattleResult(bool isVictory, IReadOnlyList<int> clearedGroups, int endTick, IReadOnlyList<AdventurerBattleResult> adventurers)
+        public BattleResult(bool isVictory, IReadOnlyList<int> clearedGroups, int endTick, IReadOnlyList<AdventurerBattleResult> adventurers,
+            IReadOnlyList<BattleCorpse> corpses = null)
         {
+            Corpses = corpses ?? new BattleCorpse[0];
             IsVictory = isVictory;
             ClearedGroups = clearedGroups;
             EndTick = endTick;

@@ -19,12 +19,15 @@ namespace Blacksmith.Battle
         [Tooltip("[추정] 무리의 시야 거리(1칸 = 100). 모험가가 이 거리 안에 들어오면 무리 전체가 다가온다. 무리에서 가장 긴 값을 쓴다")]
         [SerializeField, Min(0)] private int _sightRange = 1200;
         [SerializeField] private BattleUnitView _viewPrefab;
+        [Tooltip("쓰러진 뒤 남는 시체. 비우면 전투 씬의 기본 시체를 쓴다")]
+        [SerializeField] private GameObject _corpsePrefab;
 
         public int MonsterId => _monsterId;
         public string DisplayName => _displayName;
         public bool IsBoss => _isBoss;
         public int AttackRange => _stats.AttackRange;
         public BattleUnitView ViewPrefab => _viewPrefab;
+        public GameObject CorpsePrefab => _corpsePrefab;
 
         public MonsterSetup ToSetup(int spawnOffset)
         {
