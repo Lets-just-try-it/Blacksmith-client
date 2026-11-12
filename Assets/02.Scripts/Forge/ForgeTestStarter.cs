@@ -17,10 +17,21 @@ namespace Blacksmith.Forge
     // 밤 파견 창을 확인하도록 관리 목록에 직업마다 모험가를 한 명씩 넣는다.
     public class ForgeTestStarter : MonoBehaviour
     {
+        [Serializable]
+        private struct ItemSupply
+        {
+            public ItemData Item;
+            [Min(1)] public int Count;
+            [Tooltip("제작 중간 형태일 때 지금까지 쌓은 정확도 평균(0~100). 재료와 장비는 0")]
+            [Range(0, 100)] public int Accuracy;
+        }
+
         [SerializeField] private NetworkBootstrap _bootstrap;
         [SerializeField] private SharedInventoryState _inventory;
         [SerializeField] private ItemData _supplyItem;
         [SerializeField, Min(1)] private int _supplyCount = 10;
+        [Tooltip("광석 말고 함께 넣을 재료와 제작 중간 형태. 작업대마다 바로 시험해 볼 수 있게 각 단계의 재료를 넣어 둔다")]
+        [SerializeField] private ItemSupply[] _extraSupplies = System.Array.Empty<ItemSupply>();
         [Tooltip("비워 두면 모험가를 넣지 않는다")]
         [SerializeField] private AdventurerRosterState _roster;
         [SerializeField] private AdventurerGenerationData _generation;
@@ -56,6 +67,30 @@ namespace Blacksmith.Forge
 
             _hasSupplied = true;
             _inventory.TryAdd(new ItemStack(_supplyItem.ItemId, 0, _supplyCount));
+            foreach (ItemSupply supply in _extraSupplies)
+            {
+                AddSupply(supply);
+            }
+        }
+
+        // 재료는 쌓아서 한 번에 넣고, 쌓이지 않는 중간 형태와 장비는 하나씩 넣는다.
+        private void AddSupply(ItemSupply supply)
+        {
+            if (supply.Item == null)
+            {
+                return;
+            }
+
+            if (supply.Item.Kind == ItemKind.Material)
+            {
+                _inventory.TryAdd(new ItemStack(supply.Item.ItemId, 0, supply.Count));
+                return;
+            }
+
+            for (int i = 0; i < supply.Count; i++)
+            {
+                _inventory.TryAdd(new ItemStack(supply.Item.ItemId, 0, 1, supply.Accuracy));
+            }
         }
 
         private void Recruit()
