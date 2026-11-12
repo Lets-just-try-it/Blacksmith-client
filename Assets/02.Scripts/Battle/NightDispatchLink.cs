@@ -7,6 +7,7 @@ namespace Blacksmith.Battle
     // 낮·밤 단계와 파견을 잇는다. 낮 씬에 둔다. (docs/GAME_CONCEPT.md 2.3)
     // 밤이 되면 파견 창을 열고, 전투 결과를 반영했거나 파견을 건너뛰면 다음 날 낮을 시작한다. 호스트에서만 동작한다.
     // 다음 날은 대장간에서 시작하므로, 전투 결과를 반영했거나 파견을 건너뛰면 플레이어를 대장간으로 모은다(채집 맵에 있던 플레이어 포함).
+    // 파견해 전투 씬이 낮 화면을 덮으면 그때도 바로 대장간으로 모은다. 전투가 끝났을 때 광장의 던전 문 같은 트리거 앞에 서 있지 않게 한다.
     public class NightDispatchLink : MonoBehaviour
     {
         [SerializeField] private GameState _gameState;
@@ -22,6 +23,7 @@ namespace Blacksmith.Battle
             _dispatch.Changed += OpenDispatchAtNight;
             _dispatch.Skipped += ReturnAndStartNextDay;
             _channel.ResultConfirmed += StartNextDay;
+            _channel.BattleOpened += ReturnAll;
         }
 
         private void OnDisable()
@@ -30,6 +32,7 @@ namespace Blacksmith.Battle
             _dispatch.Changed -= OpenDispatchAtNight;
             _dispatch.Skipped -= ReturnAndStartNextDay;
             _channel.ResultConfirmed -= StartNextDay;
+            _channel.BattleOpened -= ReturnAll;
         }
 
         // 두 오브젝트의 스폰 순서가 정해져 있지 않아 어느 쪽이 바뀌어도 다시 확인한다.
@@ -43,7 +46,13 @@ namespace Blacksmith.Battle
             }
         }
 
-        // 파견 창이 화면을 덮고 있는 동안 옮긴다. 전투 때와 달리 화면을 어둡게 하지 않아, 창이 닫힐 때 대장간으로 바로 바뀐다.
+        // 모든 참가자에게 불리지만 옮기는 것은 호스트만 한다.
+        private void ReturnAll()
+        {
+            _spawner.ReturnAllToSpawnPoints();
+        }
+
+        // 모든 화면이 어두워진 동안(DispatchSkipFade) 옮겨서, 화면이 밝아지면 대장간이 보인다.
         private void ReturnAndStartNextDay()
         {
             _spawner.ReturnAllToSpawnPoints();

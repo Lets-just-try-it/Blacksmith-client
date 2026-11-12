@@ -13,13 +13,9 @@ namespace Blacksmith.Forge
         [Tooltip("진행 중인지 확인할 씬의 작업대")]
         [SerializeField] private ForgeStationState[] _stations = new ForgeStationState[0];
 
-        private void Awake()
-        {
-            _gameState.SetWorkInProgressSource(IsAnyStationInUse);
-        }
-
         private void OnEnable()
         {
+            _gameState.AddWorkInProgressSource(IsAnyStationInUse);
             _gameState.PhaseChanged += ApplyPhase;
             ApplyPhase();
         }
@@ -27,6 +23,7 @@ namespace Blacksmith.Forge
         // 다른 씬에 낮·밤 연결이 없을 때 작업대가 닫힌 채로 남지 않게 연다.
         private void OnDisable()
         {
+            _gameState.RemoveWorkInProgressSource(IsAnyStationInUse);
             _gameState.PhaseChanged -= ApplyPhase;
             _channel.SetOpen(true);
         }

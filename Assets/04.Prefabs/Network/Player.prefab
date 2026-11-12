@@ -417,6 +417,7 @@ GameObject:
   - component: {fileID: 7781040051162245662}
   - component: {fileID: 489576047317289931}
   - component: {fileID: 6820468251294844430}
+  - component: {fileID: 7556280487927860146}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -472,6 +473,7 @@ MonoBehaviour:
   - {fileID: 7781040051162245662}
   - {fileID: 489576047317289931}
   - {fileID: 6820468251294844430}
+  - {fileID: 7556280487927860146}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &928977346244656201
 CharacterController:
@@ -558,6 +560,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Dialogue.DialoguePlayerActions
   _channel: {fileID: 11400000, guid: fd6a45848b04db1459d253c24d869135, type: 2}
   _interactRadius: 1.5
+  _faceTurnSpeed: 540
   _DialogueTarget:
     Raw: 0
 --- !u!114 &6403827467851014423
@@ -687,6 +690,19 @@ MonoBehaviour:
   _controller: {fileID: 6226732348625818365}
   _inputLock: {fileID: 11400000, guid: 55343e3bee392d840ad4d7043c323fbc, type: 2}
   _screenFade: {fileID: 11400000, guid: d014f3a0aaa78ce48a6b8fccd8a5159b, type: 2}
+--- !u!114 &7556280487927860146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6939742712899349512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b16b9a1c47be044a937e51c57cb4b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.GatheringPlayerActions
+  _inventory: {fileID: 6428275539069939239}
 --- !u!1 &9110488598716451685
 GameObject:
   m_ObjectHideFlags: 0

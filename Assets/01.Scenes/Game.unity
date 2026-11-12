@@ -812,6 +812,8 @@ GameObject:
   - component: {fileID: 181058528}
   - component: {fileID: 181058527}
   - component: {fileID: 181058531}
+  - component: {fileID: 181058533}
+  - component: {fileID: 181058532}
   m_Layer: 0
   m_Name: DispatchSession
   m_TagString: Untagged
@@ -851,12 +853,15 @@ MonoBehaviour:
   _roster: {fileID: 944958973}
   _progress: {fileID: 181058526}
   _loader: {fileID: 181058528}
+  _skipDarkenSeconds: 0.6
   _IsOpen:
     RawValue: 0
   _Screen: 0
   _TierIndex: 0
   _Stage: 0
   _PartyCount: 0
+  _IsSkipping:
+    RawValue: 0
 --- !u!114 &181058528
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -894,6 +899,7 @@ MonoBehaviour:
   - {fileID: 181058528}
   - {fileID: 181058527}
   - {fileID: 181058531}
+  - {fileID: 181058532}
   ForceRemoteRenderTimeframe: 0
 --- !u!4 &181058530
 Transform:
@@ -929,6 +935,37 @@ MonoBehaviour:
   _DungeonId: 0
   _Stage: 0
   _Seed: 0
+--- !u!114 &181058532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181058525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be8a1c76534b9774ba4e8d755b8fd027, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.GatheringNodesState
+  _site: {fileID: 181058531}
+  _layout: {fileID: 181058533}
+  _gameState: {fileID: 156785739}
+  _ActiveSeed: 0
+--- !u!114 &181058533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181058525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b40042b000a98574bb7341311ea2e2be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.GatheringSiteLayout
+  _site: {fileID: 181058531}
+  _progress: {fileID: 181058526}
+  _rules: {fileID: 11400000, guid: a81d3166080ee1346b4ff8aa6d7e8625, type: 2}
 --- !u!1 &247328156
 GameObject:
   m_ObjectHideFlags: 0
@@ -1959,7 +1996,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.BattleRewardApplier
   _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
   _gameState: {fileID: 156785739}
-  _storage: {fileID: 2082279646}
   _roster: {fileID: 944958973}
 --- !u!4 &525234212
 Transform:
@@ -3550,6 +3586,53 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6139f1f8f5126ff4286d3ed47f0bc4ff, type: 3}
+--- !u!1 &789555208
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 789555210}
+  - component: {fileID: 789555209}
+  m_Layer: 0
+  m_Name: DispatchSkipFade
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &789555209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 789555208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 931f175ba504a8241abf390eb0d11a3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.DispatchSkipFade
+  _dispatch: {fileID: 181058527}
+  _screenFade: {fileID: 11400000, guid: d014f3a0aaa78ce48a6b8fccd8a5159b, type: 2}
+  _holdSeconds: 0.25
+--- !u!4 &789555210
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 789555208}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &823889540
 GameObject:
   m_ObjectHideFlags: 0
@@ -4486,8 +4569,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.GatheringSiteView
   _site: {fileID: 181058531}
-  _progress: {fileID: 181058526}
+  _layout: {fileID: 181058533}
+  _nodes: {fileID: 181058532}
   _stageMap: {fileID: 1256163316}
+  _objectRoot: {fileID: 1533854297}
+  _nodePrefabs:
+  - Kind: 0
+    Prefab: {fileID: 4765873904753191627, guid: 033c4b5de5641384cb04f06d97a5e1df, type: 3}
+  - Kind: 1
+    Prefab: {fileID: 7029921541440108427, guid: 2703e807753469b4facbb682d8565df5, type: 3}
+  - Kind: 2
+    Prefab: {fileID: 5916645831119411174, guid: c82cfa6f0625e894a92f3fe96399c2a5, type: 3}
+  - Kind: 3
+    Prefab: {fileID: 5459151706502689481, guid: f3a6fb6d132119c4e9e8d96e07f5efa4, type: 3}
+  - Kind: 4
+    Prefab: {fileID: 2224616961941221712, guid: 9ff3ae15310e05b43a5f6a90f617959e, type: 3}
+  _defaultCorpsePrefab: {fileID: 688216737140443352, guid: d0dae18f6df2d5b42963542059e25033, type: 3}
+  _bossScale: 1.5
+  _interact: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _inputLock: {fileID: 11400000, guid: 55343e3bee392d840ad4d7043c323fbc, type: 2}
+  _notice: {fileID: 247328157}
   _releaseCheckInterval: 1
 --- !u!114 &1256163316
 MonoBehaviour:
@@ -4518,6 +4619,7 @@ Transform:
   m_Children:
   - {fileID: 1961055293}
   - {fileID: 22233336}
+  - {fileID: 1533854297}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1260887273
@@ -5725,6 +5827,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1524432960}
   m_CullTransparentMesh: 1
+--- !u!1 &1533854296
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1533854297}
+  m_Layer: 0
+  m_Name: Objects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1533854297
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1533854296}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1256163317}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1540576468
 GameObject:
   m_ObjectHideFlags: 0
@@ -6332,8 +6465,10 @@ MonoBehaviour:
   _siteView: {fileID: 1256163315}
   _destination: {fileID: 1961055293}
   _notice: {fileID: 247328157}
+  _inputLock: {fileID: 11400000, guid: 55343e3bee392d840ad4d7043c323fbc, type: 2}
   _closedMessage: "\uB358\uC804\uC5D0 \uBAAC\uC2A4\uD130\uAC00 \uC794\uB729 \uC788\uC2B5\uB2C8\uB2E4.
     \uC704\uD5D8\uD569\uB2C8\uB2E4."
+  _leaveMargin: 1
 --- !u!65 &1760020109
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7582,3 +7717,4 @@ SceneRoots:
   - {fileID: 1006572637}
   - {fileID: 698414469}
   - {fileID: 1256163317}
+  - {fileID: 789555210}

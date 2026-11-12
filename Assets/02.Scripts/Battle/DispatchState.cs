@@ -24,6 +24,8 @@ namespace Blacksmith.Battle
         [SerializeField] private AdventurerRosterState _roster;
         [SerializeField] private DungeonProgressState _progress;
         [SerializeField] private BattleSceneLoader _loader;
+        [Tooltip("파견을 건너뛸 때 모든 화면이 어두워지기를 기다리는 시간(초). 화면 페이드 시간에 참가자 지연을 더한 만큼 둔다")]
+        [SerializeField, Min(0f)] private float _skipDarkenSeconds = 0.6f;
 
         private ChangeDetector _changes;
         // 이 참가자의 씬에 연결된 던전 지도 창이 있는지. 없으면 지도를 건너뛰고 파견 창부터 연다.
@@ -37,10 +39,13 @@ namespace Blacksmith.Battle
         [Networked] public int Stage { get; private set; }
         [Networked] public int PartyCount { get; private set; }
         [Networked, Capacity(BattleState.MaxPartySize)] private NetworkArray<int> PartyIds => default;
+        // 파견을 건너뛰기로 해 화면이 어두워지기를 기다리는 중이다. 창은 다음 날이 시작될 때까지 열어 둔다.
+        [Networked] public NetworkBool IsSkipping { get; private set; }
+        [Networked] private TickTimer SkipTimer { get; set; }
 
         // 스폰 직후와 고른 내용이 바뀔 때 모든 참가자에게 불린다.
         public event Action Changed;
-        // 호스트에서만 불린다. 밤에 파견하지 않고 다음 날로 넘기기로 했을 때다.
+        // 호스트에서만 불린다. 밤에 파견하지 않고 다음 날로 넘기기로 해, 모든 화면이 어두워진 뒤다.
         public event Action Skipped;
 
         public bool IsReady => Object != null && Object.IsValid;
@@ -78,6 +83,16 @@ namespace Blacksmith.Battle
 
             ClampSelection();
             Changed?.Invoke();
+        }
+
+        public override void FixedUpdateNetwork()
+        {
+            if (HasStateAuthority && IsSkipping && SkipTimer.Expired(Runner))
+            {
+                IsSkipping = false;
+                IsOpen = false;
+                Skipped?.Invoke();
+            }
         }
 
         public override void Render()
@@ -124,13 +139,13 @@ namespace Blacksmith.Battle
             }
         }
 
-        // 호스트 전용. 밤에 파견하지 않고 다음 날로 넘긴다.
+        // 호스트 전용. 밤에 파견하지 않고 다음 날로 넘긴다. 모든 참가자의 화면이 어두워진 뒤(DispatchSkipFade) 대장간으로 옮긴다.
         public void Skip()
         {
-            if (CanEdit && IsOpen)
+            if (CanEdit && IsOpen && !IsSkipping)
             {
-                IsOpen = false;
-                Skipped?.Invoke();
+                IsSkipping = true;
+                SkipTimer = TickTimer.CreateFromSeconds(Runner, _skipDarkenSeconds);
             }
         }
 
@@ -206,7 +221,7 @@ namespace Blacksmith.Battle
 
         public bool CanDispatch()
         {
-            return CanEdit && _loader.CanDispatch && Screen == DispatchScreen.Party && Stage >= 0
+            return CanEdit && !IsSkipping && _loader.CanDispatch && Screen == DispatchScreen.Party && Stage >= 0
                 && DispatchRules.IsValidPartySize(PartyCount, BattleState.MaxPartySize);
         }
 

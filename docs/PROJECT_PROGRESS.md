@@ -1,6 +1,6 @@
 # Tempered Heroes (가제) 프로젝트 진행 현황
 
-> 기준일: 2026-11-12
+> 기준일: 2026-11-13
 >
 > 이 문서는 자신이 들어 있는 브랜치의 상태를 설명한다. 시스템별 상태, 핵심 진입점, 확인하지 않은 것, 남은 작업만 적는다. 구현 방법과 확인 기록은 PR 본문과 `docs/ai-prompts/`에 적는다. 개발 환경 설정은 `docs/SETUP.md`를 따른다.
 
@@ -49,14 +49,14 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 - 규칙 `Core/Battle`: `BattleSimulation`(시드 기반, 맵 위 무리 전투, 대열, 스킬, 분노), `StagePathField`(8방향 격자 경로), `BattleGroupRules`, `BattleRewardRules`, `BattleDropRules`, `DungeonProgressRules`, `DispatchRules`, `AccessoryEffect`.
 - 데이터: `DungeonData`(`Dungeon_Tier1`, `Dungeon_Tier2`만 있음), `03.ScriptableObjects/Monsters`, `AdventurerBattle`(직업별 전투 수치·스킬 표).
-- 흐름: 던전 지도 `DungeonMapView` → 파견 창 `DispatchView`/`DispatchState` → `BattleSceneLoader`가 `Battle` 씬 Additive 로드 → `BattleSceneFlow` 재생, `BattleState` 동기화 → 결과창 확인 → `DungeonProgressState` 반영, `BattleRewardApplier`(`Game` 씬만)가 골드·재료·경험치 반영. 전투 중 낮 화면은 `DaySceneBattleCover`가 끈다.
+- 흐름: 던전 지도 `DungeonMapView` → 파견 창 `DispatchView`/`DispatchState` → `BattleSceneLoader`가 `Battle` 씬 Additive 로드 → `BattleSceneFlow` 재생, `BattleState` 동기화 → 결과창 확인 → `DungeonProgressState` 반영, `BattleRewardApplier`(`Game` 씬만)가 골드·경험치 반영. 전투 보상에 재료는 없다(다음 날 채집). 전투 중 낮 화면은 `DaySceneBattleCover`가 끈다.
 - 지도는 씬마다 `DispatchUI`의 `DungeonMap`에 `_state`·`_progress`를 연결해야 켜진다. `DispatchTest`와 `Game`에 연결했다.
 - 스테이지 맵: `Core/Battle/StageMapGenerator`가 전투 시드로 타원 덩어리를 이어 붙인 넓은 맵을 만들고, `StageMapValidator`가 한 덩어리·구멍 없음·최소 폭을 확인한다. `Battle` 씬의 `StageMap`(`StageMapView`)이 시작 지점을 원점에 두고 바닥 메시를 깐다. 수치와 바닥 머티리얼(던전마다 하나)은 `StageMap_Tier1`·`StageMap_Tier2`(던전 데이터가 참조), 바닥은 `ThirdParty/FloorTiles01`이다. `Core/Battle/StageLayoutGenerator`가 같은 시드로 몬스터 무리·보스 스폰 지점을 정한다. 맵과 스폰 지점은 `DungeonData.AddGroupsTo`가 `BattleSetup`에 넣는다.
 - 전투: 잡몹 무리는 처음부터 스폰 지점에 서 있고, 모험가는 처음에만 대열로 서고, 그 뒤로는 남은 무리 중 걸어서 가장 가까운 무리로 각자 격자 경로를 따라 걸으며 서로 비켜 선다(NavMesh 안 씀, 걷는 속도는 `BattleRules`의 `_marchSpeed`, 원거리가 앞서면 `_lineUpSpeedPercent`만큼 속도를 바꿔 근접이 앞에 서게 함). 인간형 유닛은 화면 이동 속도를 애니메이터 `Speed`에 넣어 대기·걷기·달리기 블렌드를 쓴다(`BattleUnitView`). 모험가가 무리 시야(`MonsterData` 시야 거리)에 들면 무리가 다가와 싸운다. 잡몹 무리를 모두 토벌하면 보스가 보스 자리에 나타난다. 결과는 토벌 순서(`BattleResult.ClearedGroups`)로 보상·경험치를 계산한다. 화면에 토벌 진행도(`BattleProgressLabel`)를 보여 준다.
 - 시체: 몬스터가 쓰러지면 잠시 뒤 그 자리의 시체(`BattleCorpses`, 그레이박스 `04.Prefabs/Characters/Monsters/MonsterCorpse`, 몬스터 데이터의 시체 프리팹이 있으면 그것)로 바뀌어 남는다. 같은 무리 시체끼리 겹치면 옆으로 비켜 놓아 시체 무리로 보인다. 자리는 `BattleResult.Corpses`에 남는다.
 - 채집할 맵: 낮 씬 `DispatchSession`의 `GatheringSiteState`(호스트 소유)가 이긴 전투의 던전·스테이지·시드·시체 자리를 담고, 다음 밤에 파견하지 않거나 져서 결과를 반영하면 비운다. 맵은 `DungeonData.GenerateMap(seed)`로 다시 만든다. `Game`·`DispatchTest`·`ForgeTest`에 연결했다.
-- 채집 맵 입구: `Game` 씬 광장 북쪽의 `DungeonGate`(문)에 닿으면 채집할 곳이 있으면 채집 맵 시작 지점으로 옮기고, 없으면 "던전에 몬스터가 잔뜩 있습니다. 위험합니다."를 띄운다(`ForgeNotice` 재사용). 채집 맵은 x = 2000의 `GatheringSite`(`GatheringSiteView`)가 같은 시드로 바닥만 깔고(`StageMapView` 충돌 켬: 바닥과 가장자리 벽), 시작 지점 옆 `PlazaReturnPortal`로 광장에 돌아온다. 맵은 참가자마다 들어갈 때 화면이 어두워진 사이에 만들고(호스트는 다른 플레이어가 문에 닿을 때), 채집할 맵이 바뀌면 안에 플레이어가 없을 때 버린다. 시체·자원·채집 상호작용은 아직 없다.
-- 몬스터 재료 드랍이 아직 있다. 2026-11-10 기획과 달라 바꿀 대상이다(남은 작업 3).
+- 채집 맵 입구: `Game` 씬 광장 북쪽의 `DungeonGate`(문)에 닿으면 채집할 곳이 있으면 채집 맵 시작 지점으로 옮기고, 없으면 "던전에 몬스터가 잔뜩 있습니다. 위험합니다."를 띄운다(`ForgeNotice` 재사용). 문에서 떨어질 때까지는 한 번만 반응하고, 조작이 잠긴 동안에는 반응하지 않는다. 채집 맵은 x = 2000의 `GatheringSite`(`GatheringSiteView`)가 같은 시드로 바닥만 깔고(`StageMapView` 충돌 켬: 바닥과 가장자리 벽), 시작 지점 옆 `PlazaReturnPortal`로 광장에 돌아온다. 맵은 참가자마다 들어갈 때 화면이 어두워진 사이에 만들고(호스트는 다른 플레이어가 문에 닿을 때), 채집할 맵이 바뀌면 안에 플레이어가 없을 때 버린다.
+- 채집: `Core/Battle/GatheringLayout`이 시드와 시체 자리로 시체 더미(무리마다 하나)·광맥·나무·바닥 광석·바닥 목재를 놓고 채집량을 정한다(시체 더미는 `BattleDropRules`로 그 무리 몬스터의 갈무리 확률을 굴림, 광석은 `DungeonData`의 광석 번호). 수치는 `GatheringRules`. `GatheringSiteLayout`이 맵·자리를 만들고(`BuildNodes`는 전투 화면과 함께 씀), 전투 화면에도 `Battle` 씬의 `BattleGatheringPreview`가 같은 자리에 광맥·나무·바닥 광석·목재를 보여 준다(모습은 `*Visual` 프리팹을 함께 씀). `GatheringSiteView`가 시체와 `GatheringNodeView`(`04.Prefabs/Town/Gathering`, 그레이박스)를 깐다. 상태는 `GatheringNodesState`(호스트, `DispatchSession`)가 먼저 요청한 플레이어에게 주고 `TickTimer`로 끝나면 재료를 그 플레이어의 개인 인벤토리에 넣는다. 요청 RPC는 Player 프리팹의 `GatheringPlayerActions`. 캐는 동안 조작을 잠그고, 진행 중인 채집이 있으면 낮이 끝나도 "영업 마감 중"으로 기다린다(`GameState.AddWorkInProgressSource`). 채집 도구는 아직 확인하지 않는다.
 
 ### 모험가 영입 (진행 중)
 
@@ -80,7 +80,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 ### 구역 이동·화면 페이드 (구현)
 
-- `04.Prefabs/Town/AreaPortal`, `Game` 씬의 `ForgePlazaLink`, `ScreenFader`/`ScreenFadeChannel`(`docs/NETWORK_DESIGN.md` 3.2절). 전투 결과를 반영하거나 파견을 건너뛰면 `PlayerSpawner.ReturnAllToSpawnPoints`로 모두 대장간으로 옮긴다(채집 맵에 있던 플레이어 포함).
+- `04.Prefabs/Town/AreaPortal`, `Game` 씬의 `ForgePlazaLink`, `ScreenFader`/`ScreenFadeChannel`(`docs/NETWORK_DESIGN.md` 3.2절). 파견해 전투 씬이 낮 화면을 덮을 때, 전투 결과를 반영하거나 파견을 건너뛸 때 `PlayerSpawner.ReturnAllToSpawnPoints`로 모두 대장간으로 옮긴다(채집 맵에 있던 플레이어 포함). 파견을 건너뛸 때는 `DispatchState.IsSkipping` 동안 `DispatchSkipFade`가 모든 화면을 어둡게 하고, 옮긴 뒤 밝힌다.
 
 ### Photon Fusion 2 (진행 중)
 
@@ -105,10 +105,12 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 두 명 접속: 작업대 사용권 거절, 인벤토리·장비 착용, 파견 창·지도(참가자 보기 전용), 낮·밤 전환, `Game` 씬 전체 흐름. (Host 이동, 영입, 대화, 전투 재생은 두 명으로 확인했다.)
 - 광장 후보: 두 명 접속에서 클라이언트 화면의 배회·방향, 클라이언트 플레이어가 대화 상대 쪽으로 도는 것, 클라이언트의 능력치 창. 실제 결과창으로 다음 날을 넘겼을 때의 후보 교체(스크립트로만 넘겨 봄).
 - 실제 미니게임 도중 낮이 끝나는 경우.
-- 보스 등장 연출, 바닥 드랍, 토벌 진행도의 플레이 모드 화면(무리 이동·교전은 `BattleTest`로 확인함). 두 명 접속에서 무리 전투가 같게 재생되는지.
+- 보스 등장 연출, 토벌 진행도의 플레이 모드 화면(무리 이동·교전은 `BattleTest`로 확인함). 두 명 접속에서 무리 전투가 같게 재생되는지.
 - 스테이지 맵: 두 명 접속에서 같은 맵이 나오는지, 전투 카메라로 본 맵 가장자리.
 - 채집할 맵(`GatheringSiteState`): 플레이 모드에서 승리·패배·파견 건너뛰기 뒤 값이 바뀌는지, 참가자에게 같은 값이 보이는지.
 - 채집 맵 입구: 혼자(호스트) 막힘 안내·들어가기·돌아오기, 들어갈 때 생성(화면이 검을 때)·지난 맵을 안에 있는 동안 유지하고 나오면 버리기만 확인했다. 맵 생성 동안 호스트 화면이 멈칫하는지(다른 플레이어가 들어갈 때 호스트 화면은 가려지지 않는다). 클라이언트가 들어가는지, 실제 전투 승리 뒤 들어가는지, 맵 가장자리를 걸어서 막히는지.
+- 채집: 혼자(호스트)에서 실제 승리한 전투의 화면과 다음 날 채집 맵의 자원 자리가 모두 같은 것, 스크립트로 넣은 채집할 맵으로 배치, 캐기(재료가 개인 인벤토리로), 캐는 중 다른 요청 거절, 낮이 끝날 때 영업 마감 대기와 마감 중 거절, E 키로 직접 캐기와 조작 잠금, 채집 맵·전투 화면의 그레이박스 모습, 걸어서 던전 문에 부딪혔을 때 안내가 한 번만 뜨는 것만 확인했다. 개인 인벤토리가 찼을 때, 두 명이 같은 것을 동시에 캐려 할 때, 클라이언트의 채집.
+- 파견 건너뛰기 페이드: 호스트 화면만 확인했다. 클라이언트 화면이 같이 어두워지는지.
 - 빌드한 실행 파일에서의 전체 흐름.
 
 ## 남은 작업
@@ -116,16 +118,16 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 1. `main`과 `dev`에 브랜치 보호를 설정한다. `main`은 첫 출시 준비 때 `release/` 브랜치를 병합해 채운다.
 2. 역할별 남은 기능
    - 대장간: 조립·활 몸체 휘기·활 깎기·시위 걸기·시험 사격 작업대 직접 확인(미니게임 끝까지, 장비 완성), 단조·담금질을 최신 프로토타입과 대조, 장신구에 다른 보석 섞는 규칙(처음 넣은 보석이 효과), 미스릴 장비 아이템, 대장간 업그레이드와 해금, 실제 효과음.
-   - 전투: 시체 아트, 교전 중 유닛끼리 겹침, 몬스터 아트와 수치, 보스 등장 때 카메라, 장비별 이펙트, 티어별 장비 능력치, 전투 도중 들어온 참가자 재생 맞추기, 부상·사망과 부서진 목걸이를 관리 목록에 반영, 사망 시 장비 제거, 공용 창고가 가득 찼을 때 보상 처리.
+   - 전투: 시체 아트, 교전 중 유닛끼리 겹침, 몬스터 아트와 수치, 보스 등장 때 카메라, 장비별 이펙트, 티어별 장비 능력치, 전투 도중 들어온 참가자 재생 맞추기, 부상·사망과 부서진 목걸이를 관리 목록에 반영, 사망 시 장비 제거.
    - 광장: 부상·사망 반영 API, 초상화([고도화]).
    - 인간형 모델: 손에 든 물건을 `ItemSocket_Hold`에 얹기, 미니게임별 작업 동작, 갑옷·장신구 모델, 걷기·공격·쓰러짐 화면 확인.
    - 인벤토리: 재접속한 플레이어의 슬롯 이어 주기, 손에 든 물건 모델·아이콘, 투구·갑옷·장신구 벗기기 기능 제거(교체만), 슬롯이 가득 찼을 때 제작 결과 처리, 파견 뒤 장비 반환.
    - 대화: 튜토리얼·클리어 컷씬에서 `SharedDialogue` 사용, 명성 등 조건 값, `Game` 씬 배치 확인.
    - 공통: `ForgeTest`에 던전 지도 연결(대장간 담당), 밤 연출과 `DaySceneBattleCover`(임시)를 합칠지, 저장 구조(`DungeonProgressState` 포함)와 `GameState` 스폰 시점, 장비 보정과 직업별 공격 방식(`AdventurerSetupRules`, `AdventurerBattle`).
 3. 데모 1을 위해 2026-11-10 기획(`docs/GAME_CONCEPT.md`)과 지금 구현이 다른 부분을 맞춘다. 담당자는 팀에서 정한다(기획 13절).
-   - 제거: 전투 보상의 재료·보석 드랍(`BattleDropRules`, 결과창 재료 표시, 드랍 연출), 치료비 회복.
+   - 제거: 치료비 회복.
    - 변경: 재료 한 칸 최대 32개(지금 99), 1티어 광석 이름 청동(데이터는 구리), 부산물 이름(짐승 가죽 → 가죽, 질긴 힘줄 → 힘줄, 마석 조각 → 마석)과 뼈·목재 추가, 부상 상태를 부상수치로, 에메랄드 효과 대상.
-   - 추가: 던전 채집(절차적 맵, 자원 스폰, 묻힌 보물 상자, 어두운 던전 시야), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 여관, 친밀도, 장비 내구도와 녹이기, 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
+   - 추가: 던전 채집의 남은 것(묻힌 보물 상자, 약초·뼈, 채집 도구 확인, 어두운 던전 시야, 전투 화면의 보물 상자), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 여관, 친밀도, 장비 내구도와 녹이기, 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
 4. 가격 등 다른 `Core` 규칙에도 시드 결정성 EditMode 테스트를 추가한다.
 5. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 임시 폰트다(SIL OFL 1.1, `05.Art/Fonts`).
 6. Unity CLI 사용이 안정되면 예비로 둔 Unity MCP 연동을 정리한다.

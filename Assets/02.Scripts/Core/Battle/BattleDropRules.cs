@@ -13,7 +13,7 @@ namespace Blacksmith.Core.Battle
         public int[] MaterialIds;
     }
 
-    // 몬스터 한 마리가 떨어뜨린 재료다. Materials는 에메랄드 효과를 받는 광석·부재료, Gems는 받지 않는 보석이다.
+    // 몬스터 한 마리의 시체에서 갈무리하는 재료다. Materials는 부산물, Gems는 보석이다.
     public sealed class MonsterLoot
     {
         public IReadOnlyList<MaterialReward> Materials { get; }
@@ -37,15 +37,14 @@ namespace Blacksmith.Core.Battle
         }
     }
 
-    // 몬스터마다 재료 드랍을 굴린다 (docs/GAME_CONCEPT.md 7.1 "보상과 경험치").
+    // 몬스터마다 시체에서 갈무리할 재료를 굴린다 (docs/GAME_CONCEPT.md 7.4). 전투 시드로 굴려, 다음 날 채집 맵의 시체 더미가 같은 값을 쓴다.
     // 몬스터가 많고 무리가 많을수록 굴리는 횟수가 늘어 기대 드랍도 는다.
-    // 같은 시드면 같은 결과라, 결과창 보상과 전투 화면의 드랍 연출이 같은 값을 쓴다.
     public static class BattleDropRules
     {
         // 전투 시뮬레이션과 같은 시드를 쓰되 다른 난수열이 나오게 섞는 값이다. 밸런스 수치가 아니다.
         private const int SeedSalt = 0x5EED_D20B;
 
-        // 스테이지의 모든 무리를 BattleSetup.Groups 순서로 굴린다. 토벌하지 못한 무리의 결과는 받는 쪽이 버린다.
+        // 스테이지의 모든 무리를 BattleSetup.Groups 순서로 굴린다.
         public static IReadOnlyList<GroupLoot> Roll(IReadOnlyList<GroupReward> groups, int seed)
         {
             var random = new Random(seed ^ SeedSalt);
@@ -67,7 +66,6 @@ namespace Blacksmith.Core.Battle
         private static MonsterLoot RollMonster(MonsterReward monster, Random random)
         {
             var materials = new List<MaterialReward>();
-            MaterialMath.AddAll(materials, monster.Materials);
             RollAll(materials, monster.ChanceDrops, random);
 
             var gems = new List<MaterialReward>();
