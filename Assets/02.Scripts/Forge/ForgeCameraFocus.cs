@@ -26,6 +26,7 @@ namespace Blacksmith.Forge
         private float _punch;
 
         public bool IsActive { get; private set; }
+        public float FocusFov => _focusFov;
 
         private void Awake()
         {
