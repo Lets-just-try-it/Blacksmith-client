@@ -14,6 +14,11 @@ namespace Blacksmith.Core.Battle
     public sealed class BattleSimulation
     {
         private const int DirectionScale = 1000;
+        // 같은 무리의 시체끼리 떨어지는 거리. 연출 수치라 데이터로 빼지 않는다.
+        private const int CorpseSpacing = 90;
+        // 8방향 단위 벡터(DirectionScale 길이)
+        private static readonly int[] CorpseOffsetX = { 1000, 707, 0, -707, -1000, -707, 0, 707 };
+        private static readonly int[] CorpseOffsetZ = { 0, 707, 1000, 707, 0, -707, -1000, -707 };
         // 걸을 때 격자 경로를 몇 칸 앞까지 내다보고 곧게 갈 수 있는 가장 먼 칸을 노릴지. 칸마다 꺾이지 않게 한다.
         private const int LookAheadCells = 8;
         // 경로가 곧게 이어지는지 확인할 때 선분 위를 살피는 간격
@@ -26,6 +31,7 @@ namespace Blacksmith.Core.Battle
         private readonly List<BattleUnit> _units = new List<BattleUnit>();
         private readonly List<BattleEvent> _events = new List<BattleEvent>();
         private readonly List<int> _clearedGroups = new List<int>();
+        private readonly List<BattleCorpse> _corpses = new List<BattleCorpse>();
         private readonly GroupState[] _groups;
 
         // 전투 시작 때 대열을 세울 기준점(앞줄 가운데)과 보는 방향(DirectionScale 길이)
@@ -771,11 +777,57 @@ namespace Blacksmith.Core.Battle
             {
                 target.IsFallen = true;
                 target.Mana = 0;
+                if (target.Team == BattleTeam.Monster)
+                {
+                    AddCorpse(target);
+                }
+
                 _events.Add(new BattleEvent(BattleEventType.Fell, source.UnitId, target.UnitId, 0));
                 return;
             }
 
             TryEnrage(target);
+        }
+
+        // 쓰러진 자리에 시체를 남긴다. 몬스터가 한곳에 몰려 쓰러져도 시체가 흩어져 보이도록,
+        // 같은 무리의 시체와 CorpseSpacing보다 가까우면 둘레의 바닥 자리로 비켜 놓는다.
+        private void AddCorpse(BattleUnit monster)
+        {
+            int x = monster.X;
+            int z = monster.Z;
+            for (int ring = 1; ring <= 3 && IsNearCorpse(monster.GroupIndex, x, z); ring++)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    // 방향은 무리 안 순서로 돌려 시작해, 같은 무리 시체가 한쪽으로만 쌓이지 않게 한다.
+                    int direction = (i + monster.GroupSlot * 3) % 8;
+                    int candidateX = monster.X + CorpseOffsetX[direction] * CorpseSpacing * ring / DirectionScale;
+                    int candidateZ = monster.Z + CorpseOffsetZ[direction] * CorpseSpacing * ring / DirectionScale;
+                    if (IsFloor(candidateX, candidateZ) && !IsNearCorpse(monster.GroupIndex, candidateX, candidateZ))
+                    {
+                        x = candidateX;
+                        z = candidateZ;
+                        break;
+                    }
+                }
+            }
+
+            _corpses.Add(new BattleCorpse(monster.SourceId, monster.GroupIndex, monster.GroupSlot, x, z));
+        }
+
+        private bool IsNearCorpse(int groupIndex, int x, int z)
+        {
+            foreach (BattleCorpse corpse in _corpses)
+            {
+                long dx = corpse.X - x;
+                long dz = corpse.Z - z;
+                if (corpse.GroupIndex == groupIndex && dx * dx + dz * dz < (long)CorpseSpacing * CorpseSpacing)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void TryEnrage(BattleUnit unit)
@@ -935,7 +987,7 @@ namespace Blacksmith.Core.Battle
                     unit.DamageDealt, unit.GroupsCleared, isAccessoryBroken));
             }
 
-            Result = new BattleResult(isVictory, _clearedGroups.ToArray(), Tick, adventurers);
+            Result = new BattleResult(isVictory, _clearedGroups.ToArray(), Tick, adventurers, _corpses.ToArray());
             _events.Add(new BattleEvent(BattleEventType.BattleEnded, BattleEvent.NoUnit, BattleEvent.NoUnit, isVictory ? 1 : 0));
         }
 
