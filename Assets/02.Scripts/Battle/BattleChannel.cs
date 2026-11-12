@@ -23,6 +23,8 @@ namespace Blacksmith.Battle
         public int DungeonId { get; set; }
         // 싸운 스테이지. 승리하면 이 스테이지까지 클리어한 것으로 진행 상황을 정한다.
         public int Stage { get; set; }
+        // 전투 시드. 다음 날 채집할 때 같은 시드로 같은 맵을 다시 만든다.
+        public int Seed { get; set; }
         public BattleResult Result { get; set; }
         public BattleRewards Rewards { get; set; }
     }

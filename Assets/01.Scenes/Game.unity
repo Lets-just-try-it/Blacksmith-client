@@ -621,6 +621,7 @@ GameObject:
   - component: {fileID: 181058526}
   - component: {fileID: 181058528}
   - component: {fileID: 181058527}
+  - component: {fileID: 181058531}
   m_Layer: 0
   m_Name: DispatchSession
   m_TagString: Untagged
@@ -702,6 +703,7 @@ MonoBehaviour:
   - {fileID: 181058526}
   - {fileID: 181058528}
   - {fileID: 181058527}
+  - {fileID: 181058531}
   ForceRemoteRenderTimeframe: 0
 --- !u!4 &181058530
 Transform:
@@ -718,6 +720,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &181058531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181058525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb536392b837a5749a1efd34d81a3355, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.GatheringSiteState
+  _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
+  _dispatch: {fileID: 181058527}
+  _HasSite:
+    RawValue: 0
+  _DungeonId: 0
+  _Stage: 0
+  _Seed: 0
 --- !u!1 &249073734
 GameObject:
   m_ObjectHideFlags: 0

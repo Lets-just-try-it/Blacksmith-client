@@ -179,7 +179,7 @@ namespace Blacksmith.Battle
         private void PassResult(BattleResult result, BattleRewards rewards)
         {
             Debug.Log($"전투 결과 반영: {(result.IsVictory ? "승리" : "패배")}, 무리 {result.GroupsCleared}개, 골드 {rewards.Gold}");
-            _channel.ConfirmResult(new BattleOutcome { DungeonId = _battleState.DungeonId, Stage = _battleState.Stage, Result = result, Rewards = rewards });
+            _channel.ConfirmResult(new BattleOutcome { DungeonId = _battleState.DungeonId, Stage = _battleState.Stage, Seed = _battleState.Seed, Result = result, Rewards = rewards });
         }
     }
 }

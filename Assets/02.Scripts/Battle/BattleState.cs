@@ -30,7 +30,7 @@ namespace Blacksmith.Battle
         private BattleRewards _pendingRewards;
 
         [Networked] private int BattleId { get; set; }
-        [Networked] private int Seed { get; set; }
+        [Networked] public int Seed { get; private set; }
         [Networked] public int DungeonId { get; private set; }
         [Networked] public int Stage { get; private set; }
         [Networked] private int PartyCount { get; set; }
