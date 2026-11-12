@@ -1,33 +1,57 @@
 using System;
 using System.Collections.Generic;
+using Blacksmith.Core;
 using Blacksmith.Core.Adventurers;
+using Blacksmith.Network;
 using Fusion;
 using UnityEngine;
 
 namespace Blacksmith.Plaza
 {
     // 광장의 영입 후보를 뽑아 세우고, 영입 요청을 처리한다. 씬 오브젝트이며 호스트에서만 동작한다.
+    // 날마다 낮이 시작되면 영입하지 않은 후보를 치우고 새 후보를 세운다 (docs/GAME_CONCEPT.md 6.1).
     public class PlazaRecruitment : NetworkBehaviour
     {
+        [Tooltip("비우면 스폰될 때 한 번만 뽑는다. 낮·밤이 없는 테스트 씬(PlazaTest)용이다")]
+        [SerializeField] private GameState _gameState;
         [SerializeField] private AdventurerGenerationData _generation;
         [SerializeField] private AdventurerRosterState _roster;
         [SerializeField] private RecruitCandidate _candidatePrefab;
         [Tooltip("후보가 서는 자리. 최대 후보 수보다 적으면 남는 후보는 세우지 않는다.")]
         [SerializeField] private Transform[] _spawnPoints = new Transform[0];
-        [Tooltip("0이면 세션마다 다른 후보가 나온다. 같은 후보로 확인하고 싶을 때만 정한다.")]
+        [Tooltip("0이면 세션마다 다른 후보가 나온다. 같은 후보로 확인하고 싶을 때만 정한다. 날짜를 더해 날마다 다른 후보가 나온다.")]
         [SerializeField] private int _fixedSeed;
 
         private readonly List<RecruitCandidate> _candidates = new List<RecruitCandidate>();
+        // 마지막으로 후보를 뽑은 날. 호스트만 쓴다.
+        private int _candidatesDay = int.MinValue;
 
         public override void Spawned()
         {
-            if (HasStateAuthority)
+            if (!HasStateAuthority)
             {
-                SpawnCandidates(_fixedSeed != 0 ? _fixedSeed : Environment.TickCount);
+                return;
+            }
+
+            if (_gameState == null)
+            {
+                SpawnCandidates(CreateSeed(0));
+                return;
+            }
+
+            _gameState.PhaseChanged += RefreshForNewDay;
+            RefreshForNewDay();
+        }
+
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            if (_gameState != null)
+            {
+                _gameState.PhaseChanged -= RefreshForNewDay;
             }
         }
 
-        // 호스트 전용. 남아 있는 후보를 치우고 새로 뽑는다. 낮·밤 사이클이 생기면 낮이 시작될 때 부른다.
+        // 호스트 전용. 남아 있는 후보를 치우고 새로 뽑는다.
         public void SpawnCandidates(int seed)
         {
             if (!HasStateAuthority)
@@ -71,6 +95,24 @@ namespace Blacksmith.Plaza
             _candidates.Remove(candidate);
             Runner.Despawn(candidate.Object);
             return true;
+        }
+
+        // GameState가 아직 스폰되지 않았으면 스폰될 때 PhaseChanged로 다시 불린다.
+        private void RefreshForNewDay()
+        {
+            if (!HasStateAuthority || !_gameState.IsReady || _gameState.Phase != DayPhase.Day
+                || _gameState.Day == _candidatesDay)
+            {
+                return;
+            }
+
+            _candidatesDay = _gameState.Day;
+            SpawnCandidates(CreateSeed(_gameState.Day));
+        }
+
+        private int CreateSeed(int day)
+        {
+            return _fixedSeed != 0 ? _fixedSeed + day : Environment.TickCount;
         }
 
         private void ClearCandidates()
