@@ -17,7 +17,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 ### 장비 제작 (진행 중)
 
-- 미니게임: 정제(`SmeltingGame`), 단조(`ForgingGame`), 담금질(`QuenchGame`), 연마(`PolishGame`), 판 성형(`PlateGame`), 장신구(`NecklaceGame`). 규칙은 `Core/Forge`, 수치는 `03.ScriptableObjects/Balance/*Rules.asset`. 조립 미니게임은 없다.
+- 미니게임: 정제(`SmeltingGame`), 단조(`ForgingGame`), 담금질(`QuenchGame`), 연마(`PolishGame`), 판 성형(`PlateGame`), 조립(`AssembleGame`, 규칙만 있고 작업대·화면은 아직 없다), 장신구(`NecklaceGame`). 규칙은 `Core/Forge`, 수치는 `03.ScriptableObjects/Balance/*Rules.asset`.
 - 제작 흐름: 작업대 사용권 `ForgeStationState`(호스트) + `ForgeStationLink`, 결과 RPC `ForgePlayerActions`. 공용 제작 목록 창 `CraftingMenuView`, 재료 예약 `Core/Forge/CraftingReservation`, 재료 판정 `Core/Forge/CraftingRequirements`, 정확도 누적·등급 환산 `Core/Forge/CraftingRules`, 레시피 `CraftingRecipeData`.
 - 레시피: 구리 대검, 철 대검, 구리·철 투구/갑옷(판 성형까지, 조립 작업대가 없어 완성 안 됨), 목걸이 12개. 레시피는 아직 재료 1개 → 장비 1개이고 부재료를 받지 않는다.
 - 등급: `Core/GradeRule` + `GradeThresholds` (구현).

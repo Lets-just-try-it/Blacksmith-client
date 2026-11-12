@@ -34,6 +34,12 @@ namespace Blacksmith.Core.Forge
         Grip,
         // 장신구: 조각 뒤집기, 보석 돌리기처럼 작게 딸깍이는 조작
         Tick,
+        // 조립: 판이 핀으로 고정됐다(Pin, Value는 맞춘 정도), 어긋난 채 놓았다(Misalign, Value는 오차), 리벳을 끼웠다(Rivet),
+        // 이음새 하나를 마쳤다(SeamDone, Value는 이음새 점수). 망치질은 Perfect/Hit/Miss, 구멍을 다 박으면 Good(Value는 품질)이다.
+        Pin,
+        Misalign,
+        Rivet,
+        SeamDone,
     }
 
     // 화면이 효과음과 연출을 만들 수 있도록 미니게임이 알려 주는 사건이다.
