@@ -27,7 +27,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 ### 대장간 맵 (진행 중)
 
-- `04.Prefabs/Town/ForgeRoom` 그레이박스(제작 구역 하나, 작업대 6개와 조립 자리 소품, `ForgeDoor`). `ForgeTest`에서 F1~F6 시점, V 1인칭(`ForgeTestCameraFollow`).
+- `04.Prefabs/Town/ForgeRoom` 그레이박스(제작 구역 하나 28m × 18m, 같은 4m × 4m 칸 8개: 작업대 6개, 조립 자리(소품만), 공용 창고, 칸 바닥 표시 `SlotFloor`, 작업대·소품 그레이박스 모양, 입구 통로와 광장 포털 `PlazaExitPortal`, `ForgeDoor`). `ForgeTest`에서 F1~F6 시점, V 1인칭(`ForgeTestCameraFollow`).
 - 실제 에셋 적용은 남았다. `ForgeTest`는 대장간 담당 영역이다.
 
 ### 인벤토리 (진행 중)
