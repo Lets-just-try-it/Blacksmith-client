@@ -30,6 +30,8 @@ namespace Blacksmith.Plaza
         public int JobId => _jobId;
         public string DisplayName => _displayName;
         public WeaponType WeaponType => _weaponType;
+        // 영입할 때 들고 있고, 무기를 벗기거나 무기가 부서지면 돌아가는 무기다.
+        public ItemStack DefaultWeapon => _defaultWeapon != null ? new ItemStack(_defaultWeapon.ItemId, _defaultWeaponGrade, 1) : ItemStack.Empty;
 
         public AdventurerJobRules ToRules()
         {

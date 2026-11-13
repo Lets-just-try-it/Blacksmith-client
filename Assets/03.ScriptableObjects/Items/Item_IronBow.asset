@@ -25,3 +25,6 @@ MonoBehaviour:
     Attack: 10
     Defense: 0
   _wornPart: Weapon_Bow_B_Held
+  _accessoryEffect: 0
+  _injuryRecovery: 0
+  _maxDurability: 100

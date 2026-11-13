@@ -68,7 +68,7 @@ namespace Blacksmith.Battle
                 _roster.TrySetInjury(result.AdventurerId, result.Injury);
                 if (result.IsAccessoryBroken)
                 {
-                    _roster.TrySetEquipment(result.AdventurerId, EquipmentSlot.Accessory, AdventurerData.NoEquipment, 0);
+                    _roster.TrySetEquipment(result.AdventurerId, EquipmentSlot.Accessory, ItemStack.Empty);
                 }
             }
         }

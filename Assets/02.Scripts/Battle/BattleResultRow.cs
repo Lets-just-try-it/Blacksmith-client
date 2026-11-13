@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Blacksmith.Core.Battle;
 using TMPro;
 using UnityEngine;
@@ -14,7 +15,8 @@ namespace Blacksmith.Battle
         {
             _nameText.text = adventurerName;
             string status = result.IsDead ? "사망" : FormatInjury(result);
-            _statusText.text = result.IsAccessoryBroken ? $"{status}(목걸이 파손)" : status;
+            string broken = result.IsDead ? "" : FormatBroken(result);
+            _statusText.text = broken.Length > 0 ? $"{status}({broken})" : status;
             string bonus = reward.ExperienceBonus > 0 ? $"(사파이어 +{reward.ExperienceBonus})" : "";
             _damageText.text = $"피해량 {result.DamageDealt} · 경험치 +{reward.ExperienceGained}{bonus}{FormatLevelUp(reward)}";
         }
@@ -28,6 +30,33 @@ namespace Blacksmith.Battle
             }
 
             return result.InjuryGained > 0 ? $"부상 {result.Injury}(+{result.InjuryGained})" : $"부상 {result.Injury}";
+        }
+
+        // 예: "무기·갑옷 파손". 사망하면 장비가 모두 사라지므로 부르지 않는다.
+        private static string FormatBroken(AdventurerBattleResult result)
+        {
+            var parts = new List<string>();
+            if (result.Weapon.IsBroken)
+            {
+                parts.Add("무기");
+            }
+
+            if (result.Helmet.IsBroken)
+            {
+                parts.Add("투구");
+            }
+
+            if (result.Armor.IsBroken)
+            {
+                parts.Add("갑옷");
+            }
+
+            if (result.IsAccessoryBroken)
+            {
+                parts.Add("목걸이");
+            }
+
+            return parts.Count > 0 ? $"{string.Join("·", parts)} 파손" : "";
         }
 
         private static string FormatLevelUp(AdventurerReward reward)

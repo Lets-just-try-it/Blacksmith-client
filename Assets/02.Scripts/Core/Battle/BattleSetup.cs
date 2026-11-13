@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Blacksmith.Core.Adventurers;
+using Blacksmith.Core.Inventory;
 
 namespace Blacksmith.Core.Battle
 {
@@ -113,6 +114,10 @@ namespace Blacksmith.Core.Battle
         public AccessoryEffect Accessory { get; set; }
         // 파견 전 부상수치. 전투에서 입은 부상을 여기에 더해 사망 판정을 한다.
         public int Injury { get; set; }
+        // 전투 전 내구도. 무기는 공격한 횟수, 투구·갑옷은 공격받은 횟수만큼 전투가 끝날 때 줄인다.
+        public EquipmentDurability Weapon { get; set; }
+        public EquipmentDurability Helmet { get; set; }
+        public EquipmentDurability Armor { get; set; }
     }
 
     public sealed class MonsterSetup

@@ -14,3 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Inventory.EquipmentStatData
   _catalog: {fileID: 11400000, guid: 3d2a0086023e1c546b12a3cb2047b43e, type: 2}
   _gradePercents: 3c00000050000000640000007800000096000000
+  _wearPerUseByGrade:
+  - 3
+  - 2
+  - 1.33
+  - 1
+  - 0.8
+  _weaponWearPercents:
+  - Weapon: 1
+    Percent: 100
+  - Weapon: 2
+    Percent: 65
+  - Weapon: 3
+    Percent: 75

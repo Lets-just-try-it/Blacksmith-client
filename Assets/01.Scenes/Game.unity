@@ -1977,6 +1977,7 @@ GameObject:
   - component: {fileID: 525234212}
   - component: {fileID: 525234211}
   - component: {fileID: 525234213}
+  - component: {fileID: 525234214}
   m_Layer: 0
   m_Name: BattleRewardApplier
   m_TagString: Untagged
@@ -2032,6 +2033,21 @@ MonoBehaviour:
   _fallen: {fileID: 944958976}
   _gameState: {fileID: 156785739}
   _injury: {fileID: 11400000, guid: 7eadd59ccd1a08245917113bb1861751, type: 2}
+--- !u!114 &525234214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525234210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f0179b0d82588d4c9b19d48f552b710, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.EquipmentWearApplier
+  _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
+  _roster: {fileID: 944958973}
+  _jobs: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
 --- !u!1 &570442517
 GameObject:
   m_ObjectHideFlags: 0

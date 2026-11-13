@@ -40,6 +40,8 @@ namespace Blacksmith.Inventory
         [SerializeField] private AccessoryEffectKind _accessoryEffect;
         [Tooltip("약초·포션처럼 모험가에게 건네면 줄어드는 부상수치. 0이면 치료 아이템이 아니다 (docs/GAME_CONCEPT.md 5.1)")]
         [SerializeField, Min(0)] private int _injuryRecovery;
+        [Tooltip("무기·투구·갑옷일 때만 쓴다. 최대 내구도. 0이면 닳지 않는다(기본무기). 등급별 소모량은 EquipmentStats 데이터에 있다 (docs/GAME_CONCEPT.md 4.6)")]
+        [SerializeField, Min(0)] private int _maxDurability;
 
         public int ItemId => _itemId;
         public string DisplayName => _displayName;
@@ -53,6 +55,7 @@ namespace Blacksmith.Inventory
         public string WornPart => _kind == ItemKind.Equipment ? _wornPart : "";
         public AccessoryEffectKind AccessoryEffect => EquipmentSlot == EquipmentSlot.Accessory ? _accessoryEffect : AccessoryEffectKind.None;
         public int InjuryRecovery => _injuryRecovery;
+        public int MaxDurability => EquipmentSlot == EquipmentSlot.None || EquipmentSlot == EquipmentSlot.Accessory ? 0 : _maxDurability;
         // 재료와 사용 아이템만 한 칸에 쌓는다. 장비와 중간 형태는 한 칸에 하나다.
         public bool IsStackable => _kind == ItemKind.Material || _kind == ItemKind.Consumable;
     }

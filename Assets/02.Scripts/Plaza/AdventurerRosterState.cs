@@ -84,9 +84,9 @@ namespace Blacksmith.Plaza
             return true;
         }
 
-        // 호스트 전용. 모험가의 장비 칸 하나를 바꾼다. 장비를 벗기려면 itemId에 NoEquipment를 넣는다.
+        // 호스트 전용. 모험가의 장비 칸 하나를 item(번호·등급·쓴 내구도)으로 바꾼다. 장비를 벗기려면 ItemStack.Empty를 넣는다.
         // 칸에 맞는 장비인지는 부르는 쪽(장비 착용 창)이 EquipmentRules로 확인한다.
-        public bool TrySetEquipment(int adventurerId, EquipmentSlot slot, int itemId, int grade)
+        public bool TrySetEquipment(int adventurerId, EquipmentSlot slot, ItemStack item)
         {
             int index = IndexOf(adventurerId);
             if (!HasStateAuthority || index < 0 || slot == EquipmentSlot.None)
@@ -95,24 +95,25 @@ namespace Blacksmith.Plaza
             }
 
             NetworkAdventurer adventurer = Adventurers[index];
-            if (itemId == AdventurerData.NoEquipment)
-            {
-                grade = 0;
-            }
-
+            int itemId = item.IsEmpty ? AdventurerData.NoEquipment : item.ItemId;
+            int grade = item.IsEmpty ? 0 : item.Grade;
+            int wear = item.IsEmpty ? 0 : item.Wear;
             switch (slot)
             {
                 case EquipmentSlot.Weapon:
                     adventurer.WeaponId = itemId;
                     adventurer.WeaponGrade = grade;
+                    adventurer.WeaponWear = wear;
                     break;
                 case EquipmentSlot.Helmet:
                     adventurer.HelmetId = itemId;
                     adventurer.HelmetGrade = grade;
+                    adventurer.HelmetWear = wear;
                     break;
                 case EquipmentSlot.Armor:
                     adventurer.ArmorId = itemId;
                     adventurer.ArmorGrade = grade;
+                    adventurer.ArmorWear = wear;
                     break;
                 case EquipmentSlot.Accessory:
                     adventurer.AccessoryId = itemId;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Blacksmith.Core.Inventory;
 
 namespace Blacksmith.Core.Battle
 {
@@ -15,11 +16,19 @@ namespace Blacksmith.Core.Battle
         public int GroupsCleared { get; }
         // 루비 목걸이가 사망 판정을 막고 부서졌다.
         public bool IsAccessoryBroken { get; }
+        // 전투 뒤의 장비 내구도. IsBroken이면 결과를 반영할 때 장비가 파괴된다.
+        public EquipmentDurability Weapon { get; }
+        public EquipmentDurability Helmet { get; }
+        public EquipmentDurability Armor { get; }
 
         public AdventurerBattleResult(int adventurerId, bool isFallen, int injury, int injuryGained, bool isDead, int damageDealt,
-            int groupsCleared, bool isAccessoryBroken = false)
+            int groupsCleared, bool isAccessoryBroken = false, EquipmentDurability weapon = default, EquipmentDurability helmet = default,
+            EquipmentDurability armor = default)
         {
             IsAccessoryBroken = isAccessoryBroken;
+            Weapon = weapon;
+            Helmet = helmet;
+            Armor = armor;
             AdventurerId = adventurerId;
             IsFallen = isFallen;
             Injury = injury;
