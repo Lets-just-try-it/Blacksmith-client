@@ -32,10 +32,10 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 ### 인벤토리 (진행 중)
 
-- 규칙 `Core/Inventory`: `ItemStack`, `InventoryGrid`, `EquipmentRules`(부위·직업 무기, 무기 벗기기 금지), `EquipmentStatRules`.
+- 규칙 `Core/Inventory`: `ItemStack`, `InventoryGrid`, `EquipmentRules`(부위·직업 무기, 기본무기 벗기기 금지), `EquipmentStatRules`, 내구도 `DurabilityRules`(`ItemStack.Wear`는 쓴 내구도를 0.01 단위 정수로 센 값, 새 장비 0).
 - 네트워크: `NetworkInventory`, 공용 창고 `SharedInventoryState`(5칸 × 10줄 → 최대 40줄), 플레이어 슬롯 `PlayerInventoryState`(8칸), RPC `InventoryPlayerActions`, 화면 연결 `InventoryChannel`.
 - 화면: `InventoryView`, `PlayerInventoryHud`, `InventorySplitPopup`(Ctrl 나누기), 손에 든 슬롯 `HeldSlotSelector`·`HeldItemView`.
-- 장비 착용 창: `AdventurerEquipView`, `AdventurerEquipping`, 미리보기 `AdventurerPreview`.
+- 장비 착용 창: `AdventurerEquipView`, `AdventurerEquipping`, 미리보기 `AdventurerPreview`. 바꾸거나 벗긴 장비는 공용 창고로 간다(기본무기는 바꾸면 사라짐, 무기를 벗기면 기본무기로 돌아감). 닳은 장비는 칸에 남은 내구도를 표시한다(`ItemLabels`).
 - 아이템: `03.ScriptableObjects/Items` 번호 1~45, 표 `ItemCatalog`. 1티어 데이터 이름은 아직 "구리"다(기획은 청동).
 
 ### 낮·밤 사이클 (진행 중)
@@ -55,6 +55,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 전투: 잡몹 무리는 처음부터 스폰 지점에 서 있고, 모험가는 처음에만 대열로 서고, 그 뒤로는 남은 무리 중 걸어서 가장 가까운 무리로 각자 격자 경로를 따라 걸으며 서로 비켜 선다(NavMesh 안 씀, 걷는 속도는 `BattleRules`의 `_marchSpeed`, 원거리가 앞서면 `_lineUpSpeedPercent`만큼 속도를 바꿔 근접이 앞에 서게 함). 인간형 유닛은 화면 이동 속도를 애니메이터 `Speed`에 넣어 대기·걷기·달리기 블렌드를 쓴다(`BattleUnitView`). 모험가가 무리 시야(`MonsterData` 시야 거리)에 들면 무리가 다가와 싸운다. 잡몹 무리를 모두 토벌하면 보스가 보스 자리에 나타난다. 결과는 토벌 순서(`BattleResult.ClearedGroups`)로 보상·경험치를 계산한다. 화면에 토벌 진행도(`BattleProgressLabel`)를 보여 준다.
 - 시체: 몬스터가 쓰러지면 잠시 뒤 그 자리의 시체(`BattleCorpses`, 그레이박스 `04.Prefabs/Characters/Monsters/MonsterCorpse`, 몬스터 데이터의 시체 프리팹이 있으면 그것)로 바뀌어 남는다. 같은 무리 시체끼리 겹치면 옆으로 비켜 놓아 시체 무리로 보인다. 자리는 `BattleResult.Corpses`에 남는다.
 - 부상·사망: `Core/Adventurers/InjuryRules`(부상 누적, 파견 제한, 사망 확률, 회복), 수치는 `AdventurerInjury`. 전투가 끝날 때 `BattleSimulation`이 남은 체력으로 부상을 더하고 시드로 사망 판정을 한다. 관리 목록은 `AdventurerData.Injury`를 저장하고 상태는 부상수치에서 구한다. 사망한 모험가는 장비 없이 사망 기록 `Plaza/FallenAdventurerState`(`Game` 씬 `AdventurerRoster`, 최대 32명)로 옮겨지고 관리 목록에서 빠진다. 루비 목걸이가 사망을 막으면 부서진 목걸이를 벗긴다(`AdventurerInjuryApplier`). 파견 창에서 파견할 수 없는 모험가를 누르면 "부상이 심해 파견할 수 없습니다."를 띄운다(`DispatchView`의 `_notice`, `ForgeNotice` 재사용). 약초(던전 바닥에서 채집)와 포션(상점 구매 예정)은 사용 아이템(`ItemKind.Consumable`, 회복량은 아이템 데이터의 `_injuryRecovery`)이다. 건네는 요청은 `InventoryPlayerActions.RequestTreat`, 호스트 처리는 `AdventurerTreatment`이고, 건네는 화면(여관)은 아직 없다.
+- 내구도: 최대 내구도는 아이템 데이터 `_maxDurability`(기본무기 0 = 닳지 않음), 등급별 소모량과 무기 종류별 배율은 `EquipmentStats`(수치는 GAME_CONCEPT 4.6). `AdventurerBattleData`가 전투 전 내구도를 `AdventurerSetup`에 넣고, `BattleSimulation`은 공격·피격 횟수만 세어 전투 뒤 내구도를 결과에 담는다. `EquipmentWearApplier`(`Game` 씬만)가 관리 목록에 반영하고 0 이하인 장비를 파괴한다(무기는 기본무기로). 결과창에 파손을 표시한다. 녹이기는 대장간 담당이 만든다(규칙 `DurabilityRules.GetMeltIngots`).
 - 채집할 맵: 낮 씬 `DispatchSession`의 `GatheringSiteState`(호스트 소유)가 이긴 전투의 던전·스테이지·시드·시체 자리를 담고, 다음 밤에 파견하지 않거나 져서 결과를 반영하면 비운다. 맵은 `DungeonData.GenerateMap(seed)`로 다시 만든다. `Game`·`DispatchTest`·`ForgeTest`에 연결했다.
 - 채집 맵 입구: `Game` 씬 광장 북쪽의 `DungeonGate`(문)에 닿으면 채집할 곳이 있으면 채집 맵 시작 지점으로 옮기고, 없으면 "던전에 몬스터가 잔뜩 있습니다. 위험합니다."를 띄운다(`ForgeNotice` 재사용). 문에서 떨어질 때까지는 한 번만 반응하고, 조작이 잠긴 동안에는 반응하지 않는다. 채집 맵은 x = 2000의 `GatheringSite`(`GatheringSiteView`)가 같은 시드로 바닥만 깔고(`StageMapView` 충돌 켬: 바닥과 가장자리 벽), 시작 지점 옆 `PlazaReturnPortal`로 광장에 돌아온다. 맵은 참가자마다 들어갈 때 화면이 어두워진 사이에 만들고(호스트는 다른 플레이어가 문에 닿을 때), 채집할 맵이 바뀌면 안에 플레이어가 없을 때 버린다.
 - 채집: `Core/Battle/GatheringLayout`이 시드와 시체 자리로 시체 더미(무리마다 하나)·광맥·나무·바닥 광석·바닥 목재·약초를 놓고 채집량을 정한다(시체 더미는 `BattleDropRules`로 그 무리 몬스터의 갈무리 확률을 굴림, 광석은 `DungeonData`의 광석 번호). 수치는 `GatheringRules`. `GatheringSiteLayout`이 맵·자리를 만들고(`BuildNodes`는 전투 화면과 함께 씀), 전투 화면에도 `Battle` 씬의 `BattleGatheringPreview`가 같은 자리에 광맥·나무·바닥 광석·목재·약초를 보여 준다(모습은 `*Visual` 프리팹을 함께 씀). `GatheringSiteView`가 시체와 `GatheringNodeView`(`04.Prefabs/Town/Gathering`, 그레이박스)를 깐다. 상태는 `GatheringNodesState`(호스트, `DispatchSession`)가 먼저 요청한 플레이어에게 주고 `TickTimer`로 끝나면 재료를 그 플레이어의 개인 인벤토리에 넣는다. 요청 RPC는 Player 프리팹의 `GatheringPlayerActions`. 캐는 동안 조작을 잠그고, 진행 중인 채집이 있으면 낮이 끝나도 "영업 마감 중"으로 기다린다(`GameState.AddWorkInProgressSource`). 채집 도구는 아직 확인하지 않는다.
@@ -91,7 +92,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 ### 미구현
 
 - 대장간 업그레이드·해금, 저장/불러오기, 방송 연동.
-- 데모 1 기능(채집, 상점, 의뢰, 여관, 친밀도, 내구도 등)은 남은 작업 3.
+- 데모 1 기능(채집, 상점, 의뢰, 여관, 친밀도, 녹이기 등)은 남은 작업 3.
 
 ### 자동화 테스트 (일부)
 
@@ -109,6 +110,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 채집할 맵(`GatheringSiteState`): 참가자에게 같은 값이 보이는지.
 - 채집 맵 입구: 들어갈 때 생성(화면이 검을 때)·지난 맵을 안에 있는 동안 유지하고 나오면 버리기만 확인했다. 맵 생성 동안 호스트 화면이 멈칫하는지(다른 플레이어가 들어갈 때 호스트 화면은 가려지지 않는다). 클라이언트가 들어가는지, 맵 가장자리를 걸어서 막히는지.
 - 채집: 스크립트로 넣은 채집할 맵으로 배치, 캐기(재료가 개인 인벤토리로), 캐는 중 다른 요청 거절, 낮이 끝날 때 영업 마감 대기와 마감 중 거절, 개인 인벤토리가 찼을 때, 두 명이 같은 것을 동시에 캐려 할 때, 클라이언트의 채집.
+- 내구도: EditMode 테스트로만 확인했다. 플레이 모드에서 전투 뒤 내구도 반영과 파괴(무기 → 기본무기), 결과창 파손 표시, 장비 칸의 내구도 표시, 교체·벗기기가 공용 창고로 보내는 것.
 - 부상·사망: EditMode 테스트로만 확인했다. 플레이 모드에서 결과창·관리 목록·파견 창의 부상수치 표시, 파견 불가 안내, 사망한 모험가가 목록에서 빠지고 사망 기록에 남는 것, 루비 목걸이 파손 반영, 휴식 회복.
 - 파견 건너뛰기 페이드: 호스트 화면만 확인했다. 클라이언트 화면이 같이 어두워지는지.
 - 빌드한 실행 파일에서의 전체 흐름.
@@ -126,7 +128,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 2. 데모 1을 위해 2026-11-10 기획(`docs/GAME_CONCEPT.md`)과 지금 구현이 다른 부분을 맞춘다. 담당자는 팀에서 정한다(기획 13절).
    - 제거: 치료비 회복.
    - 변경: 재료 한 칸 최대 32개(지금 99), 1티어 광석 이름 청동(데이터는 구리), 부산물 이름(짐승 가죽 → 가죽, 질긴 힘줄 → 힘줄, 마석 조각 → 마석)과 뼈·목재 추가, 에메랄드 효과 대상.
-   - 추가: 여관에서 약초·포션 건네기 화면, 던전 채집의 남은 것(묻힌 보물 상자, 뼈, 채집 도구 확인, 어두운 던전 시야, 전투 화면의 보물 상자), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 여관, 친밀도, 장비 내구도와 녹이기, 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
+   - 추가: 여관에서 약초·포션 건네기 화면, 던전 채집의 남은 것(묻힌 보물 상자, 뼈, 채집 도구 확인, 어두운 던전 시야, 전투 화면의 보물 상자), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 여관, 친밀도, 장비 녹이기(대장간 담당, 정제 화로 예정), 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
 3. 가격 등 다른 `Core` 규칙에도 시드 결정성 EditMode 테스트를 추가한다.
 4. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 임시 폰트다(SIL OFL 1.1, `05.Art/Fonts`).
 5. Unity CLI 사용이 안정되면 예비로 둔 Unity MCP 연동을 정리한다.

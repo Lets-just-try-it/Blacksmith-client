@@ -40,6 +40,9 @@ namespace Blacksmith.Core.Battle
         public bool IsFallen { get; internal set; }
         public bool IsEnraged { get; internal set; }
         public int DamageDealt { get; internal set; }
+        // 공격한 횟수(기본 공격과 피해 스킬)와 공격받은 횟수. 장비 내구도 계산에 쓴다.
+        public int AttackCount { get; internal set; }
+        public int HitsTaken { get; internal set; }
         // 쓰러지지 않은 채 토벌한 무리 수다. 경험치 계산에 쓴다.
         public int GroupsCleared { get; internal set; }
 

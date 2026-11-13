@@ -35,10 +35,16 @@ namespace Blacksmith.Core.Inventory
             return target != EquipmentSlot.Weapon || (itemWeapon != WeaponType.None && itemWeapon == jobWeapon);
         }
 
-        // 무기는 벗길 수 없고 다른 무기로 바꾸기만 한다. 모험가는 늘 기본무기나 플레이어가 준 무기를 든다.
-        public static bool CanUnequip(EquipmentSlot slot)
+        // 모든 칸을 벗길 수 있다. 무기를 벗기면 직업의 기본무기로 돌아가므로 기본무기는 벗길 수 없다.
+        // 모험가는 늘 기본무기나 플레이어가 준 무기를 든다.
+        public static bool CanUnequip(EquipmentSlot slot, int equippedItemId, int defaultWeaponId)
         {
-            return slot != EquipmentSlot.None && slot != EquipmentSlot.Weapon;
+            if (slot == EquipmentSlot.None || equippedItemId == AdventurerData.NoEquipment)
+            {
+                return false;
+            }
+
+            return slot != EquipmentSlot.Weapon || equippedItemId != defaultWeaponId;
         }
 
         // 모험가가 그 칸에 입은 장비. 없으면 Empty다.
@@ -47,21 +53,21 @@ namespace Blacksmith.Core.Inventory
             switch (slot)
             {
                 case EquipmentSlot.Weapon:
-                    return ToStack(adventurer.WeaponId, adventurer.WeaponGrade);
+                    return ToStack(adventurer.WeaponId, adventurer.WeaponGrade, adventurer.WeaponWear);
                 case EquipmentSlot.Helmet:
-                    return ToStack(adventurer.HelmetId, adventurer.HelmetGrade);
+                    return ToStack(adventurer.HelmetId, adventurer.HelmetGrade, adventurer.HelmetWear);
                 case EquipmentSlot.Armor:
-                    return ToStack(adventurer.ArmorId, adventurer.ArmorGrade);
+                    return ToStack(adventurer.ArmorId, adventurer.ArmorGrade, adventurer.ArmorWear);
                 case EquipmentSlot.Accessory:
-                    return ToStack(adventurer.AccessoryId, adventurer.AccessoryGrade);
+                    return ToStack(adventurer.AccessoryId, adventurer.AccessoryGrade, 0);
                 default:
                     return ItemStack.Empty;
             }
         }
 
-        private static ItemStack ToStack(int itemId, int grade)
+        private static ItemStack ToStack(int itemId, int grade, int wear)
         {
-            return itemId == AdventurerData.NoEquipment ? ItemStack.Empty : new ItemStack(itemId, grade, 1);
+            return itemId == AdventurerData.NoEquipment ? ItemStack.Empty : new ItemStack(itemId, grade, 1, 0, wear);
         }
     }
 }

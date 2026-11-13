@@ -458,20 +458,20 @@ namespace Blacksmith.Inventory
             _toast.Show(wrongWeapon ? "맞지 않는 무기입니다" : "이 칸에 맞지 않는 장비입니다");
         }
 
-        // 무기는 벗길 수 없어 요청하지 않고 이유를 토스트로 띄운다. 호스트도 같은 규칙으로 막는다.
+        // 기본무기는 벗길 수 없어 요청하지 않고 이유를 토스트로 띄운다. 호스트도 같은 규칙으로 막는다.
         private void TryUnequip(AdventurerData adventurer, EquipmentSlot slot)
         {
-            if (EquipmentRules.CanUnequip(slot))
+            if (AdventurerEquipping.CanUnequip(_jobs, adventurer, slot))
             {
                 _channel.Unequip(_roster, adventurer.AdventurerId, slot, _storage);
             }
             else if (slot == EquipmentSlot.Weapon)
             {
-                _toast.Show("무기는 벗길 수 없습니다. 다른 무기로 바꿔 주세요");
+                _toast.Show("기본무기는 벗길 수 없습니다. 다른 무기로 바꿔 주세요");
             }
         }
 
-        // 장비 칸을 더블 클릭하면 벗기고(무기 제외), 목록의 장비를 더블 클릭하면 맞는 칸에 입힌다.
+        // 장비 칸을 더블 클릭하면 벗기고(기본무기 제외), 목록의 장비를 더블 클릭하면 맞는 칸에 입힌다.
         public void Click(InventorySlotView slot, int clickCount)
         {
             AdventurerData adventurer = GetAdventurer();

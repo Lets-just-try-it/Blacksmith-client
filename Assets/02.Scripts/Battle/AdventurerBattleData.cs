@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
+using Blacksmith.Core.Inventory;
 using Blacksmith.Inventory;
 using UnityEngine;
 
@@ -46,6 +47,13 @@ namespace Blacksmith.Battle
             AdventurerStats equipmentBonus = _equipment != null ? _equipment.GetEquipmentBonus(adventurer) : default;
             AdventurerSetup setup = AdventurerSetupRules.Create(adventurer, job.Stats, FindSkill(adventurer.SkillId), equipmentBonus);
             setup.Accessory = _accessoryEffects != null ? _accessoryEffects.GetEffect(adventurer) : default;
+            if (_equipment != null)
+            {
+                setup.Weapon = _equipment.GetDurability(EquipmentRules.GetEquipped(adventurer, EquipmentSlot.Weapon));
+                setup.Helmet = _equipment.GetDurability(EquipmentRules.GetEquipped(adventurer, EquipmentSlot.Helmet));
+                setup.Armor = _equipment.GetDurability(EquipmentRules.GetEquipped(adventurer, EquipmentSlot.Armor));
+            }
+
             return setup;
         }
 

@@ -24,10 +24,13 @@ namespace Blacksmith.Plaza
         public int SkillId;
         public int WeaponId;
         public int WeaponGrade;
+        public int WeaponWear;
         public int HelmetId;
         public int HelmetGrade;
+        public int HelmetWear;
         public int ArmorId;
         public int ArmorGrade;
+        public int ArmorWear;
         public int AccessoryId;
         public int AccessoryGrade;
         public int Injury;
@@ -51,10 +54,13 @@ namespace Blacksmith.Plaza
                 SkillId = data.SkillId,
                 WeaponId = data.WeaponId,
                 WeaponGrade = data.WeaponGrade,
+                WeaponWear = data.WeaponWear,
                 HelmetId = data.HelmetId,
                 HelmetGrade = data.HelmetGrade,
+                HelmetWear = data.HelmetWear,
                 ArmorId = data.ArmorId,
                 ArmorGrade = data.ArmorGrade,
+                ArmorWear = data.ArmorWear,
                 AccessoryId = data.AccessoryId,
                 AccessoryGrade = data.AccessoryGrade,
                 Injury = data.Injury,
@@ -76,10 +82,13 @@ namespace Blacksmith.Plaza
                 SkillId = SkillId,
                 WeaponId = WeaponId,
                 WeaponGrade = WeaponGrade,
+                WeaponWear = WeaponWear,
                 HelmetId = HelmetId,
                 HelmetGrade = HelmetGrade,
+                HelmetWear = HelmetWear,
                 ArmorId = ArmorId,
                 ArmorGrade = ArmorGrade,
+                ArmorWear = ArmorWear,
                 AccessoryId = AccessoryId,
                 AccessoryGrade = AccessoryGrade,
                 Injury = Injury,

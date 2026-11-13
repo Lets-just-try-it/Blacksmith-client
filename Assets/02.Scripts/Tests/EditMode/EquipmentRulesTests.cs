@@ -1,3 +1,4 @@
+using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Inventory;
 using NUnit.Framework;
 
@@ -27,13 +28,21 @@ namespace Blacksmith.Tests
         }
 
         [Test]
-        public void Weapon_CannotBeUnequipped_OtherSlotsCan()
+        public void DefaultWeapon_CannotBeUnequipped_OtherEquipmentCan()
         {
-            Assert.IsFalse(EquipmentRules.CanUnequip(EquipmentSlot.Weapon));
-            Assert.IsFalse(EquipmentRules.CanUnequip(EquipmentSlot.None));
-            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Helmet));
-            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Armor));
-            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Accessory));
+            const int defaultWeapon = 7;
+            Assert.IsFalse(EquipmentRules.CanUnequip(EquipmentSlot.Weapon, defaultWeapon, defaultWeapon));
+            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Weapon, 8, defaultWeapon));
+            Assert.IsFalse(EquipmentRules.CanUnequip(EquipmentSlot.None, 8, defaultWeapon));
+            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Helmet, 8, defaultWeapon));
+            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Armor, 8, defaultWeapon));
+            Assert.IsTrue(EquipmentRules.CanUnequip(EquipmentSlot.Accessory, 8, defaultWeapon));
+        }
+
+        [Test]
+        public void EmptySlot_CannotBeUnequipped()
+        {
+            Assert.IsFalse(EquipmentRules.CanUnequip(EquipmentSlot.Helmet, AdventurerData.NoEquipment, 7));
         }
 
         [Test]

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Blacksmith.Characters;
 using Blacksmith.Core.Adventurers;
+using Blacksmith.Core.Inventory;
 using UnityEngine;
 
 namespace Blacksmith.Plaza
@@ -47,6 +48,13 @@ namespace Blacksmith.Plaza
             }
 
             return null;
+        }
+
+        // 직업의 기본무기. 직업을 찾지 못하면 Empty다.
+        public ItemStack GetDefaultWeapon(int jobId)
+        {
+            AdventurerJobData job = FindJob(jobId);
+            return job != null ? job.DefaultWeapon : ItemStack.Empty;
         }
 
         private void OnValidate()

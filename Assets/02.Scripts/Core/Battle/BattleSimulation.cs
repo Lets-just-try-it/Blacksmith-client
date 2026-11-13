@@ -707,6 +707,7 @@ namespace Blacksmith.Core.Battle
         {
             unit.AttackCooldown = unit.Stats.AttackIntervalTicks;
             _events.Add(new BattleEvent(BattleEventType.BasicAttack, unit.UnitId, target.UnitId, 0));
+            unit.AttackCount++;
             DealDamage(unit, target, 100);
             GainMana(unit, unit.Stats.ManaPerHit);
         }
@@ -722,9 +723,11 @@ namespace Blacksmith.Core.Battle
             switch (skill.Kind)
             {
                 case SkillKind.SingleDamage:
+                    unit.AttackCount++;
                     DealDamage(unit, target, skill.PowerPercent);
                     break;
                 case SkillKind.AreaDamage:
+                    unit.AttackCount++;
                     DealAreaDamage(unit, target, skill);
                     break;
                 case SkillKind.HealLowestAlly:
@@ -771,6 +774,7 @@ namespace Blacksmith.Core.Battle
                 _rules.DamageVariancePercent, _random);
             damage = Math.Min(damage, target.Hp);
             target.Hp -= damage;
+            target.HitsTaken++;
             source.DamageDealt += damage;
             _events.Add(new BattleEvent(BattleEventType.Damaged, source.UnitId, target.UnitId, damage));
 
@@ -990,7 +994,9 @@ namespace Blacksmith.Core.Battle
                 bool isDead = deathChance > 0 && BattleFormulas.RollDeath(deathChance, _random);
                 bool isAccessoryBroken = isDead && TryDeathImmunity(adventurer.Accessory);
                 adventurers.Add(new AdventurerBattleResult(unit.SourceId, unit.IsFallen, injury, injuryGained,
-                    isDead && !isAccessoryBroken, unit.DamageDealt, unit.GroupsCleared, isAccessoryBroken));
+                    isDead && !isAccessoryBroken, unit.DamageDealt, unit.GroupsCleared, isAccessoryBroken,
+                    adventurer.Weapon.AddUses(unit.AttackCount), adventurer.Helmet.AddUses(unit.HitsTaken),
+                    adventurer.Armor.AddUses(unit.HitsTaken)));
             }
 
             Result = new BattleResult(isVictory, _clearedGroups.ToArray(), Tick, adventurers, _corpses.ToArray());

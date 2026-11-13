@@ -25,3 +25,6 @@ MonoBehaviour:
     Attack: 0
     Defense: 6
   _wornPart: 
+  _accessoryEffect: 0
+  _injuryRecovery: 0
+  _maxDurability: 120

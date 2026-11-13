@@ -16,10 +16,13 @@ namespace Blacksmith.Core.Adventurers
         {
             adventurer.WeaponId = AdventurerData.NoEquipment;
             adventurer.WeaponGrade = 0;
+            adventurer.WeaponWear = 0;
             adventurer.HelmetId = AdventurerData.NoEquipment;
             adventurer.HelmetGrade = 0;
+            adventurer.HelmetWear = 0;
             adventurer.ArmorId = AdventurerData.NoEquipment;
             adventurer.ArmorGrade = 0;
+            adventurer.ArmorWear = 0;
             adventurer.AccessoryId = AdventurerData.NoEquipment;
             adventurer.AccessoryGrade = 0;
             return new FallenAdventurer { Adventurer = adventurer, Day = day, DungeonId = dungeonId, Stage = stage };

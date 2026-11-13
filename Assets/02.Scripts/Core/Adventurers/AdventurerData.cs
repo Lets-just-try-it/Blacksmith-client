@@ -40,12 +40,16 @@ namespace Blacksmith.Core.Adventurers
         // 스킬 수치는 저장하지 않고 번호로 찾는다. 수치를 조정하면 이미 영입한 모험가에도 반영된다.
         public int SkillId { get; set; }
         // 착용 장비의 아이템 번호와 등급. 장비가 없으면 번호가 NoEquipment다.
+        // Wear는 그 장비가 쓴 내구도다(ItemStack.Wear). 장신구에는 내구도가 없다.
         public int WeaponId { get; set; }
         public int WeaponGrade { get; set; }
+        public int WeaponWear { get; set; }
         public int HelmetId { get; set; }
         public int HelmetGrade { get; set; }
+        public int HelmetWear { get; set; }
         public int ArmorId { get; set; }
         public int ArmorGrade { get; set; }
+        public int ArmorWear { get; set; }
         public int AccessoryId { get; set; }
         public int AccessoryGrade { get; set; }
         // 0이면 건강하다. 범위와 파견 제한은 InjuryRules를 따른다. 사망한 모험가는 관리 목록에서 빠지므로 저장하지 않는다.

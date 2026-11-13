@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
+using Blacksmith.Core.Inventory;
 using NUnit.Framework;
 
 namespace Blacksmith.Tests
@@ -321,6 +322,55 @@ namespace Blacksmith.Tests
             Assert.IsTrue(result.Adventurers[0].IsAccessoryBroken);
             Assert.IsTrue(result.Adventurers[1].IsDead);
             Assert.IsFalse(result.Adventurers[1].IsAccessoryBroken);
+        }
+
+        [Test]
+        public void Durability_WeaponWearsPerAttack_ArmorPerHitTaken()
+        {
+            BattleSetup setup = CreateSetup(3, 30, 12);
+            setup.Adventurers[0].Weapon = new EquipmentDurability(5, 100000, 3);
+            setup.Adventurers[0].Helmet = new EquipmentDurability(0, 100000, 2);
+            setup.Adventurers[0].Armor = new EquipmentDurability(0, 100000, 1);
+            var simulation = new BattleSimulation(setup);
+            int unitId = simulation.Units[0].UnitId;
+            int hitsTaken = 0;
+            while (!simulation.IsFinished)
+            {
+                foreach (BattleEvent e in simulation.Step())
+                {
+                    if (e.Type == BattleEventType.Damaged && e.TargetUnitId == unitId)
+                    {
+                        hitsTaken++;
+                    }
+                }
+            }
+
+            AdventurerBattleResult result = simulation.Result.Adventurers[0];
+            int attacks = simulation.Units[0].AttackCount;
+            Assert.Greater(attacks, 0);
+            Assert.Greater(hitsTaken, 0);
+            Assert.AreEqual(5 + attacks * 3, result.Weapon.Wear);
+            Assert.AreEqual(hitsTaken * 2, result.Helmet.Wear);
+            Assert.AreEqual(hitsTaken, result.Armor.Wear);
+            Assert.IsFalse(simulation.Result.Adventurers[1].Weapon.HasDurability);
+            Assert.AreEqual(0, simulation.Result.Adventurers[1].Weapon.Wear);
+        }
+
+        [Test]
+        public void Durability_RunningOutDuringBattle_DoesNotChangeTheBattle()
+        {
+            BattleSetup worn = CreateSetup(3, 30, 12);
+            foreach (AdventurerSetup adventurer in worn.Adventurers)
+            {
+                adventurer.Weapon = new EquipmentDurability(0, 1, DurabilityRules.WearUnitsPerDurability);
+                adventurer.Armor = new EquipmentDurability(0, 1, DurabilityRules.WearUnitsPerDurability);
+            }
+
+            var simulation = new BattleSimulation(worn);
+            List<string> log = Record(simulation);
+
+            Assert.AreEqual(Record(new BattleSimulation(CreateSetup(3, 30, 12))), log);
+            Assert.IsTrue(simulation.Result.Adventurers[0].Weapon.IsBroken);
         }
 
         [Test]
