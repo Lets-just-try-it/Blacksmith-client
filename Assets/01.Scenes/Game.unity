@@ -4602,6 +4602,8 @@ MonoBehaviour:
     Prefab: {fileID: 5459151706502689481, guid: f3a6fb6d132119c4e9e8d96e07f5efa4, type: 3}
   - Kind: 4
     Prefab: {fileID: 2224616961941221712, guid: 9ff3ae15310e05b43a5f6a90f617959e, type: 3}
+  - Kind: 5
+    Prefab: {fileID: 0}
   _defaultCorpsePrefab: {fileID: 688216737140443352, guid: d0dae18f6df2d5b42963542059e25033, type: 3}
   _bossScale: 1.5
   _interact: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}

@@ -17,6 +17,8 @@ namespace Blacksmith.Battle
         [SerializeField, Min(0)] private int _looseOre = 6;
         [Tooltip("[추정] 바닥에 떨어진 목재 수")]
         [SerializeField, Min(0)] private int _looseWood = 6;
+        [Tooltip("[추정] 약초 수")]
+        [SerializeField, Min(0)] private int _herbs = 4;
 
         [Header("자리 (칸 단위)")]
         [Tooltip("[추정] 채집할 것끼리(시체 더미 포함) 떨어지는 최소 거리")]
@@ -40,6 +42,11 @@ namespace Blacksmith.Battle
         [Tooltip("[추정] 바닥에서 줍는 목재 수")]
         [SerializeField, Min(0)] private int _looseWoodMin = 1;
         [SerializeField, Min(0)] private int _looseWoodMax = 2;
+        [Tooltip("약초 아이템 번호(ItemCatalog)")]
+        [SerializeField] private int _herbItemId = 64;
+        [Tooltip("[추정] 약초 하나에서 나오는 약초 수")]
+        [SerializeField, Min(0)] private int _herbMin = 1;
+        [SerializeField, Min(0)] private int _herbMax = 2;
 
         [Header("채집 시간 (초)")]
         [Tooltip("[추정] 시체 더미 갈무리")]
@@ -59,6 +66,7 @@ namespace Blacksmith.Battle
                 Trees = _trees,
                 LooseOre = _looseOre,
                 LooseWood = _looseWood,
+                Herbs = _herbs,
                 MinSpacing = _minSpacing,
                 StartClearance = _startClearance,
                 WallMargin = _wallMargin,
@@ -79,6 +87,9 @@ namespace Blacksmith.Battle
                 LooseOreMax = _looseOreMax,
                 LooseWoodMin = _looseWoodMin,
                 LooseWoodMax = _looseWoodMax,
+                HerbItemId = _herbItemId,
+                HerbMin = _herbMin,
+                HerbMax = _herbMax,
             };
         }
 

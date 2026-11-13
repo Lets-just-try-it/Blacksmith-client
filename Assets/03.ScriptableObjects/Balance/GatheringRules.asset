@@ -16,6 +16,7 @@ MonoBehaviour:
   _trees: 5
   _looseOre: 6
   _looseWood: 6
+  _herbs: 4
   _minSpacing: 6
   _startClearance: 8
   _wallMargin: 2
@@ -28,6 +29,9 @@ MonoBehaviour:
   _looseOreMax: 1
   _looseWoodMin: 1
   _looseWoodMax: 2
+  _herbItemId: 64
+  _herbMin: 1
+  _herbMax: 2
   _corpsePileSeconds: 3
   _oreVeinSeconds: 3
   _treeSeconds: 3
