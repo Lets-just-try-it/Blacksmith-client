@@ -4970,6 +4970,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 181058527}
     - target: {fileID: 9059559562685475960, guid: 4222f879142de1148b9495a134a92d37, type: 3}
+      propertyPath: _notice
+      value: 
+      objectReference: {fileID: 1902003066}
+    - target: {fileID: 9059559562685475960, guid: 4222f879142de1148b9495a134a92d37, type: 3}
       propertyPath: _roster
       value: 
       objectReference: {fileID: 944958973}
