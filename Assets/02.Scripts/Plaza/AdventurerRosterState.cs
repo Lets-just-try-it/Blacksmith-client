@@ -156,6 +156,7 @@ namespace Blacksmith.Plaza
         }
 
         // 호스트 전용. 사망한 모험가를 관리 목록에서 뺀다. 입은 장비도 함께 사라진다. 뒤의 모험가는 한 칸씩 당긴다.
+        // 사망 기록은 부르는 쪽이 먼저 FallenAdventurerState에 남긴다.
         public bool TryRemove(int adventurerId)
         {
             int index = IndexOf(adventurerId);
