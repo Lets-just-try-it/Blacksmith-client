@@ -15,9 +15,10 @@ MonoBehaviour:
   _ticksPerSecond: 20
   _maxTicks: 20000
   _marchSpeed: 40
+  _lineUpSpeedPercent: 25
   _formationSpacing: 160
   _laneSpacing: 160
   _meleeRangeMax: 200
   _maxRowSize: 3
   _damageVariancePercent: 10
-  _deathChancePercent: 10
+  _injury: {fileID: 11400000, guid: 7eadd59ccd1a08245917113bb1861751, type: 2}

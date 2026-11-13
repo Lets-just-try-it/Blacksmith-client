@@ -47,7 +47,6 @@ namespace Blacksmith.Core.Adventurers
                 HelmetId = AdventurerData.NoEquipment,
                 ArmorId = AdventurerData.NoEquipment,
                 AccessoryId = AdventurerData.NoEquipment,
-                Condition = AdventurerCondition.Healthy,
             };
         }
 

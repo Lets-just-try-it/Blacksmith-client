@@ -5,7 +5,10 @@ namespace Blacksmith.Core.Battle
     public readonly struct AdventurerBattleResult
     {
         public int AdventurerId { get; }
-        public bool IsInjured { get; }
+        public bool IsFallen { get; }
+        // 전투 뒤의 부상수치와 이번 전투에서 늘어난 값이다. 사망했어도 판정에 쓴 값이 남는다.
+        public int Injury { get; }
+        public int InjuryGained { get; }
         public bool IsDead { get; }
         public int DamageDealt { get; }
         // 쓰러지기 전까지 토벌한 무리 수다. BattleResult.ClearedGroups의 앞에서부터 이 수만큼의 경험치를 받는다.
@@ -13,12 +16,14 @@ namespace Blacksmith.Core.Battle
         // 루비 목걸이가 사망 판정을 막고 부서졌다.
         public bool IsAccessoryBroken { get; }
 
-        public AdventurerBattleResult(int adventurerId, bool isInjured, bool isDead, int damageDealt, int groupsCleared,
-            bool isAccessoryBroken = false)
+        public AdventurerBattleResult(int adventurerId, bool isFallen, int injury, int injuryGained, bool isDead, int damageDealt,
+            int groupsCleared, bool isAccessoryBroken = false)
         {
             IsAccessoryBroken = isAccessoryBroken;
             AdventurerId = adventurerId;
-            IsInjured = isInjured;
+            IsFallen = isFallen;
+            Injury = injury;
+            InjuryGained = injuryGained;
             IsDead = isDead;
             DamageDealt = damageDealt;
             GroupsCleared = groupsCleared;

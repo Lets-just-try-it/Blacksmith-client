@@ -10,11 +10,13 @@ namespace Blacksmith.Tests
         private const int StageCount = 3;
 
         [Test]
-        public void OnlyHealthyAdventurer_CanBeDispatched()
+        public void AdventurerBelowInjuryLimit_CanBeDispatched()
         {
-            Assert.IsTrue(DispatchRules.CanDispatch(AdventurerCondition.Healthy));
-            Assert.IsFalse(DispatchRules.CanDispatch(AdventurerCondition.Injured));
-            Assert.IsFalse(DispatchRules.CanDispatch(AdventurerCondition.Dead));
+            InjuryBalance injury = InjuryRulesTests.CreateBalance();
+
+            Assert.IsTrue(DispatchRules.CanDispatch(new AdventurerData { Injury = 0 }, injury));
+            Assert.IsTrue(DispatchRules.CanDispatch(new AdventurerData { Injury = 49 }, injury));
+            Assert.IsFalse(DispatchRules.CanDispatch(new AdventurerData { Injury = 50 }, injury));
         }
 
         [Test]

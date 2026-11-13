@@ -90,9 +90,10 @@ namespace Blacksmith.Tests
             return new BattleResult(isVictory, cleared, 100, adventurers);
         }
 
-        private static AdventurerBattleResult Adventurer(int id, int groupsCleared, bool isInjured = false, bool isDead = false)
+        private static AdventurerBattleResult Adventurer(int id, int groupsCleared, bool isFallen = false, bool isDead = false)
         {
-            return new AdventurerBattleResult(id, isInjured, isDead, 0, groupsCleared);
+            int injury = isFallen ? 90 : 0;
+            return new AdventurerBattleResult(id, isFallen, injury, injury, isDead, 0, groupsCleared);
         }
 
         [Test]

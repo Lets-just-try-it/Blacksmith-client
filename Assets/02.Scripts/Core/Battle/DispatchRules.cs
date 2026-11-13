@@ -7,10 +7,10 @@ namespace Blacksmith.Core.Battle
     // 파견 창의 표시와 호스트의 파견 확정이 같은 함수를 쓴다.
     public static class DispatchRules
     {
-        // 부상당한 모험가는 파견할 수 없다. 사망한 모험가는 관리 목록에서 빠지지만 혹시 남아 있어도 고르지 않는다.
-        public static bool CanDispatch(AdventurerCondition condition)
+        // 부상수치가 파견 제한 미만이면 부상당했어도 보낼 수 있다. 사망한 모험가는 관리 목록에서 빠진다.
+        public static bool CanDispatch(AdventurerData adventurer, InjuryBalance injury)
         {
-            return condition == AdventurerCondition.Healthy;
+            return InjuryRules.CanDispatch(adventurer.Injury, injury);
         }
 
         public static bool CanAddToParty(int partyCount, int maxPartySize)

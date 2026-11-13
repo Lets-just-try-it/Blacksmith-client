@@ -140,7 +140,7 @@ namespace Blacksmith.Battle
             {
                 AdventurerData adventurer = _roster.Get(i);
                 bool isInParty = _state.IsInParty(adventurer.AdventurerId);
-                bool canDispatch = DispatchRules.CanDispatch(adventurer.Condition);
+                bool canDispatch = _state.IsDispatchable(adventurer);
                 bool canSelect = canEdit && canDispatch
                     && (isInParty || DispatchRules.CanAddToParty(_state.PartyCount, BattleState.MaxPartySize));
                 Color color = !canDispatch ? _unavailableRowColor : isInParty ? _selectedRowColor : _rowColor;
@@ -154,7 +154,7 @@ namespace Blacksmith.Battle
             string mark = isInParty ? "[파견] " : "";
             string condition = adventurer.Condition == AdventurerCondition.Healthy
                 ? ""
-                : $" · {AdventurerLabels.GetConditionName(adventurer.Condition)}";
+                : $" · {AdventurerLabels.FormatCondition(adventurer)}";
             return $"{mark}{adventurer.Name} · {jobName} Lv{adventurer.Level}{condition}";
         }
 

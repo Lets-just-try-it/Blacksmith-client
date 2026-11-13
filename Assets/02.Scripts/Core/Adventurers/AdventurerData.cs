@@ -48,6 +48,8 @@ namespace Blacksmith.Core.Adventurers
         public int ArmorGrade { get; set; }
         public int AccessoryId { get; set; }
         public int AccessoryGrade { get; set; }
-        public AdventurerCondition Condition { get; set; }
+        // 0이면 건강하다. 범위와 파견 제한은 InjuryRules를 따른다. 사망한 모험가는 관리 목록에서 빠지므로 저장하지 않는다.
+        public int Injury { get; set; }
+        public AdventurerCondition Condition => InjuryRules.GetCondition(Injury);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Blacksmith.Core.Adventurers;
 
 namespace Blacksmith.Core.Battle
 {
@@ -56,7 +57,8 @@ namespace Blacksmith.Core.Battle
         // 한 줄에 서는 최대 인원이다. 넘으면 같은 종류끼리 다음 줄을 만든다.
         public int MaxRowSize { get; set; }
         public int DamageVariancePercent { get; set; }
-        public int DeathChancePercent { get; set; }
+        // 전투가 끝났을 때 부상 누적과 사망 판정에 쓴다.
+        public InjuryBalance Injury { get; set; }
     }
 
     // System.Serializable이라 ScriptableObject 필드로도 쓸 수 있다.
@@ -109,6 +111,8 @@ namespace Blacksmith.Core.Battle
         public SkillData Skill { get; set; }
         // 입은 목걸이의 효과. 루비는 전투 시뮬레이션이, 나머지는 보상 계산이 쓴다.
         public AccessoryEffect Accessory { get; set; }
+        // 파견 전 부상수치. 전투에서 입은 부상을 여기에 더해 사망 판정을 한다.
+        public int Injury { get; set; }
     }
 
     public sealed class MonsterSetup

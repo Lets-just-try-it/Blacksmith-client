@@ -1804,12 +1804,16 @@ MonoBehaviour:
   _roster: {fileID: 554873651}
   _progress: {fileID: 1342970123}
   _loader: {fileID: 1342970125}
+  _injury: {fileID: 11400000, guid: 7eadd59ccd1a08245917113bb1861751, type: 2}
+  _skipDarkenSeconds: 0.6
   _IsOpen:
     RawValue: 0
   _Screen: 0
   _TierIndex: 0
   _Stage: 0
   _PartyCount: 0
+  _IsSkipping:
+    RawValue: 0
 --- !u!114 &1342970125
 MonoBehaviour:
   m_ObjectHideFlags: 0
