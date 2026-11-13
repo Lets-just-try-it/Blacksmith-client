@@ -2029,6 +2029,8 @@ MonoBehaviour:
   _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
   _dispatch: {fileID: 181058527}
   _roster: {fileID: 944958973}
+  _fallen: {fileID: 944958976}
+  _gameState: {fileID: 156785739}
   _injury: {fileID: 11400000, guid: 7eadd59ccd1a08245917113bb1861751, type: 2}
 --- !u!1 &570442517
 GameObject:
@@ -3974,6 +3976,7 @@ GameObject:
   - component: {fileID: 944958975}
   - component: {fileID: 944958974}
   - component: {fileID: 944958973}
+  - component: {fileID: 944958976}
   m_Layer: 0
   m_Name: AdventurerRoster
   m_TagString: Untagged
@@ -4015,6 +4018,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 944958973}
+  - {fileID: 944958976}
   ForceRemoteRenderTimeframe: 0
 --- !u!4 &944958975
 Transform:
@@ -4031,6 +4035,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &944958976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 944958972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a0f8f7706900a64680f5d496e10fa45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Plaza.FallenAdventurerState
+  _Count: 0
 --- !u!1 &962404565
 GameObject:
   m_ObjectHideFlags: 0
