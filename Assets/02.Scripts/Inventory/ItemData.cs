@@ -11,6 +11,8 @@ namespace Blacksmith.Inventory
         // 제작 단계 사이의 형태(예: 주괴, 단조품)
         Intermediate,
         Equipment,
+        // 쓰면 사라지는 물건(예: 포션). 재료처럼 한 칸에 쌓는다.
+        Consumable,
     }
 
     // 아이템 한 종류의 정의다. 인벤토리 칸에는 이 정의의 번호(ItemId)와 등급, 개수만 담는다.
@@ -36,6 +38,8 @@ namespace Blacksmith.Inventory
         [SerializeField] private string _wornPart = "";
         [Tooltip("장신구(목걸이)일 때만 쓴다. 처음 넣은 보석이 정하는 효과 종류. 수치는 전투의 AccessoryEffects 데이터에 있다 (docs/GAME_CONCEPT.md 4.4)")]
         [SerializeField] private AccessoryEffectKind _accessoryEffect;
+        [Tooltip("약초·포션처럼 모험가에게 건네면 줄어드는 부상수치. 0이면 치료 아이템이 아니다 (docs/GAME_CONCEPT.md 5.1)")]
+        [SerializeField, Min(0)] private int _injuryRecovery;
 
         public int ItemId => _itemId;
         public string DisplayName => _displayName;
@@ -48,7 +52,8 @@ namespace Blacksmith.Inventory
         public AdventurerStats StatBonus => _kind == ItemKind.Equipment ? _statBonus : default;
         public string WornPart => _kind == ItemKind.Equipment ? _wornPart : "";
         public AccessoryEffectKind AccessoryEffect => EquipmentSlot == EquipmentSlot.Accessory ? _accessoryEffect : AccessoryEffectKind.None;
-        // 재료만 한 칸에 쌓는다. 장비와 중간 형태는 한 칸에 하나다.
-        public bool IsStackable => _kind == ItemKind.Material;
+        public int InjuryRecovery => _injuryRecovery;
+        // 재료와 사용 아이템만 한 칸에 쌓는다. 장비와 중간 형태는 한 칸에 하나다.
+        public bool IsStackable => _kind == ItemKind.Material || _kind == ItemKind.Consumable;
     }
 }

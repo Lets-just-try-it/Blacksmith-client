@@ -54,6 +54,14 @@ namespace Blacksmith.Tests
         }
 
         [Test]
+        public void Treat_OnlyInjuredWithHealingItem()
+        {
+            Assert.IsTrue(InjuryRules.CanTreat(10, 30));
+            Assert.IsFalse(InjuryRules.CanTreat(0, 30));
+            Assert.IsFalse(InjuryRules.CanTreat(10, 0));
+        }
+
+        [Test]
         public void Dispatch_BlockedFromLimit()
         {
             Assert.IsTrue(InjuryRules.CanDispatch(49, CreateBalance()));

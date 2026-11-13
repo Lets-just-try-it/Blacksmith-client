@@ -16,6 +16,8 @@ namespace Blacksmith.Core.Battle
         LooseOre,
         // 바닥에 떨어진 목재 소량
         LooseWood,
+        // 바닥에 자란 약초. 도구 없이 뜯는다.
+        Herb,
     }
 
     // 채집할 것 하나. 자리는 전투 좌표(BattleSpace)다. 시체 더미만 무리 번호(BattleSetup.Groups 순서)를 가진다.
@@ -42,6 +44,7 @@ namespace Blacksmith.Core.Battle
         public int Trees { get; set; }
         public int LooseOre { get; set; }
         public int LooseWood { get; set; }
+        public int Herbs { get; set; }
         // 채집할 것끼리(시체 더미 포함) 떨어지는 최소 거리
         public float MinSpacing { get; set; }
         // 시작 지점(돌아가는 포털)에서 떨어지는 최소 거리
@@ -70,6 +73,8 @@ namespace Blacksmith.Core.Battle
             Place(GatheringNodeKind.Tree, settings.Trees);
             Place(GatheringNodeKind.LooseOre, settings.LooseOre);
             Place(GatheringNodeKind.LooseWood, settings.LooseWood);
+            // 약초는 뒤에 놓아, 약초 수를 바꿔도 앞의 자원 자리가 바뀌지 않게 한다.
+            Place(GatheringNodeKind.Herb, settings.Herbs);
             return nodes;
 
             // 후보를 섞은 순서로 보며 다른 것과 충분히 떨어진 칸에 놓는다. 자리가 모자라면 덜 놓는다.
@@ -189,6 +194,9 @@ namespace Blacksmith.Core.Battle
         public int LooseOreMax { get; set; }
         public int LooseWoodMin { get; set; }
         public int LooseWoodMax { get; set; }
+        public int HerbItemId { get; set; }
+        public int HerbMin { get; set; }
+        public int HerbMax { get; set; }
     }
 
     // 채집할 것 하나에서 나오는 재료를 정한다. 같은 시드와 번호면 같은 결과라, 미리 보이는 값과 실제로 받는 값이 같다.
@@ -226,6 +234,9 @@ namespace Blacksmith.Core.Battle
                     break;
                 case GatheringNodeKind.LooseWood:
                     AddRandom(settings.WoodItemId, settings.LooseWoodMin, settings.LooseWoodMax);
+                    break;
+                case GatheringNodeKind.Herb:
+                    AddRandom(settings.HerbItemId, settings.HerbMin, settings.HerbMax);
                     break;
             }
 

@@ -32,6 +32,7 @@ namespace Blacksmith.Tests
                 Trees = 2,
                 LooseOre = 2,
                 LooseWood = 2,
+                Herbs = 2,
                 MinSpacing = 3f,
                 StartClearance = 5f,
                 WallMargin = 1,
@@ -52,6 +53,9 @@ namespace Blacksmith.Tests
                 LooseOreMax = 1,
                 LooseWoodMin = 1,
                 LooseWoodMax = 2,
+                HerbItemId = 64,
+                HerbMin = 1,
+                HerbMax = 2,
             };
         }
 
@@ -96,7 +100,8 @@ namespace Blacksmith.Tests
             for (int seed = 0; seed < 50; seed++)
             {
                 List<GatheringNode> nodes = GatheringLayoutRules.Generate(map, Corpses(), seed, settings, MaxNodes);
-                Assert.AreEqual(2 + 3 + 2 + 2 + 2, nodes.Count, $"시드 {seed}");
+                Assert.AreEqual(2 + 3 + 2 + 2 + 2 + 2, nodes.Count, $"시드 {seed}");
+                Assert.AreEqual(2, nodes.FindAll(node => node.Kind == GatheringNodeKind.Herb).Count, $"시드 {seed}");
                 for (int i = 2; i < nodes.Count; i++)
                 {
                     float x = nodes[i].X / (float)BattleSpace.UnitsPerCell;
@@ -127,7 +132,7 @@ namespace Blacksmith.Tests
             var map = new StageMap(floor, new MapPoint(2.5f, 2.5f));
             List<GatheringNode> nodes = GatheringLayoutRules.Generate(map, new List<BattleCorpse>(), 3, Settings(), MaxNodes);
 
-            Assert.Less(nodes.Count, 9);
+            Assert.Less(nodes.Count, 11);
         }
 
         [Test]
@@ -143,6 +148,31 @@ namespace Blacksmith.Tests
                 Assert.AreEqual(13, first[0].MaterialId);
                 Assert.That(first[0].Count, Is.InRange(3, 5));
                 CollectionAssert.AreEqual(first, second);
+            }
+        }
+
+        [Test]
+        public void Herbs_DoNotMoveOtherResources()
+        {
+            GatheringLayoutSettings withoutHerbs = Settings();
+            withoutHerbs.Herbs = 0;
+            List<GatheringNode> before = GatheringLayoutRules.Generate(OpenMap(), Corpses(), 7, withoutHerbs, MaxNodes);
+            List<GatheringNode> after = GatheringLayoutRules.Generate(OpenMap(), Corpses(), 7, Settings(), MaxNodes);
+
+            CollectionAssert.AreEqual(before, after.GetRange(0, before.Count));
+        }
+
+        [Test]
+        public void Herb_GivesHerbInRange()
+        {
+            var node = new GatheringNode(GatheringNodeKind.Herb, 0, 0);
+            for (int index = 0; index < 20; index++)
+            {
+                List<MaterialReward> herbs = GatheringYieldRules.Roll(node, index, 9, Yields(), Array.Empty<GroupLoot>());
+
+                Assert.AreEqual(1, herbs.Count);
+                Assert.AreEqual(64, herbs[0].MaterialId);
+                Assert.That(herbs[0].Count, Is.InRange(1, 2));
             }
         }
 

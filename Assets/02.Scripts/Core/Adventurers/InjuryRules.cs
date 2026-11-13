@@ -60,6 +60,12 @@ namespace Blacksmith.Core.Adventurers
             return Math.Clamp(injury + amount, 0, balance.MaxInjury);
         }
 
+        // 약초·포션은 부상당한 모험가에게만 쓸 수 있다. 쓰면 Recover로 줄인다.
+        public static bool CanTreat(int injury, int recovery)
+        {
+            return injury > 0 && recovery > 0;
+        }
+
         // 하루 휴식, 약초, 포션이 모두 이 함수로 줄인다.
         public static int Recover(int injury, int amount)
         {

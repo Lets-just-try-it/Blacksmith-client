@@ -8,7 +8,7 @@ namespace Blacksmith.Inventory
     // Player 프리팹에 붙는 인벤토리 행동 컴포넌트다. 화면에서 칸을 끌어다 놓거나 빠른 이동·스택 나누기를 하면 호스트에 요청한다.
     // 같은 인벤토리 안의 이동과 서로 다른 인벤토리 사이의 이동(공용 창고 ↔ 플레이어 슬롯)을 같은 RPC로 처리한다.
     // 손에 든 슬롯 번호도 다른 참가자가 손에 든 물건을 볼 수 있도록 호스트에 알린다.
-    // 장비 착용 창에서 모험가에게 장비를 입히고 벗기는 요청도 여기서 보낸다.
+    // 장비 착용 창에서 모험가에게 장비를 입히고 벗기는 요청과, 약초·포션을 건네는 요청도 여기서 보낸다.
     public class InventoryPlayerActions : NetworkBehaviour
     {
         [SerializeField] private InventoryChannel _channel;
@@ -78,6 +78,15 @@ namespace Blacksmith.Inventory
             }
         }
 
+        // 여관에서 약초·포션을 건넨다. 화면에서 먼저 AdventurerTreatment.CanTreat로 확인한다.
+        public void RequestTreat(NetworkInventory from, int fromSlot, AdventurerRosterState roster, int adventurerId)
+        {
+            if (from.IsReady && roster.IsReady)
+            {
+                RpcTreat(from.Object.Id, fromSlot, NetworkItemStack.FromStack(from.Get(fromSlot)), roster.Object.Id, adventurerId);
+            }
+        }
+
         public void RequestHeldSlot(int slot)
         {
             if (Object != null && Object.IsValid)
@@ -131,6 +140,15 @@ namespace Blacksmith.Inventory
             if (TryFind(rosterId, out AdventurerRosterState roster) && TryFindInventory(storageId, out NetworkInventory storage))
             {
                 AdventurerEquipping.TryUnequip(roster, adventurerId, (EquipmentSlot)slot, storage);
+            }
+        }
+
+        [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+        private void RpcTreat(NetworkId fromId, int fromSlot, NetworkItemStack expected, NetworkId rosterId, int adventurerId)
+        {
+            if (TryFindSource(fromId, fromSlot, expected, out NetworkInventory from) && TryFind(rosterId, out AdventurerRosterState roster))
+            {
+                AdventurerTreatment.TryTreat(from, fromSlot, roster, adventurerId);
             }
         }
 
