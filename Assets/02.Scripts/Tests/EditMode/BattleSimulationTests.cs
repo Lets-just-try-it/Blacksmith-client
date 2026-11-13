@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
 using NUnit.Framework;
 
@@ -7,8 +8,10 @@ namespace Blacksmith.Tests
     public class BattleSimulationTests
     {
         // 테스트 전용 수치다. 실제 밸런스는 ScriptableObject 데이터를 따른다.
-        private static BattleRules CreateRules()
+        private static BattleRules CreateRules(int deathChancePercent = 30)
         {
+            InjuryBalance injury = InjuryRulesTests.CreateBalance();
+            injury.BaseDeathChancePercent = deathChancePercent;
             return new BattleRules
             {
                 TicksPerSecond = 20,
@@ -17,7 +20,7 @@ namespace Blacksmith.Tests
                 FormationSpacing = 100,
                 LaneSpacing = 160,
                 DamageVariancePercent = 10,
-                DeathChancePercent = 30,
+                Injury = injury,
             };
         }
 
@@ -227,9 +230,25 @@ namespace Blacksmith.Tests
 
             foreach (AdventurerBattleResult adventurer in result.Adventurers)
             {
-                Assert.IsFalse(adventurer.IsInjured);
+                Assert.IsFalse(adventurer.IsFallen);
+                Assert.IsFalse(adventurer.IsDead);
                 Assert.AreEqual(3, adventurer.GroupsCleared);
             }
+        }
+
+        [Test]
+        public void InjuryBeforeBattle_AddsUpAndCanKillWithoutFalling()
+        {
+            BattleSetup setup = CreateSetup(1, 60, 5);
+            setup.Rules = CreateRules(deathChancePercent: 100);
+            setup.Adventurers[0].Injury = 95;
+
+            BattleResult result = new BattleSimulation(setup).RunToEnd();
+
+            Assert.IsFalse(result.Adventurers[0].IsFallen);
+            Assert.GreaterOrEqual(result.Adventurers[0].Injury, 95);
+            Assert.IsTrue(result.Adventurers[0].IsDead);
+            Assert.IsFalse(result.Adventurers[1].IsDead);
         }
 
         [Test]
@@ -284,17 +303,16 @@ namespace Blacksmith.Tests
             Assert.IsFalse(result.IsVictory);
             foreach (AdventurerBattleResult adventurer in result.Adventurers)
             {
-                Assert.IsTrue(adventurer.IsInjured);
+                Assert.IsTrue(adventurer.IsFallen);
+                Assert.AreEqual(InjuryRulesTests.CreateBalance().FallenInjury, adventurer.InjuryGained);
             }
         }
 
         [Test]
         public void DeathImmunity_AlwaysSavesAndBreaksAccessory()
         {
-            BattleRules rules = CreateRules();
-            rules.DeathChancePercent = 100;
             BattleSetup setup = CreateSetup(1, 3, 60);
-            setup.Rules = rules;
+            setup.Rules = CreateRules(deathChancePercent: 100);
             setup.Adventurers[0].Accessory = new AccessoryEffect(AccessoryEffectKind.DeathImmunity, 100);
 
             BattleResult result = new BattleSimulation(setup).RunToEnd();

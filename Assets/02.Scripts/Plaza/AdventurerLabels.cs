@@ -36,6 +36,13 @@ namespace Blacksmith.Plaza
             }
         }
 
+        // 부상당했으면 부상수치를 함께 적는다. 예: "부상 40"
+        public static string FormatCondition(AdventurerData adventurer)
+        {
+            string name = GetConditionName(adventurer.Condition);
+            return adventurer.Condition == AdventurerCondition.Injured ? $"{name} {adventurer.Injury}" : name;
+        }
+
         public static string GetEquipmentName(int equipmentId)
         {
             return equipmentId == AdventurerData.NoEquipment ? "없음" : $"#{equipmentId}";

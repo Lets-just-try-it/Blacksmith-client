@@ -140,6 +140,40 @@ namespace Blacksmith.Plaza
             return true;
         }
 
+        // 호스트 전용. 범위는 부르는 쪽이 InjuryRules로 맞춘다.
+        public bool TrySetInjury(int adventurerId, int injury)
+        {
+            int index = IndexOf(adventurerId);
+            if (!HasStateAuthority || index < 0)
+            {
+                return false;
+            }
+
+            NetworkAdventurer adventurer = Adventurers[index];
+            adventurer.Injury = injury;
+            Adventurers.Set(index, adventurer);
+            return true;
+        }
+
+        // 호스트 전용. 사망한 모험가를 관리 목록에서 뺀다. 입은 장비도 함께 사라진다. 뒤의 모험가는 한 칸씩 당긴다.
+        public bool TryRemove(int adventurerId)
+        {
+            int index = IndexOf(adventurerId);
+            if (!HasStateAuthority || index < 0)
+            {
+                return false;
+            }
+
+            for (int i = index; i < Count - 1; i++)
+            {
+                Adventurers.Set(i, Adventurers[i + 1]);
+            }
+
+            Count--;
+            Adventurers.Set(Count, default);
+            return true;
+        }
+
         // 호스트 전용. 대장간 업그레이드가 부른다. 이미 관리 중인 인원보다 줄이지 않는다.
         public void SetSlotCount(int slotCount)
         {

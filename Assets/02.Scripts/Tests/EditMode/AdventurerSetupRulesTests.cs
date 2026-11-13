@@ -131,7 +131,6 @@ namespace Blacksmith.Tests
                     FormationSpacing = 100,
                     LaneSpacing = 160,
                     DamageVariancePercent = 10,
-                    DeathChancePercent = 10,
                 },
             };
             setup.Adventurers.Add(AdventurerSetupRules.Create(adventurer, JobStats, Skill));

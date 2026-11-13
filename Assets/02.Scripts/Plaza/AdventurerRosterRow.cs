@@ -31,7 +31,7 @@ namespace Blacksmith.Plaza
                 $"투구 {AdventurerLabels.GetEquipmentName(adventurer.HelmetId)} · " +
                 $"갑옷 {AdventurerLabels.GetEquipmentName(adventurer.ArmorId)} · " +
                 $"스킬 {AdventurerLabels.GetSkillName(adventurer.SkillId)}";
-            _conditionText.text = AdventurerLabels.GetConditionName(adventurer.Condition);
+            _conditionText.text = AdventurerLabels.FormatCondition(adventurer);
         }
 
         public void ShowEmpty()

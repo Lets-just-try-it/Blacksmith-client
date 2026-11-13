@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
 using Blacksmith.Core.Inventory;
+using Blacksmith.Forge;
 using Blacksmith.Inventory;
 using Blacksmith.Network;
 using Blacksmith.Plaza;
@@ -28,6 +29,9 @@ namespace Blacksmith.Battle
         [SerializeField] private PlayerNetworkInputLock _inputLock;
         [Tooltip("창이 열린 동안 하단 개인 슬롯을 숨기는 데 쓴다")]
         [SerializeField] private InventoryChannel _inventoryChannel;
+        [Tooltip("파견할 수 없는 모험가를 눌렀을 때 이유를 띄운다. 없으면 띄우지 않는다")]
+        [SerializeField] private ForgeNotice _notice;
+        [SerializeField] private string _injuredMessage = "부상이 심해 파견할 수 없습니다.";
         [SerializeField] private GameObject _panel;
         [SerializeField] private Transform _rowRoot;
         [SerializeField] private DispatchAdventurerRow _rowPrefab;
@@ -140,9 +144,10 @@ namespace Blacksmith.Battle
             {
                 AdventurerData adventurer = _roster.Get(i);
                 bool isInParty = _state.IsInParty(adventurer.AdventurerId);
-                bool canDispatch = DispatchRules.CanDispatch(adventurer.Condition);
-                bool canSelect = canEdit && canDispatch
-                    && (isInParty || DispatchRules.CanAddToParty(_state.PartyCount, BattleState.MaxPartySize));
+                bool canDispatch = _state.IsDispatchable(adventurer);
+                // 파견할 수 없는 모험가도 누를 수 있게 두고, 누르면 이유를 띄운다.
+                bool canSelect = canEdit
+                    && (!canDispatch || isInParty || DispatchRules.CanAddToParty(_state.PartyCount, BattleState.MaxPartySize));
                 Color color = !canDispatch ? _unavailableRowColor : isInParty ? _selectedRowColor : _rowColor;
                 _rows[i].Show(adventurer.AdventurerId, GetNameLine(adventurer, isInParty), GetStatsLine(adventurer), color, canSelect);
             }
@@ -154,7 +159,7 @@ namespace Blacksmith.Battle
             string mark = isInParty ? "[파견] " : "";
             string condition = adventurer.Condition == AdventurerCondition.Healthy
                 ? ""
-                : $" · {AdventurerLabels.GetConditionName(adventurer.Condition)}";
+                : $" · {AdventurerLabels.FormatCondition(adventurer)}";
             return $"{mark}{adventurer.Name} · {jobName} Lv{adventurer.Level}{condition}";
         }
 
@@ -209,6 +214,17 @@ namespace Blacksmith.Battle
 
         private void HandleSelectClicked(DispatchAdventurerRow row)
         {
+            AdventurerData adventurer = _roster.FindById(row.AdventurerId);
+            if (adventurer != null && !_state.IsDispatchable(adventurer))
+            {
+                if (_notice != null)
+                {
+                    _notice.Show(_injuredMessage);
+                }
+
+                return;
+            }
+
             _state.ToggleMember(row.AdventurerId);
         }
 

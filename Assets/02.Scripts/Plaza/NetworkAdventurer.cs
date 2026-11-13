@@ -30,7 +30,7 @@ namespace Blacksmith.Plaza
         public int ArmorGrade;
         public int AccessoryId;
         public int AccessoryGrade;
-        public AdventurerCondition Condition;
+        public int Injury;
 
         public static NetworkAdventurer FromData(AdventurerData data)
         {
@@ -57,7 +57,7 @@ namespace Blacksmith.Plaza
                 ArmorGrade = data.ArmorGrade,
                 AccessoryId = data.AccessoryId,
                 AccessoryGrade = data.AccessoryGrade,
-                Condition = data.Condition,
+                Injury = data.Injury,
             };
         }
 
@@ -82,7 +82,7 @@ namespace Blacksmith.Plaza
                 ArmorGrade = ArmorGrade,
                 AccessoryId = AccessoryId,
                 AccessoryGrade = AccessoryGrade,
-                Condition = Condition,
+                Injury = Injury,
             };
         }
     }

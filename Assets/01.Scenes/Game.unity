@@ -853,6 +853,7 @@ MonoBehaviour:
   _roster: {fileID: 944958973}
   _progress: {fileID: 181058526}
   _loader: {fileID: 181058528}
+  _injury: {fileID: 11400000, guid: 7eadd59ccd1a08245917113bb1861751, type: 2}
   _skipDarkenSeconds: 0.6
   _IsOpen:
     RawValue: 0
@@ -1975,6 +1976,7 @@ GameObject:
   m_Component:
   - component: {fileID: 525234212}
   - component: {fileID: 525234211}
+  - component: {fileID: 525234213}
   m_Layer: 0
   m_Name: BattleRewardApplier
   m_TagString: Untagged
@@ -2012,6 +2014,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &525234213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525234210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eaa349f5e4eef24599e7f953090d878, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.AdventurerInjuryApplier
+  _channel: {fileID: 11400000, guid: 056c81ec4ddf24a4e8e76ffaaba05540, type: 2}
+  _dispatch: {fileID: 181058527}
+  _roster: {fileID: 944958973}
+  _injury: {fileID: 11400000, guid: 7eadd59ccd1a08245917113bb1861751, type: 2}
 --- !u!1 &570442517
 GameObject:
   m_ObjectHideFlags: 0
@@ -6390,6 +6408,10 @@ PrefabInstance:
       propertyPath: _state
       value: 
       objectReference: {fileID: 181058527}
+    - target: {fileID: 9059559562685475960, guid: 4222f879142de1148b9495a134a92d37, type: 3}
+      propertyPath: _notice
+      value: 
+      objectReference: {fileID: 1902003066}
     - target: {fileID: 9059559562685475960, guid: 4222f879142de1148b9495a134a92d37, type: 3}
       propertyPath: _roster
       value: 

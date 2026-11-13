@@ -24,6 +24,7 @@ namespace Blacksmith.Battle
         [SerializeField] private AdventurerRosterState _roster;
         [SerializeField] private DungeonProgressState _progress;
         [SerializeField] private BattleSceneLoader _loader;
+        [SerializeField] private AdventurerInjuryData _injury;
         [Tooltip("파견을 건너뛸 때 모든 화면이 어두워지기를 기다리는 시간(초). 화면 페이드 시간에 참가자 지연을 더한 만큼 둔다")]
         [SerializeField, Min(0f)] private float _skipDarkenSeconds = 0.6f;
 
@@ -165,7 +166,7 @@ namespace Blacksmith.Battle
             }
 
             AdventurerData adventurer = _roster.FindById(adventurerId);
-            if (adventurer != null && DispatchRules.CanDispatch(adventurer.Condition)
+            if (IsDispatchable(adventurer)
                 && DispatchRules.CanAddToParty(PartyCount, BattleState.MaxPartySize))
             {
                 PartyIds.Set(PartyCount, adventurerId);
@@ -217,6 +218,12 @@ namespace Blacksmith.Battle
             {
                 Screen = DispatchScreen.Map;
             }
+        }
+
+        // 파견 창 표시와 파티 고르기가 같은 판정을 쓴다.
+        public bool IsDispatchable(AdventurerData adventurer)
+        {
+            return adventurer != null && DispatchRules.CanDispatch(adventurer, _injury.ToBalance());
         }
 
         public bool CanDispatch()
@@ -285,7 +292,7 @@ namespace Blacksmith.Battle
             PartyIds.Set(PartyCount, 0);
         }
 
-        // 관리 목록에서 빠졌거나 부상당한 모험가는 파티에서 뺀다.
+        // 관리 목록에서 빠졌거나 부상이 파견 제한을 넘은 모험가는 파티에서 뺀다.
         private void RemoveUndispatchable()
         {
             if (!CanEdit)
@@ -296,7 +303,7 @@ namespace Blacksmith.Battle
             for (int i = PartyCount - 1; i >= 0; i--)
             {
                 AdventurerData adventurer = _roster.FindById(PartyIds[i]);
-                if (adventurer == null || !DispatchRules.CanDispatch(adventurer.Condition))
+                if (!IsDispatchable(adventurer))
                 {
                     RemoveAt(i);
                 }

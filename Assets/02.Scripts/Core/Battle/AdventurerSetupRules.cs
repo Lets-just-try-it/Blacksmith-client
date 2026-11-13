@@ -44,6 +44,7 @@ namespace Blacksmith.Core.Battle
                     ManaPerHit = jobStats.ManaPerHit,
                 },
                 Skill = skill,
+                Injury = adventurer.Injury,
             };
         }
     }

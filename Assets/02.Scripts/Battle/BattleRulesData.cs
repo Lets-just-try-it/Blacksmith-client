@@ -21,7 +21,7 @@ namespace Blacksmith.Battle
         [Tooltip("[추정] 대열 한 줄의 최대 인원. 넘으면 같은 종류끼리 다음 줄을 만든다")]
         [SerializeField, Min(1)] private int _maxRowSize = 3;
         [SerializeField, Range(0, 100)] private int _damageVariancePercent = 10;
-        [SerializeField, Range(0, 100)] private int _deathChancePercent = 10;
+        [SerializeField] private AdventurerInjuryData _injury;
 
         public int TicksPerSecond => _ticksPerSecond;
 
@@ -38,7 +38,7 @@ namespace Blacksmith.Battle
                 MeleeRangeMax = _meleeRangeMax,
                 MaxRowSize = _maxRowSize,
                 DamageVariancePercent = _damageVariancePercent,
-                DeathChancePercent = _deathChancePercent,
+                Injury = _injury.ToBalance(),
             };
         }
     }

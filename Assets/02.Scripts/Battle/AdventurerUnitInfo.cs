@@ -12,7 +12,7 @@ namespace Blacksmith.Battle
         [SerializeField] private string _jobName;
         [SerializeField] private int _level;
         [SerializeField] private int _experience;
-        [SerializeField] private AdventurerCondition _condition;
+        [SerializeField] private int _injury;
         [Tooltip("1레벨 기준 보정 전 값")]
         [SerializeField] private AdventurerStats _baseStats;
         [Tooltip("레벨당 성장값")]
@@ -29,7 +29,7 @@ namespace Blacksmith.Battle
             _jobName = jobName;
             _level = adventurer.Level;
             _experience = adventurer.Experience;
-            _condition = adventurer.Condition;
+            _injury = adventurer.Injury;
             _baseStats = adventurer.BaseStats;
             _growthStats = adventurer.GrowthStats;
             _skillId = adventurer.SkillId;

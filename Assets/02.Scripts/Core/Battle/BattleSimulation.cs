@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Blacksmith.Core.Adventurers;
 
 namespace Blacksmith.Core.Battle
 {
@@ -981,10 +982,15 @@ namespace Blacksmith.Core.Battle
             for (int i = 0; i < _setup.Adventurers.Count; i++)
             {
                 BattleUnit unit = _units[i];
-                bool isDead = unit.IsFallen && BattleFormulas.RollDeath(_rules.DeathChancePercent, _random);
-                bool isAccessoryBroken = isDead && TryDeathImmunity(_setup.Adventurers[i].Accessory);
-                adventurers.Add(new AdventurerBattleResult(unit.SourceId, unit.IsFallen, isDead && !isAccessoryBroken,
-                    unit.DamageDealt, unit.GroupsCleared, isAccessoryBroken));
+                AdventurerSetup adventurer = _setup.Adventurers[i];
+                int injuryGained = InjuryRules.GetBattleInjury(unit.Hp, unit.Stats.MaxHp, unit.IsFallen, _rules.Injury);
+                int injury = InjuryRules.AddInjury(adventurer.Injury, injuryGained, _rules.Injury);
+                // 사망 판정 대상이 아니면 난수를 쓰지 않아 다른 모험가의 판정이 바뀌지 않는다.
+                int deathChance = InjuryRules.GetDeathChancePercent(injury, _rules.Injury);
+                bool isDead = deathChance > 0 && BattleFormulas.RollDeath(deathChance, _random);
+                bool isAccessoryBroken = isDead && TryDeathImmunity(adventurer.Accessory);
+                adventurers.Add(new AdventurerBattleResult(unit.SourceId, unit.IsFallen, injury, injuryGained,
+                    isDead && !isAccessoryBroken, unit.DamageDealt, unit.GroupsCleared, isAccessoryBroken));
             }
 
             Result = new BattleResult(isVictory, _clearedGroups.ToArray(), Tick, adventurers, _corpses.ToArray());
