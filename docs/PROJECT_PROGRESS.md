@@ -9,7 +9,7 @@
 Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 던전에서 재료를 채집해 장비를 제작하고 의뢰·상점·모험가에게 쓰며, 밤에는 모험가를 파견해 자동 전투 결과를 확인한다. 게임 흐름과 데모 1 범위는 `docs/GAME_CONCEPT.md`, 네트워크 규칙은 `CLAUDE.md`의 "네트워크 구조"와 `docs/NETWORK_DESIGN.md`를 따른다.
 
 - 씬: `Bootstrap` → `Lobby` → `Game`이 실제 흐름이다. `PlazaTest`, `ForgeTest`, `BattleTest`, `InventoryTest`, `DispatchTest`는 로비 없이 호스트로 시작하는 개발용 씬이다. `Battle` 씬은 밤 파견 때 Additive로 불러온다.
-- `Game` 씬: 대장간(`ForgeRoom` 프리팹), 공용 창고, 낮·밤, 밤 파견과 던전 지도, 광장(x = 500 근처), 여관(x = 1000 근처), 대화, 전투 보상 반영이 배치되어 있다. 시험용 재료와 모험가는 `StartSupply`가 넣는다.
+- `Game` 씬: 대장간(`ForgeRoom` 프리팹), 공용 창고, 낮·밤, 밤 파견과 던전 지도, 광장(x = 500 근처), 여관(x = 3000 근처), 대화, 전투 보상 반영이 배치되어 있다. 시험용 재료와 모험가는 `StartSupply`가 넣는다.
 
 ## 시스템별 상태
 
@@ -71,7 +71,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 
 ### 여관 (진행 중)
 
-- 그레이박스 `04.Prefabs/Town/InnRoom`(홀, 방 4개, 침대 8개)을 `Game` 씬 x = 1000에 배치했다. 광장 동쪽의 여관 건물(`Plaza/InnBuilding`)과 포털은 `PlazaInnLink`.
+- 그레이박스 `04.Prefabs/Town/InnRoom`(홀, 방 4개, 침대 8개)을 `Game` 씬 x = 3000에 배치했다(x = 1000은 Additive로 불러오는 전투 공간이라 피함). 광장 동쪽의 여관 건물(`Plaza/InnBuilding`)과 포털은 `PlazaInnLink`.
 - 머무는 모험가: `Plaza/InnResidents`(씬 오브젝트, 호스트)가 `AdventurerRosterState.Changed`를 따라 `InnResident`(프리팹 `04.Prefabs/Characters/InnResident`)를 빈 침대 자리에 스폰·디스폰하고 정보를 갱신한다.
 - 배회: `InnWander`가 `InnWaypoint`로 이은 지점(홀, 방문, 방 가운데, 자기 침대 옆)을 따라 걷는다. 지점 연결은 `InnRoom` 프리팹의 `Waypoints`에서 고친다.
 - 남음: 장비 입히기, 파티 꾸리기, 약초·포션 건네기, 모험가와 대화(친밀도), 밤에 침대에서 쉬는 모습.
