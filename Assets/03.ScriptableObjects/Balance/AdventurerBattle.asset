@@ -73,3 +73,4 @@ MonoBehaviour:
       Radius: 0
   _equipment: {fileID: 11400000, guid: 4e565ef83f5cb174c8dc4a0158958416, type: 2}
   _accessoryEffects: {fileID: 11400000, guid: cd16235d87534b747a9a2d6f70d833db, type: 2}
+  _roster: {fileID: 11400000, guid: b3a922ddc5eddd741bc01fa8643ae8f1, type: 2}

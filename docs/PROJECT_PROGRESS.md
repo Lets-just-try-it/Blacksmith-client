@@ -74,7 +74,10 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 그레이박스 `04.Prefabs/Town/InnRoom`(홀, 방 4개, 침대 8개)을 `Game` 씬 x = 3000에 배치했다(x = 1000은 Additive로 불러오는 전투 공간이라 피함). 광장 동쪽의 여관 건물(`Plaza/InnBuilding`)과 포털은 `PlazaInnLink`.
 - 머무는 모험가: `Plaza/InnResidents`(씬 오브젝트, 호스트)가 `AdventurerRosterState.Changed`를 따라 `InnResident`(프리팹 `04.Prefabs/Characters/InnResident`)를 빈 침대 자리에 스폰·디스폰하고 정보를 갱신한다.
 - 배회: `InnWander`가 `InnWaypoint`로 이은 지점(홀, 방문, 방 가운데, 자기 침대 옆)을 따라 걷는다. 지점 연결은 `InnRoom` 프리팹의 `Waypoints`에서 고친다.
-- 남음: 장비 입히기, 파티 꾸리기, 약초·포션 건네기, 모험가와 대화(친밀도), 밤에 침대에서 쉬는 모습.
+- 대화·친밀도: `InnResident`의 `DialogueSeat`(대사 `Dialogues/Inn_Resident`, 임시 대사)로 말을 건다. 대화하는 동안 `InnWander`는 멈춰 플레이어를 바라본다. 대화가 시작되면 호스트가 `AdventurerRosterState.TryTalk`로 하루 한 번 친밀도를 올린다. 친밀도 계산은 `Core/Adventurers/AffinityRules`, 수치는 `AdventurerRoster` 데이터. 전투 후 증감은 `AdventurerInjuryApplier`. 전투 이벤트(빠른 회복·스킬 강화·사망 면제)는 `AdventurerBattleData`가 `AffinityRules.GetBattleChances`로 확률을 넣고 `BattleSimulation`이 시드로 굴리며, 결과창(`BattleResultRow`)에 표시한다.
+- 친밀도 표시: 관리 목록 창의 이름 줄에 "친밀도 15 (낯섦)"처럼 보인다. 목록 창은 프리팹 `04.Prefabs/UI/Plaza/AdventurerRosterUI`로 `Game`에 배치했고, 버튼은 낮 시계 아래 "모험가 목록"이다(`PlazaTest`는 기존 씬 Canvas를 그대로 쓴다).
+- 확인하지 않음: 플레이 모드에서 여관 대화와 친밀도 증가, `Game`의 목록 버튼 위치, 실제 전투에서 친밀도 이벤트 표시.
+- 남음: 장비 입히기, 파티 꾸리기, 약초·포션 건네기와 그 친밀도 증가, 단계별 대사, 친밀도 표시 UI, 밤에 침대에서 쉬는 모습.
 
 ### 인간형 캐릭터 (구현)
 

@@ -118,6 +118,8 @@ namespace Blacksmith.Core.Battle
         public EquipmentDurability Weapon { get; set; }
         public EquipmentDurability Helmet { get; set; }
         public EquipmentDurability Armor { get; set; }
+        // 친밀도 전투 이벤트(빠른 회복, 스킬 강화, 사망 면제)의 확률과 효과. 기본값이면 굴리지 않는다.
+        public AffinityBattleChances Affinity { get; set; }
     }
 
     public sealed class MonsterSetup

@@ -62,7 +62,8 @@ namespace Blacksmith.Plaza
                 if (i < _roster.Count)
                 {
                     AdventurerData adventurer = _roster.Get(i);
-                    _rows[i].Show(adventurer, AdventurerLabels.GetJobName(_generation, adventurer.JobId), _portraits.GetPortrait(adventurer));
+                    _rows[i].Show(adventurer, AdventurerLabels.GetJobName(_generation, adventurer.JobId), _portraits.GetPortrait(adventurer),
+                        AdventurerLabels.FormatAffinity(adventurer.Affinity, _roster.AffinityBalance));
                 }
                 else
                 {

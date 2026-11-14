@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Blacksmith.Battle
 {
     // 밤이 지나며 바뀌는 모험가 몸 상태를 관리 목록에 반영한다. 낮 씬에 둔다. 호스트에서만 동작한다. (docs/GAME_CONCEPT.md 6.5)
-    // 파견한 모험가는 전투 결과의 부상수치를 넣고, 사망했으면 사망 기록으로 옮긴 뒤 관리 목록에서 뺀다.
+    // 파견한 모험가는 전투 결과의 부상수치를 넣고 친밀도를 바꾼다(6.6, 중상 이상이면 감소). 사망했으면 사망 기록으로 옮긴 뒤 관리 목록에서 뺀다.
     // 루비 목걸이가 사망을 막았으면 부서진 목걸이를 벗긴다.
     // 파견하지 않은 모험가는 그날 밤 쉬었으므로 하루치만큼 회복한다. 파견을 건너뛴 밤에는 모두 회복한다.
     public class AdventurerInjuryApplier : MonoBehaviour
@@ -57,6 +57,7 @@ namespace Blacksmith.Battle
             }
 
             Rest(party);
+            InjuryBalance injury = _injury.ToBalance();
             foreach (AdventurerBattleResult result in outcome.Result.Adventurers)
             {
                 if (result.IsDead)
@@ -66,6 +67,7 @@ namespace Blacksmith.Battle
                 }
 
                 _roster.TrySetInjury(result.AdventurerId, result.Injury);
+                _roster.TryAddAffinity(result.AdventurerId, AffinityRules.GetBattleChange(result.Injury, injury, _roster.AffinityBalance));
                 if (result.IsAccessoryBroken)
                 {
                     _roster.TrySetEquipment(result.AdventurerId, EquipmentSlot.Accessory, ItemStack.Empty);

@@ -20,11 +20,18 @@ namespace Blacksmith.Core.Battle
         public EquipmentDurability Weapon { get; }
         public EquipmentDurability Helmet { get; }
         public EquipmentDurability Armor { get; }
+        // 친밀도 전투 이벤트가 일어났는지. 빠른 회복은 InjuryGained를 줄였고, 사망 면제는 IsDead를 막았다(목걸이보다 먼저 본다).
+        public bool IsFastRecovered { get; }
+        public bool IsSkillBoosted { get; }
+        public bool IsDeathExempted { get; }
 
         public AdventurerBattleResult(int adventurerId, bool isFallen, int injury, int injuryGained, bool isDead, int damageDealt,
             int groupsCleared, bool isAccessoryBroken = false, EquipmentDurability weapon = default, EquipmentDurability helmet = default,
-            EquipmentDurability armor = default)
+            EquipmentDurability armor = default, bool isFastRecovered = false, bool isSkillBoosted = false, bool isDeathExempted = false)
         {
+            IsFastRecovered = isFastRecovered;
+            IsSkillBoosted = isSkillBoosted;
+            IsDeathExempted = isDeathExempted;
             IsAccessoryBroken = isAccessoryBroken;
             Weapon = weapon;
             Helmet = helmet;

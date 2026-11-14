@@ -55,5 +55,12 @@ namespace Blacksmith.Core.Adventurers
         // 0이면 건강하다. 범위와 파견 제한은 InjuryRules를 따른다. 사망한 모험가는 관리 목록에서 빠지므로 저장하지 않는다.
         public int Injury { get; set; }
         public AdventurerCondition Condition => InjuryRules.GetCondition(Injury);
+        // 플레이어와 쌓은 친밀도. 범위와 영입 시 값은 AffinityBalance를 따른다. (docs/GAME_CONCEPT.md 6.6)
+        public int Affinity { get; set; }
+        // 하루 제한을 지키기 위한 기록이다. 0이면 아직 그런 날이 없다.
+        public int LastTalkDay { get; set; }
+        public int AffinityGainDay { get; set; }
+        // AffinityGainDay에 얻은 친밀도 증가량의 합이다.
+        public int AffinityGainedToday { get; set; }
     }
 }

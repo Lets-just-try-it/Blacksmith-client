@@ -4,6 +4,7 @@ using Blacksmith.Core.Adventurers;
 using Blacksmith.Core.Battle;
 using Blacksmith.Core.Inventory;
 using Blacksmith.Inventory;
+using Blacksmith.Plaza;
 using UnityEngine;
 
 namespace Blacksmith.Battle
@@ -35,6 +36,8 @@ namespace Blacksmith.Battle
         [SerializeField] private EquipmentStatData _equipment;
         [Tooltip("입은 목걸이의 효과 수치. 비워 두면 장신구 효과를 넣지 않는다")]
         [SerializeField] private AccessoryEffectData _accessoryEffects;
+        [Tooltip("친밀도 전투 이벤트 수치를 담은 관리 목록 데이터. 비워 두면 친밀도 이벤트가 일어나지 않는다")]
+        [SerializeField] private AdventurerRosterData _roster;
 
         public AdventurerSetup ToSetup(AdventurerData adventurer)
         {
@@ -47,6 +50,7 @@ namespace Blacksmith.Battle
             AdventurerStats equipmentBonus = _equipment != null ? _equipment.GetEquipmentBonus(adventurer) : default;
             AdventurerSetup setup = AdventurerSetupRules.Create(adventurer, job.Stats, FindSkill(adventurer.SkillId), equipmentBonus);
             setup.Accessory = _accessoryEffects != null ? _accessoryEffects.GetEffect(adventurer) : default;
+            setup.Affinity = _roster != null ? AffinityRules.GetBattleChances(adventurer.Affinity, _roster.Affinity) : default;
             if (_equipment != null)
             {
                 setup.Weapon = _equipment.GetDurability(EquipmentRules.GetEquipped(adventurer, EquipmentSlot.Weapon));

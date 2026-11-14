@@ -15,13 +15,13 @@ namespace Blacksmith.Plaza
         [SerializeField] private TMP_Text _detailText;
         [SerializeField] private TMP_Text _conditionText;
 
-        public void Show(AdventurerData adventurer, string jobName, Sprite portrait)
+        public void Show(AdventurerData adventurer, string jobName, Sprite portrait, string affinityText)
         {
             HumanoidAppearance appearance = adventurer.Appearance;
 
             _portrait.enabled = true;
             _portrait.sprite = portrait;
-            _nameText.text = $"{adventurer.Name}  {jobName} Lv.{adventurer.Level}";
+            _nameText.text = $"{adventurer.Name}  {jobName} Lv.{adventurer.Level}  {affinityText}";
             _statsText.text = AdventurerLabels.FormatStats(adventurer, "   ");
             // 프리셋 번호는 0부터 세지만 화면에는 1부터 보여 준다.
             _detailText.text =

@@ -43,6 +43,29 @@ namespace Blacksmith.Plaza
             return adventurer.Condition == AdventurerCondition.Injured ? $"{name} {adventurer.Injury}" : name;
         }
 
+        // 예: "친밀도 15 (낯섦)"
+        public static string FormatAffinity(int affinity, AffinityBalance balance)
+        {
+            return $"친밀도 {affinity} ({GetAffinityStageName(AffinityRules.GetStage(affinity, balance))})";
+        }
+
+        public static string GetAffinityStageName(AffinityStage stage)
+        {
+            switch (stage)
+            {
+                case AffinityStage.Stranger:
+                    return "낯섦";
+                case AffinityStage.Friendly:
+                    return "친근";
+                case AffinityStage.Trusted:
+                    return "신뢰";
+                case AffinityStage.Sworn:
+                    return "맹세";
+                default:
+                    return stage.ToString();
+            }
+        }
+
         public static string GetEquipmentName(int equipmentId)
         {
             return equipmentId == AdventurerData.NoEquipment ? "없음" : $"#{equipmentId}";

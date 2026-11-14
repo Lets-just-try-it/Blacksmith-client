@@ -70,7 +70,9 @@ namespace Blacksmith.Plaza
             return index >= 0 ? Adventurers[index].ToData() : null;
         }
 
-        // 호스트 전용. 성공하면 새 AdventurerId를 발급해 adventurer에 채운다.
+        public AffinityBalance AffinityBalance => _rosterData.Affinity;
+
+        // 호스트 전용. 성공하면 새 AdventurerId를 발급해 adventurer에 채우고, 친밀도를 영입 시 값으로 맞춘다.
         public bool TryAdd(AdventurerData adventurer)
         {
             if (!HasStateAuthority || !HasFreeSlot)
@@ -79,6 +81,7 @@ namespace Blacksmith.Plaza
             }
 
             adventurer.AdventurerId = NextAdventurerId++;
+            adventurer.Affinity = _rosterData.Affinity.InitialAffinity;
             Adventurers.Set(Count, NetworkAdventurer.FromData(adventurer));
             Count++;
             return true;
@@ -154,6 +157,55 @@ namespace Blacksmith.Plaza
             adventurer.Injury = injury;
             Adventurers.Set(index, adventurer);
             return true;
+        }
+
+        // 호스트 전용. 친밀도를 amount만큼 바꾸고 0~최대로 맞춘다. 줄일 때는 음수를 넣는다.
+        public bool TryAddAffinity(int adventurerId, int amount)
+        {
+            int index = IndexOf(adventurerId);
+            if (!HasStateAuthority || index < 0)
+            {
+                return false;
+            }
+
+            NetworkAdventurer adventurer = Adventurers[index];
+            adventurer.Affinity = AffinityRules.Add(adventurer.Affinity, amount, _rosterData.Affinity);
+            Adventurers.Set(index, adventurer);
+            return true;
+        }
+
+        // 호스트 전용. 여관에서 말을 걸었을 때 부른다. 그날 처음 대화한 모험가만 친밀도가 오르고, 하루 증가 제한을 지킨다.
+        public bool TryTalk(int adventurerId, int day)
+        {
+            int index = IndexOf(adventurerId);
+            if (!HasStateAuthority || index < 0)
+            {
+                return false;
+            }
+
+            NetworkAdventurer adventurer = Adventurers[index];
+            if (!AffinityRules.CanGainFromTalk(adventurer.LastTalkDay, day))
+            {
+                return false;
+            }
+
+            adventurer.LastTalkDay = day;
+            AddDailyGain(ref adventurer, _rosterData.Affinity.TalkGain, day);
+            Adventurers.Set(index, adventurer);
+            return true;
+        }
+
+        private void AddDailyGain(ref NetworkAdventurer adventurer, int amount, int day)
+        {
+            if (adventurer.AffinityGainDay != day)
+            {
+                adventurer.AffinityGainDay = day;
+                adventurer.AffinityGainedToday = 0;
+            }
+
+            int allowed = AffinityRules.GetAllowedGain(amount, adventurer.AffinityGainedToday, _rosterData.Affinity);
+            adventurer.Affinity = AffinityRules.Add(adventurer.Affinity, allowed, _rosterData.Affinity);
+            adventurer.AffinityGainedToday += allowed;
         }
 
         // 호스트 전용. 사망한 모험가를 관리 목록에서 뺀다. 입은 장비도 함께 사라진다. 뒤의 모험가는 한 칸씩 당긴다.
