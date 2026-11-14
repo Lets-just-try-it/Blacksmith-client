@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Blacksmith.Core.Adventurers;
+using Blacksmith.Network;
 using Fusion;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ namespace Blacksmith.Plaza
     public class InnResidents : NetworkBehaviour
     {
         [SerializeField] private AdventurerRosterState _roster;
+        [Tooltip("여관 대화의 하루 한 번 제한에 날짜를 쓴다")]
+        [SerializeField] private GameState _gameState;
         [SerializeField] private InnResident _residentPrefab;
         [Tooltip("모험가마다 하나씩 쓰는 침대 옆 자리. 관리 슬롯 최대 수만큼 둔다")]
         [SerializeField] private InnWaypoint[] _beds = new InnWaypoint[0];
@@ -91,9 +94,16 @@ namespace Blacksmith.Plaza
             _residents[bed] = Runner.Spawn(_residentPrefab, bedPoint.transform.position, bedPoint.transform.rotation,
                 onBeforeSpawned: (runner, residentObject) =>
                 {
-                    residentObject.GetComponent<InnResident>().SetData(data);
+                    InnResident resident = residentObject.GetComponent<InnResident>();
+                    resident.SetData(data);
+                    resident.SetTalkHandler(OnTalked);
                     residentObject.GetComponent<InnWander>().Initialize(bedPoint);
                 });
+        }
+
+        private void OnTalked(int adventurerId)
+        {
+            _roster.TryTalk(adventurerId, _gameState.Day);
         }
 
         private InnResident Find(int adventurerId)

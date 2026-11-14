@@ -56,6 +56,18 @@ namespace Blacksmith.Core.Adventurers
             return affinity >= balance.FriendlyAffinity ? AffinityStage.Friendly : AffinityStage.Stranger;
         }
 
+        // 하루 증가 제한(DailyGainLimit)을 넘지 않게 실제로 더할 양을 구한다. gainedToday는 그날 이미 얻은 양이다.
+        public static int GetAllowedGain(int amount, int gainedToday, AffinityBalance balance)
+        {
+            return Math.Clamp(amount, 0, Math.Max(0, balance.DailyGainLimit - gainedToday));
+        }
+
+        // 여관 대화는 모험가마다 하루 한 번만 친밀도를 올린다. 그 뒤로는 대사만 나온다.
+        public static bool CanGainFromTalk(int lastTalkDay, int day)
+        {
+            return lastTalkDay != day;
+        }
+
         // 살아 돌아온 모험가의 전투 후 증감이다. 중상 이상이면 줄고, 아니면 함께 싸운 몫만큼 오른다.
         public static int GetBattleChange(int injuryAfterBattle, InjuryBalance injury, AffinityBalance balance)
         {

@@ -17,7 +17,25 @@ namespace Blacksmith.Tests
                 SwornAffinity = 80,
                 SurvivedBattleGain = 2,
                 SevereInjuryLoss = 5,
+                DailyGainLimit = 15,
             };
+        }
+
+        [TestCase(5, 0, 5)]
+        [TestCase(5, 12, 3)]
+        [TestCase(5, 15, 0)]
+        [TestCase(5, 20, 0)]
+        public void AllowedGain_StopsAtDailyLimit(int amount, int gainedToday, int expected)
+        {
+            Assert.AreEqual(expected, AffinityRules.GetAllowedGain(amount, gainedToday, CreateBalance()));
+        }
+
+        [Test]
+        public void TalkGain_OncePerDay()
+        {
+            Assert.IsTrue(AffinityRules.CanGainFromTalk(0, 1));
+            Assert.IsFalse(AffinityRules.CanGainFromTalk(1, 1));
+            Assert.IsTrue(AffinityRules.CanGainFromTalk(1, 2));
         }
 
         [TestCase(10, 5, 15)]

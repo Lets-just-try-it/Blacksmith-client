@@ -1250,6 +1250,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Plaza.InnResidents
   _roster: {fileID: 944958973}
+  _gameState: {fileID: 156785739}
   _residentPrefab: {fileID: 8939861717708481763, guid: 243272095413eee45bac44b65f51fca9, type: 3}
   _beds:
   - {fileID: 6237634629931539698}

@@ -174,6 +174,40 @@ namespace Blacksmith.Plaza
             return true;
         }
 
+        // 호스트 전용. 여관에서 말을 걸었을 때 부른다. 그날 처음 대화한 모험가만 친밀도가 오르고, 하루 증가 제한을 지킨다.
+        public bool TryTalk(int adventurerId, int day)
+        {
+            int index = IndexOf(adventurerId);
+            if (!HasStateAuthority || index < 0)
+            {
+                return false;
+            }
+
+            NetworkAdventurer adventurer = Adventurers[index];
+            if (!AffinityRules.CanGainFromTalk(adventurer.LastTalkDay, day))
+            {
+                return false;
+            }
+
+            adventurer.LastTalkDay = day;
+            AddDailyGain(ref adventurer, _rosterData.Affinity.TalkGain, day);
+            Adventurers.Set(index, adventurer);
+            return true;
+        }
+
+        private void AddDailyGain(ref NetworkAdventurer adventurer, int amount, int day)
+        {
+            if (adventurer.AffinityGainDay != day)
+            {
+                adventurer.AffinityGainDay = day;
+                adventurer.AffinityGainedToday = 0;
+            }
+
+            int allowed = AffinityRules.GetAllowedGain(amount, adventurer.AffinityGainedToday, _rosterData.Affinity);
+            adventurer.Affinity = AffinityRules.Add(adventurer.Affinity, allowed, _rosterData.Affinity);
+            adventurer.AffinityGainedToday += allowed;
+        }
+
         // 호스트 전용. 사망한 모험가를 관리 목록에서 뺀다. 입은 장비도 함께 사라진다. 뒤의 모험가는 한 칸씩 당긴다.
         // 사망 기록은 부르는 쪽이 먼저 FallenAdventurerState에 남긴다.
         public bool TryRemove(int adventurerId)
