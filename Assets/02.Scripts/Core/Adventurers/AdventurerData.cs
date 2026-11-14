@@ -55,5 +55,7 @@ namespace Blacksmith.Core.Adventurers
         // 0이면 건강하다. 범위와 파견 제한은 InjuryRules를 따른다. 사망한 모험가는 관리 목록에서 빠지므로 저장하지 않는다.
         public int Injury { get; set; }
         public AdventurerCondition Condition => InjuryRules.GetCondition(Injury);
+        // 플레이어와 쌓은 친밀도. 범위와 영입 시 값은 AffinityBalance를 따른다. (docs/GAME_CONCEPT.md 6.6)
+        public int Affinity { get; set; }
     }
 }

@@ -70,7 +70,9 @@ namespace Blacksmith.Plaza
             return index >= 0 ? Adventurers[index].ToData() : null;
         }
 
-        // 호스트 전용. 성공하면 새 AdventurerId를 발급해 adventurer에 채운다.
+        public AffinityBalance AffinityBalance => _rosterData.Affinity;
+
+        // 호스트 전용. 성공하면 새 AdventurerId를 발급해 adventurer에 채우고, 친밀도를 영입 시 값으로 맞춘다.
         public bool TryAdd(AdventurerData adventurer)
         {
             if (!HasStateAuthority || !HasFreeSlot)
@@ -79,6 +81,7 @@ namespace Blacksmith.Plaza
             }
 
             adventurer.AdventurerId = NextAdventurerId++;
+            adventurer.Affinity = _rosterData.Affinity.InitialAffinity;
             Adventurers.Set(Count, NetworkAdventurer.FromData(adventurer));
             Count++;
             return true;
@@ -152,6 +155,21 @@ namespace Blacksmith.Plaza
 
             NetworkAdventurer adventurer = Adventurers[index];
             adventurer.Injury = injury;
+            Adventurers.Set(index, adventurer);
+            return true;
+        }
+
+        // 호스트 전용. 친밀도를 amount만큼 바꾸고 0~최대로 맞춘다. 줄일 때는 음수를 넣는다.
+        public bool TryAddAffinity(int adventurerId, int amount)
+        {
+            int index = IndexOf(adventurerId);
+            if (!HasStateAuthority || index < 0)
+            {
+                return false;
+            }
+
+            NetworkAdventurer adventurer = Adventurers[index];
+            adventurer.Affinity = AffinityRules.Add(adventurer.Affinity, amount, _rosterData.Affinity);
             Adventurers.Set(index, adventurer);
             return true;
         }
