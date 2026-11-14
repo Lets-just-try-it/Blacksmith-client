@@ -59,6 +59,8 @@ namespace Blacksmith.Core.Adventurers
         public int Affinity { get; set; }
         // 하루 제한을 지키기 위한 기록이다. 0이면 아직 그런 날이 없다.
         public int LastTalkDay { get; set; }
+        public int LastEquipGiftDay { get; set; }
+        public int LastInnDispatchDay { get; set; }
         public int AffinityGainDay { get; set; }
         // AffinityGainDay에 얻은 친밀도 증가량의 합이다.
         public int AffinityGainedToday { get; set; }

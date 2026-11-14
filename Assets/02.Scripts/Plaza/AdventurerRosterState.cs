@@ -195,6 +195,54 @@ namespace Blacksmith.Plaza
             return true;
         }
 
+        // 호스트 전용. 여관에서 장비를 건네 실제로 입혔을 때 부른다. 하루 한 번만 오르고, 상급 이상이면 더 오른다.
+        public bool TryGiftEquipment(int adventurerId, int grade, int day)
+        {
+            int index = IndexOf(adventurerId);
+            if (!HasStateAuthority || index < 0)
+            {
+                return false;
+            }
+
+            NetworkAdventurer adventurer = Adventurers[index];
+            if (!AffinityRules.CanGainOncePerDay(adventurer.LastEquipGiftDay, day))
+            {
+                return false;
+            }
+
+            adventurer.LastEquipGiftDay = day;
+            AddDailyGain(ref adventurer, AffinityRules.GetEquipGiftGain(grade, _rosterData.Affinity), day);
+            Adventurers.Set(index, adventurer);
+            return true;
+        }
+
+        // 호스트 전용. 여관에서 대화로 파견 파티에 넣었을 때 부른다. 하루 한 번만 오른다.
+        public bool TryJoinPartyAtInn(int adventurerId, int day)
+        {
+            int index = IndexOf(adventurerId);
+            if (!HasStateAuthority || index < 0)
+            {
+                return false;
+            }
+
+            NetworkAdventurer adventurer = Adventurers[index];
+            if (!AffinityRules.CanGainOncePerDay(adventurer.LastInnDispatchDay, day))
+            {
+                return false;
+            }
+
+            adventurer.LastInnDispatchDay = day;
+            AddDailyGain(ref adventurer, _rosterData.Affinity.InnDispatchGain, day);
+            Adventurers.Set(index, adventurer);
+            return true;
+        }
+
+        // 호스트 전용. 여관에서 대화로 파견 파티에서 뺐을 때 부른다. 뺄 때마다 조금 줄어든다.
+        public bool TryLeavePartyAtInn(int adventurerId)
+        {
+            return TryAddAffinity(adventurerId, -_rosterData.Affinity.InnLeavePartyLoss);
+        }
+
         private void AddDailyGain(ref NetworkAdventurer adventurer, int amount, int day)
         {
             if (adventurer.AffinityGainDay != day)

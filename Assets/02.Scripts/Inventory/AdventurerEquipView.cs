@@ -20,6 +20,8 @@ namespace Blacksmith.Inventory
     // 칸에 맞지 않는 장비는 놓아도 아무것도 바뀌지 않아 원래 자리에 남고, 맞지 않는 이유를 토스트로 잠깐 띄운다.
     // 파견 창(Battle/DispatchView)이 고른 모험가로 이 창을 연다.
     // 장비 선택은 호스트만 한다(GAME_CONCEPT 9절). 다른 참가자는 보기만 한다. 창이 열린 동안 하단 개인 슬롯은 숨긴다.
+    // 여관 대화에서 "장비 건네 주기"를 고르면 건네기 모드로 열린다. 그 모험가 한 명만 보여 주고, 목록은 공용 창고와 내 개인 슬롯뿐이며,
+    // 호스트가 아니어도 직접 입힐 수 있다. 입히면 친밀도가 오른다(InnResidents.Gift).
     public class AdventurerEquipView : MonoBehaviour, IInventorySlotOwner
     {
         private struct Entry
@@ -37,6 +39,9 @@ namespace Blacksmith.Inventory
         }
 
         [SerializeField] private InventoryChannel _channel;
+        [Tooltip("여관 대화에서 건네기 모드로 열 때 쓴다. 여관이 없는 씬에서는 비워 둔다")]
+        [SerializeField] private InnChannel _innChannel;
+        [SerializeField] private InnResidents _inn;
         [SerializeField] private AdventurerRosterState _roster;
         [Tooltip("공용 장비 목록에 넣고, 벗긴 장비를 돌려보내는 공용 창고")]
         [SerializeField] private SharedInventoryState _storage;
@@ -83,8 +88,12 @@ namespace Blacksmith.Inventory
         // 목록에서 끄는 중인 장비. 입혔을 때의 능력치 변화를 보여 줄 때 쓴다.
         private ItemStack _previewItem;
         private bool _isOpen;
+        // 건네기 모드에서 장비를 건넬 모험가. 파견 창에서 열었으면 NoAdventurerId다.
+        private int _giftAdventurerId = AdventurerData.NoAdventurerId;
 
-        private bool CanEdit => _roster.IsReady && _roster.HasStateAuthority;
+        private bool IsGift => _giftAdventurerId != AdventurerData.NoAdventurerId;
+        private bool CanEdit => _roster.IsReady && (IsGift ? CanGift : _roster.HasStateAuthority);
+        private bool CanGift => _inn != null && _innChannel != null && _innChannel.LocalActions != null;
 
         private void Awake()
         {
@@ -100,6 +109,11 @@ namespace Blacksmith.Inventory
 
         private void OnEnable()
         {
+            if (_innChannel != null)
+            {
+                _innChannel.GiftRequested += ShowGift;
+            }
+
             _previousButton.onClick.AddListener(ShowPrevious);
             _nextButton.onClick.AddListener(ShowNext);
             _closeButton.onClick.AddListener(Hide);
@@ -112,6 +126,11 @@ namespace Blacksmith.Inventory
 
         private void OnDisable()
         {
+            if (_innChannel != null)
+            {
+                _innChannel.GiftRequested -= ShowGift;
+            }
+
             _previousButton.onClick.RemoveListener(ShowPrevious);
             _nextButton.onClick.RemoveListener(ShowNext);
             _closeButton.onClick.RemoveListener(Hide);
@@ -139,10 +158,24 @@ namespace Blacksmith.Inventory
             _panel.SetActive(true);
         }
 
+        // 여관 대화에서 건네기 모드로 연다. 파견 창에서 이미 열려 있으면 열지 않는다.
+        private void ShowGift(int adventurerId)
+        {
+            if (_isOpen || !_roster.IsReady || _roster.FindById(adventurerId) == null)
+            {
+                return;
+            }
+
+            _giftAdventurerId = adventurerId;
+            SetBrowseButtonsVisible(false);
+            Show();
+            Refresh();
+        }
+
         // 파견 창이 고른 모험가로 연다. 이미 열려 있으면 그 모험가로 바꾼다.
         public void Show(int adventurerId)
         {
-            if (!_roster.IsReady)
+            if (!_roster.IsReady || IsGift)
             {
                 return;
             }
@@ -169,6 +202,8 @@ namespace Blacksmith.Inventory
 
             _isOpen = false;
             EndDrag();
+            _giftAdventurerId = AdventurerData.NoAdventurerId;
+            SetBrowseButtonsVisible(true);
             _roster.Changed -= Refresh;
             _channel.PlayerInventoriesChanged -= WatchInventories;
             Unwatch();
@@ -183,6 +218,20 @@ namespace Blacksmith.Inventory
             if (_preview != null)
             {
                 _preview.Hide();
+            }
+        }
+
+        private void SetBrowseButtonsVisible(bool isVisible)
+        {
+            // 씬을 내릴 때는 버튼이 먼저 파괴되었을 수 있다.
+            if (_previousButton != null)
+            {
+                _previousButton.gameObject.SetActive(isVisible);
+            }
+
+            if (_nextButton != null)
+            {
+                _nextButton.gameObject.SetActive(isVisible);
             }
         }
 
@@ -204,14 +253,24 @@ namespace Blacksmith.Inventory
             Refresh();
         }
 
-        // 공용 창고와 모든 플레이어 개인 슬롯이 바뀌면 목록을 다시 그린다.
+        // 공용 창고와 모든 플레이어 개인 슬롯이 바뀌면 목록을 다시 그린다. 건네기 모드에서는 내 개인 슬롯만 본다.
         private void WatchInventories()
         {
             Unwatch();
             _watched.Add(_storage);
-            foreach (PlayerInventoryState inventory in _channel.PlayerInventories)
+            if (IsGift)
             {
-                _watched.Add(inventory);
+                if (_channel.LocalPlayerInventory != null)
+                {
+                    _watched.Add(_channel.LocalPlayerInventory);
+                }
+            }
+            else
+            {
+                foreach (PlayerInventoryState inventory in _channel.PlayerInventories)
+                {
+                    _watched.Add(inventory);
+                }
             }
 
             foreach (NetworkInventory inventory in _watched)
@@ -245,9 +304,11 @@ namespace Blacksmith.Inventory
 
             AdventurerData adventurer = GetAdventurer();
             _adventurerText.text = adventurer != null ? GetAdventurerLabel(adventurer) : "관리 중인 모험가가 없다";
-            _hintText.text = CanEdit
-                ? "목록에서 장비 칸으로 끌어 놓아 입히기 · 무기 외 장비 칸을 목록에 놓거나 더블 클릭해 벗기기"
-                : "장비는 호스트만 바꿀 수 있다";
+            _hintText.text = IsGift
+                ? "목록에서 장비 칸으로 끌어 놓거나 더블 클릭해 건네기 · 무기 외 장비 칸을 목록에 놓거나 더블 클릭해 벗기기"
+                : CanEdit
+                    ? "목록에서 장비 칸으로 끌어 놓아 입히기 · 무기 외 장비 칸을 목록에 놓거나 더블 클릭해 벗기기"
+                    : "장비는 호스트만 바꿀 수 있다";
             ShowEquipped(_helmetSlot, adventurer, EquipmentSlot.Helmet);
             ShowEquipped(_armorSlot, adventurer, EquipmentSlot.Armor);
             ShowEquipped(_weaponSlot, adventurer, EquipmentSlot.Weapon);
@@ -261,6 +322,11 @@ namespace Blacksmith.Inventory
 
         private AdventurerData GetAdventurer()
         {
+            if (IsGift)
+            {
+                return _roster.FindById(_giftAdventurerId);
+            }
+
             if (_roster.Count == 0)
             {
                 return null;
@@ -274,7 +340,8 @@ namespace Blacksmith.Inventory
         {
             AdventurerJobData job = _jobs.FindJob(adventurer.JobId);
             string jobName = job != null ? job.DisplayName : $"직업 {adventurer.JobId}";
-            return $"{adventurer.Name} · {jobName} Lv{adventurer.Level}\n({_adventurerIndex + 1}/{_roster.Count})";
+            string label = $"{adventurer.Name} · {jobName} Lv{adventurer.Level}";
+            return IsGift ? label : $"{label}\n({_adventurerIndex + 1}/{_roster.Count})";
         }
 
         private void ShowEquipped(InventorySlotView view, AdventurerData adventurer, EquipmentSlot slot)
@@ -449,7 +516,16 @@ namespace Blacksmith.Inventory
             ItemStack dragged = _channel.DragSource.Get(_channel.DragSlot);
             if (AdventurerEquipping.CanEquip(_storage.Catalog, _jobs, adventurer, dragged, target))
             {
-                _channel.EquipDragged(_roster, adventurer.AdventurerId, target, _storage);
+                if (IsGift)
+                {
+                    _innChannel.LocalActions.RequestGift(_inn, _channel.DragSource, _channel.DragSlot, adventurer.AdventurerId, target, _storage);
+                    _channel.EndDrag();
+                }
+                else
+                {
+                    _channel.EquipDragged(_roster, adventurer.AdventurerId, target, _storage);
+                }
+
                 return;
             }
 

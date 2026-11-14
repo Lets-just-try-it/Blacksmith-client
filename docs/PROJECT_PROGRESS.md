@@ -75,9 +75,10 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 - 머무는 모험가: `Plaza/InnResidents`(씬 오브젝트, 호스트)가 `AdventurerRosterState.Changed`를 따라 `InnResident`(프리팹 `04.Prefabs/Characters/InnResident`)를 빈 침대 자리에 스폰·디스폰하고 정보를 갱신한다.
 - 배회: `InnWander`가 `InnWaypoint`로 이은 지점(홀, 방문, 방 가운데, 자기 침대 옆)을 따라 걷는다. 지점 연결은 `InnRoom` 프리팹의 `Waypoints`에서 고친다.
 - 대화·친밀도: `InnResident`의 `DialogueSeat`(대사 `Dialogues/Inn_Resident`, 임시 대사)로 말을 건다. 대화하는 동안 `InnWander`는 멈춰 플레이어를 바라본다. 대화가 시작되면 호스트가 `AdventurerRosterState.TryTalk`로 하루 한 번 친밀도를 올린다. 친밀도 계산은 `Core/Adventurers/AffinityRules`, 수치는 `AdventurerRoster` 데이터. 전투 후 증감은 `AdventurerInjuryApplier`. 전투 이벤트(빠른 회복·스킬 강화·사망 면제)는 `AdventurerBattleData`가 `AffinityRules.GetBattleChances`로 확률을 넣고 `BattleSimulation`이 시드로 굴리며, 결과창(`BattleResultRow`)에 표시한다.
+- 대화 선택지(`Inn_Resident`: 장비 건네 주기·파티에 넣기·그냥 인사만 하기): 호스트의 `InnResident.OnDialogueChoice`가 처리한다. "장비 건네 주기"는 고른 플레이어에게만 RPC를 보내 `InnChannel`로 `AdventurerEquipView`를 건네기 모드(그 모험가만, 공용 창고와 내 개인 슬롯만, 클라이언트도 입힘)로 연다. 입히는 요청은 Player 프리팹의 `InnPlayerActions`가 보내고, 호스트 `InnResidents.Gift`가 입힌 뒤 `AdventurerRosterState.TryGiftEquipment`로 친밀도를 올린다. "파티에 넣기"는 `DispatchState.TryAddMember`로 넣고 `TryJoinPartyAtInn`로 친밀도를 올리며, 결과 대답(`Dialogues/Inn_Party_*`)을 고른 플레이어 화면에 띄운다. 파티에 든 모험가는 `IDialogueSource`로 `Inn_Resident_InParty`("파티에서 빼기")를 쓴다. 관리 목록 창의 "파티에서 빼기"는 `InnPlayerActions.RequestLeaveParty`.
 - 친밀도 표시: 관리 목록 창의 이름 줄에 "친밀도 15 (낯섦)"처럼 보인다. 목록 창은 프리팹 `04.Prefabs/UI/Plaza/AdventurerRosterUI`로 `Game`에 배치했고, 버튼은 낮 시계 아래 "모험가 목록"이다(`PlazaTest`는 기존 씬 Canvas를 그대로 쓴다).
-- 확인하지 않음: 플레이 모드에서 여관 대화와 친밀도 증가, `Game`의 목록 버튼 위치, 실제 전투에서 친밀도 이벤트 표시.
-- 남음: 장비 입히기, 파티 꾸리기, 약초·포션 건네기와 그 친밀도 증가, 단계별 대사, 친밀도 표시 UI, 밤에 침대에서 쉬는 모습.
+- 확인하지 않음: 플레이 모드에서 여관 대화와 친밀도 증가, 대화 선택지로 장비 건네기·파티 넣기·대답·목록 창 빼기 버튼(멀티 클라이언트 포함), `Game`의 목록 버튼 위치, 실제 전투에서 친밀도 이벤트 표시.
+- 남음: 약초·포션 건네기와 그 친밀도 증가, 단계별 대사, 친밀도 표시 UI, 밤에 침대에서 쉬는 모습.
 
 ### 인간형 캐릭터 (구현)
 
@@ -139,7 +140,7 @@ Unity 6 URP 2.5D 쿼터뷰 대장간 경영·모험가 파견 RPG다. 낮에는 
 2. 데모 1을 위해 2026-11-10 기획(`docs/GAME_CONCEPT.md`)과 지금 구현이 다른 부분을 맞춘다. 담당자는 팀에서 정한다(기획 13절).
    - 제거: 치료비 회복.
    - 변경: 재료 한 칸 최대 32개(지금 99), 1티어 광석 이름 청동(데이터는 구리), 부산물 이름(짐승 가죽 → 가죽, 질긴 힘줄 → 힘줄, 마석 조각 → 마석)과 뼈·목재 추가, 에메랄드 효과 대상.
-   - 추가: 여관에서 약초·포션 건네기 화면, 던전 채집의 남은 것(묻힌 보물 상자, 뼈, 채집 도구 확인, 어두운 던전 시야, 전투 화면의 보물 상자), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 여관 관리 기능(장비 입히기, 파티 꾸리기), 친밀도, 장비 녹이기(대장간 담당, 정제 화로 예정), 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
+   - 추가: 여관에서 약초·포션 건네기 화면, 던전 채집의 남은 것(묻힌 보물 상자, 뼈, 채집 도구 확인, 어두운 던전 시야, 전투 화면의 보물 상자), 채집 도구 제작, 상점(가방, 등불, 보물 탐지기, 포션, 재료 거래), 제작 의뢰 게시판, 친밀도, 장비 녹이기(대장간 담당, 정제 화로 예정), 개인 인벤토리 창(`I` 키), 방어구 판금·사슬·가죽과 공격 속도 배율.
 3. 가격 등 다른 `Core` 규칙에도 시드 결정성 EditMode 테스트를 추가한다.
 4. UI용 한글 폰트를 확정하고 기존 UI에 적용한다. 주아(`Jua`)와 고운바탕(`GowunBatang`)은 임시 폰트다(SIL OFL 1.1, `05.Art/Fonts`).
 5. Unity CLI 사용이 안정되면 예비로 둔 Unity MCP 연동을 정리한다.

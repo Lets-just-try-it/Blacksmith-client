@@ -418,6 +418,7 @@ GameObject:
   - component: {fileID: 489576047317289931}
   - component: {fileID: 6820468251294844430}
   - component: {fileID: 7556280487927860146}
+  - component: {fileID: 6233450992563648883}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -474,6 +475,7 @@ MonoBehaviour:
   - {fileID: 489576047317289931}
   - {fileID: 6820468251294844430}
   - {fileID: 7556280487927860146}
+  - {fileID: 6233450992563648883}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &928977346244656201
 CharacterController:
@@ -592,7 +594,6 @@ MonoBehaviour:
   _channel: {fileID: 11400000, guid: d53e5088c12c8ab43a7f138202ce37f3, type: 2}
   _playerInventory: {fileID: 6428275539069939239}
   _jobs: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
-  _returnReplacedEquipment: 0
 --- !u!114 &6428275539069939239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -703,6 +704,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Battle.GatheringPlayerActions
   _inventory: {fileID: 6428275539069939239}
+--- !u!114 &6233450992563648883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6939742712899349512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a523d87f2a1431e41908e59f5a91b1c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Plaza.InnPlayerActions
+  _channel: {fileID: 11400000, guid: acaaff69c2e1f0240985d837c249a49b, type: 2}
 --- !u!1 &9110488598716451685
 GameObject:
   m_ObjectHideFlags: 0
