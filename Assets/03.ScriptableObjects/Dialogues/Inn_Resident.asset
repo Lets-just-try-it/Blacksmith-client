@@ -19,4 +19,16 @@ MonoBehaviour:
       Text: "\uC624\uB298\uB3C4 \uB300\uC7A5\uAC04 \uC77C\uB85C \uBC14\uC058\uC2DC\uC8E0?"
     - Speaker: {fileID: 0}
       Text: "\uB355\uBD84\uC5D0 \uC5EC\uAD00\uC5D0\uC11C \uD479 \uC26C\uACE0 \uC788\uC5B4\uC694."
-  _choices: []
+  _choices:
+  - Text: "\uC7A5\uBE44 \uAC74\uB124 \uC8FC\uAE30"
+    EnableConditions: []
+    DisabledText: 
+    ActionId: GiveEquipment
+  - Text: "\uD30C\uD2F0\uC5D0 \uB123\uAE30"
+    EnableConditions: []
+    DisabledText: 
+    ActionId: JoinParty
+  - Text: "\uADF8\uB0E5 \uC778\uC0AC\uB9CC \uD558\uAE30"
+    EnableConditions: []
+    DisabledText: 
+    ActionId: 

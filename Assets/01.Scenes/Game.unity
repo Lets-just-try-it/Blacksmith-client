@@ -128,6 +128,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 124147772997567674, guid: 6366bed77c471fd458bf08b871d5a7ec, type: 3}
+      propertyPath: _inn
+      value: 
+      objectReference: {fileID: 323012202}
+    - target: {fileID: 124147772997567674, guid: 6366bed77c471fd458bf08b871d5a7ec, type: 3}
       propertyPath: _roster
       value: 
       objectReference: {fileID: 944958973}
@@ -139,6 +143,10 @@ PrefabInstance:
       propertyPath: _storage
       value: 
       objectReference: {fileID: 2082279646}
+    - target: {fileID: 124147772997567674, guid: 6366bed77c471fd458bf08b871d5a7ec, type: 3}
+      propertyPath: _innChannel
+      value: 
+      objectReference: {fileID: 11400000, guid: acaaff69c2e1f0240985d837c249a49b, type: 2}
     - target: {fileID: 4035399393853069023, guid: 6366bed77c471fd458bf08b871d5a7ec, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1251,6 +1259,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Plaza.InnResidents
   _roster: {fileID: 944958973}
   _gameState: {fileID: 156785739}
+  _dispatch: {fileID: 181058527}
+  _jobs: {fileID: 11400000, guid: 38e8cdf180b7ae04589ffd54b6dbbfbe, type: 2}
   _residentPrefab: {fileID: 8939861717708481763, guid: 243272095413eee45bac44b65f51fca9, type: 3}
   _beds:
   - {fileID: 6237634629931539698}
@@ -9092,9 +9102,21 @@ PrefabInstance:
       value: AdventurerRosterUI
       objectReference: {fileID: 0}
     - target: {fileID: 7951522171132819375, guid: 92fe6933afb16cf428b7c9795ec5a1a6, type: 3}
+      propertyPath: _inn
+      value: 
+      objectReference: {fileID: 323012202}
+    - target: {fileID: 7951522171132819375, guid: 92fe6933afb16cf428b7c9795ec5a1a6, type: 3}
       propertyPath: _roster
       value: 
       objectReference: {fileID: 944958973}
+    - target: {fileID: 7951522171132819375, guid: 92fe6933afb16cf428b7c9795ec5a1a6, type: 3}
+      propertyPath: _dispatch
+      value: 
+      objectReference: {fileID: 181058527}
+    - target: {fileID: 7951522171132819375, guid: 92fe6933afb16cf428b7c9795ec5a1a6, type: 3}
+      propertyPath: _innChannel
+      value: 
+      objectReference: {fileID: 11400000, guid: acaaff69c2e1f0240985d837c249a49b, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

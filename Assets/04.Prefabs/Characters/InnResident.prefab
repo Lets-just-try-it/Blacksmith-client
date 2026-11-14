@@ -549,6 +549,14 @@ MonoBehaviour:
   _look: {fileID: 4021064285779168718}
   _catalog: {fileID: 11400000, guid: 3d2a0086023e1c546b12a3cb2047b43e, type: 2}
   _seat: {fileID: 8815979172946617305}
+  _innChannel: {fileID: 11400000, guid: acaaff69c2e1f0240985d837c249a49b, type: 2}
+  _dialogueChannel: {fileID: 11400000, guid: fd6a45848b04db1459d253c24d869135, type: 2}
+  _inPartyDialogue: {fileID: 11400000, guid: cf5659e9205f1394da9a158ec72937e6, type: 2}
+  _joinedReply: {fileID: 11400000, guid: 4a9260882eb795a4d8e63c8fc05b10e5, type: 2}
+  _alreadyInPartyReply: {fileID: 11400000, guid: eef0455de851b1d40b1ef4bd19940846, type: 2}
+  _partyFullReply: {fileID: 11400000, guid: 1746a9adc0e3cbe449a9cf7db64c2b96, type: 2}
+  _notDispatchableReply: {fileID: 11400000, guid: 1d6f677c379d898469cafe51563e232e, type: 2}
+  _leftReply: {fileID: 11400000, guid: dce4562be0c937b4781372ba8cce0808, type: 2}
 --- !u!114 &5311632659480508612
 MonoBehaviour:
   m_ObjectHideFlags: 0

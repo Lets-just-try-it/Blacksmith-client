@@ -67,6 +67,21 @@ namespace Blacksmith.Tests
             Assert.IsTrue(AffinityRules.CanGainFromTalk(1, 2));
         }
 
+        // 상급(4) 이상이면 더 오른다.
+        [TestCase(1, 3)]
+        [TestCase(3, 3)]
+        [TestCase(4, 5)]
+        [TestCase(5, 5)]
+        public void EquipGiftGain_HigherFromHighGrade(int grade, int expected)
+        {
+            AffinityBalance balance = CreateBalance();
+            balance.EquipGain = 3;
+            balance.HighGradeEquipGain = 5;
+            balance.HighGradeEquipMinGrade = 4;
+
+            Assert.AreEqual(expected, AffinityRules.GetEquipGiftGain(grade, balance));
+        }
+
         [TestCase(10, 5, 15)]
         [TestCase(98, 5, 100)]
         [TestCase(3, -5, 0)]

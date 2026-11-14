@@ -36,6 +36,8 @@ namespace Blacksmith.Plaza
         public int Injury;
         public int Affinity;
         public int LastTalkDay;
+        public int LastEquipGiftDay;
+        public int LastInnDispatchDay;
         public int AffinityGainDay;
         public int AffinityGainedToday;
 
@@ -70,6 +72,8 @@ namespace Blacksmith.Plaza
                 Injury = data.Injury,
                 Affinity = data.Affinity,
                 LastTalkDay = data.LastTalkDay,
+                LastEquipGiftDay = data.LastEquipGiftDay,
+                LastInnDispatchDay = data.LastInnDispatchDay,
                 AffinityGainDay = data.AffinityGainDay,
                 AffinityGainedToday = data.AffinityGainedToday,
             };
@@ -102,6 +106,8 @@ namespace Blacksmith.Plaza
                 Injury = Injury,
                 Affinity = Affinity,
                 LastTalkDay = LastTalkDay,
+                LastEquipGiftDay = LastEquipGiftDay,
+                LastInnDispatchDay = LastInnDispatchDay,
                 AffinityGainDay = AffinityGainDay,
                 AffinityGainedToday = AffinityGainedToday,
             };

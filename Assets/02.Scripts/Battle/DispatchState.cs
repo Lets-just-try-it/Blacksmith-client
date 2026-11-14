@@ -15,6 +15,15 @@ namespace Blacksmith.Battle
         Party,
     }
 
+    // 여관 대화에서 파티에 넣어 달라고 했을 때의 결과다. 모험가의 대답을 고르는 데 쓴다.
+    public enum PartyJoinResult
+    {
+        Joined,
+        AlreadyInParty,
+        PartyFull,
+        NotDispatchable,
+    }
+
     // 밤 파견에서 호스트가 고른 내용(창 열림, 보이는 창, 던전 단계, 스테이지, 파티)이다. 낮 씬 오브젝트이며 호스트가 소유한다.
     // 고르기는 호스트만 하고, 다른 참가자는 같은 창을 보기만 한다 (docs/GAME_CONCEPT.md 9절).
     // 호스트가 직접 값을 바꾸므로 RPC를 두지 않는다.
@@ -171,6 +180,39 @@ namespace Blacksmith.Battle
             {
                 PartyIds.Set(PartyCount, adventurerId);
                 PartyCount++;
+            }
+        }
+
+        // 호스트 전용. 여관 대화에서 파티에 넣는다. 이미 있으면 빼지 않는다.
+        public PartyJoinResult TryAddMember(int adventurerId)
+        {
+            if (IndexOfParty(adventurerId) >= 0)
+            {
+                return PartyJoinResult.AlreadyInParty;
+            }
+
+            if (!IsDispatchable(_roster.FindById(adventurerId)))
+            {
+                return PartyJoinResult.NotDispatchable;
+            }
+
+            if (!CanEdit || !DispatchRules.CanAddToParty(PartyCount, BattleState.MaxPartySize))
+            {
+                return PartyJoinResult.PartyFull;
+            }
+
+            PartyIds.Set(PartyCount, adventurerId);
+            PartyCount++;
+            return PartyJoinResult.Joined;
+        }
+
+        // 호스트 전용. 모험가 목록 창에서 파티에서 뺀다.
+        public void RemoveMember(int adventurerId)
+        {
+            int index = IndexOfParty(adventurerId);
+            if (CanEdit && index >= 0)
+            {
+                RemoveAt(index);
             }
         }
 

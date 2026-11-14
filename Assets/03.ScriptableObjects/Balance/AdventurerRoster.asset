@@ -13,3 +13,26 @@ MonoBehaviour:
   m_Name: AdventurerRoster
   m_EditorClassIdentifier: Assembly-CSharp::Blacksmith.Plaza.AdventurerRosterData
   _initialSlotCount: 1
+  _affinity:
+    InitialAffinity: 10
+    MaxAffinity: 100
+    FriendlyAffinity: 20
+    TrustedAffinity: 50
+    SwornAffinity: 80
+    TalkGain: 5
+    InnDispatchGain: 3
+    InnLeavePartyLoss: 1
+    EquipGain: 3
+    HighGradeEquipGain: 5
+    HighGradeEquipMinGrade: 4
+    HerbGain: 3
+    PotionGain: 6
+    SurvivedBattleGain: 2
+    SevereInjuryLoss: 5
+    DailyGainLimit: 15
+    FastRecoveryChancePercent: 10
+    FastRecoveryInjuryPercent: 50
+    SkillBoostMinChancePercent: 5
+    SkillBoostMaxChancePercent: 10
+    SkillBoostPowerPercent: 50
+    DeathExemptionChancePercent: 5

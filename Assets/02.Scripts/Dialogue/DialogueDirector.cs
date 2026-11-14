@@ -241,11 +241,18 @@ namespace Blacksmith.Dialogue
                 return;
             }
 
-            _current.ChoiceSelected?.Invoke(index);
-            Finish(DialogueCloseReason.Chosen);
+            // 호스트에서는 선택 RPC가 바로 실행되어 결과 대답(새 대화)을 열 수 있으므로, 창을 먼저 닫고 선택을 알린다.
+            DialogueRequest request = Clear();
+            request.ChoiceSelected?.Invoke(index);
+            request.Closed?.Invoke(DialogueCloseReason.Chosen);
         }
 
         private void Finish(DialogueCloseReason reason)
+        {
+            Clear().Closed?.Invoke(reason);
+        }
+
+        private DialogueRequest Clear()
         {
             DialogueRequest request = _current;
             _current = null;
@@ -253,7 +260,7 @@ namespace Blacksmith.Dialogue
             _cursor = null;
             _view.Hide();
             _inputLock.Release(this);
-            request.Closed?.Invoke(reason);
+            return request;
         }
     }
 }

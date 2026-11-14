@@ -22,8 +22,12 @@ namespace Blacksmith.Core.Adventurers
         public int SwornAffinity;
         public int TalkGain;
         public int InnDispatchGain;
+        // 여관 대화로 파티에서 뺄 때마다 이만큼 줄어든다.
+        public int InnLeavePartyLoss;
         public int EquipGain;
         public int HighGradeEquipGain;
+        // 이 등급 이상의 장비를 건네면 HighGradeEquipGain을 쓴다(상급 = 4).
+        public int HighGradeEquipMinGrade;
         public int HerbGain;
         public int PotionGain;
         public int SurvivedBattleGain;
@@ -85,7 +89,19 @@ namespace Blacksmith.Core.Adventurers
         // 여관 대화는 모험가마다 하루 한 번만 친밀도를 올린다. 그 뒤로는 대사만 나온다.
         public static bool CanGainFromTalk(int lastTalkDay, int day)
         {
-            return lastTalkDay != day;
+            return CanGainOncePerDay(lastTalkDay, day);
+        }
+
+        // 대화·장비 건네기·여관에서 파티에 넣기는 모험가마다 하루 한 번만 친밀도를 올린다.
+        public static bool CanGainOncePerDay(int lastDay, int day)
+        {
+            return lastDay != day;
+        }
+
+        // 여관에서 장비를 건넸을 때의 증가량이다. 상급 이상이면 더 오른다.
+        public static int GetEquipGiftGain(int grade, AffinityBalance balance)
+        {
+            return grade >= balance.HighGradeEquipMinGrade ? balance.HighGradeEquipGain : balance.EquipGain;
         }
 
         // 친밀도 단계에 따라 전투 이벤트 확률을 정한다. (docs/GAME_CONCEPT.md 6.6)
