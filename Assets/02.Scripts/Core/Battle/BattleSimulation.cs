@@ -34,6 +34,8 @@ namespace Blacksmith.Core.Battle
         private readonly List<int> _clearedGroups = new List<int>();
         private readonly List<BattleCorpse> _corpses = new List<BattleCorpse>();
         private readonly GroupState[] _groups;
+        // 설정 순서의 모험가마다 친밀도 스킬 강화가 일어났는지
+        private readonly bool[] _skillBoosted;
 
         // 전투 시작 때 대열을 세울 기준점(앞줄 가운데)과 보는 방향(DirectionScale 길이)
         private int _anchorX;
@@ -57,6 +59,7 @@ namespace Blacksmith.Core.Battle
             _rules = setup.Rules ?? throw new ArgumentException("BattleSetup.Rules가 비어 있다.", nameof(setup));
             _map = setup.Map ?? throw new ArgumentException("BattleSetup.Map이 비어 있다.", nameof(setup));
             _random = new Random(setup.Seed);
+            _skillBoosted = new bool[setup.Adventurers.Count];
             _groups = new GroupState[setup.Groups.Count];
             for (int i = 0; i < _groups.Length; i++)
             {
@@ -163,7 +166,7 @@ namespace Blacksmith.Core.Battle
                 int row = isMelee ? groupRow : meleeRows + groupRow;
                 int lane = GetCenteredLane(slot, GetRowSize(groupCount, maxRowSize, groupRow));
                 var unit = new BattleUnit(_units.Count, BattleTeam.Adventurer, adventurer.AdventurerId, -1, -1, row, lane,
-                    adventurer.Stats, new[] { adventurer.Skill }, default, 0, 0);
+                    adventurer.Stats, new[] { GetSkill(adventurer, i) }, default, 0, 0);
                 GetFormationSpot(unit, out int x, out int z);
                 bool isOnFloor = IsFloor(x, z);
                 unit.X = isOnFloor ? x : _anchorX;
@@ -987,20 +990,49 @@ namespace Blacksmith.Core.Battle
             {
                 BattleUnit unit = _units[i];
                 AdventurerSetup adventurer = _setup.Adventurers[i];
+                AffinityBattleChances affinity = adventurer.Affinity;
                 int injuryGained = InjuryRules.GetBattleInjury(unit.Hp, unit.Stats.MaxHp, unit.IsFallen, _rules.Injury);
+                // 친밀도 이벤트는 확률이 0이거나 대상이 아니면 난수를 쓰지 않아 기존 결과가 바뀌지 않는다.
+                bool isFastRecovered = injuryGained > 0 && RollAffinity(affinity.FastRecoveryPercent);
+                if (isFastRecovered)
+                {
+                    injuryGained = AffinityRules.ReduceInjury(injuryGained, affinity.FastRecoveryInjuryPercent);
+                }
+
                 int injury = InjuryRules.AddInjury(adventurer.Injury, injuryGained, _rules.Injury);
                 // 사망 판정 대상이 아니면 난수를 쓰지 않아 다른 모험가의 판정이 바뀌지 않는다.
                 int deathChance = InjuryRules.GetDeathChancePercent(injury, _rules.Injury);
                 bool isDead = deathChance > 0 && BattleFormulas.RollDeath(deathChance, _random);
-                bool isAccessoryBroken = isDead && TryDeathImmunity(adventurer.Accessory);
+                // 친밀도 사망 면제를 루비 목걸이보다 먼저 본다. 면제되면 목걸이는 부서지지 않는다.
+                bool isDeathExempted = isDead && RollAffinity(affinity.DeathExemptionPercent);
+                bool isAccessoryBroken = isDead && !isDeathExempted && TryDeathImmunity(adventurer.Accessory);
                 adventurers.Add(new AdventurerBattleResult(unit.SourceId, unit.IsFallen, injury, injuryGained,
-                    isDead && !isAccessoryBroken, unit.DamageDealt, unit.GroupsCleared, isAccessoryBroken,
+                    isDead && !isDeathExempted && !isAccessoryBroken, unit.DamageDealt, unit.GroupsCleared, isAccessoryBroken,
                     adventurer.Weapon.AddUses(unit.AttackCount), adventurer.Helmet.AddUses(unit.HitsTaken),
-                    adventurer.Armor.AddUses(unit.HitsTaken)));
+                    adventurer.Armor.AddUses(unit.HitsTaken), isFastRecovered, _skillBoosted[i], isDeathExempted));
             }
 
             Result = new BattleResult(isVictory, _clearedGroups.ToArray(), Tick, adventurers, _corpses.ToArray());
             _events.Add(new BattleEvent(BattleEventType.BattleEnded, BattleEvent.NoUnit, BattleEvent.NoUnit, isVictory ? 1 : 0));
+        }
+
+        // 친밀도 스킬 강화: 전투를 시작할 때 굴려, 일어나면 이 전투 동안 스킬 위력을 올린다.
+        private SkillData GetSkill(AdventurerSetup adventurer, int index)
+        {
+            SkillData skill = adventurer.Skill;
+            AffinityBattleChances affinity = adventurer.Affinity;
+            _skillBoosted[index] = skill.Kind != SkillKind.None && RollAffinity(affinity.SkillBoostPercent);
+            if (_skillBoosted[index])
+            {
+                skill.PowerPercent = skill.PowerPercent * (100 + affinity.SkillBoostPowerPercent) / 100;
+            }
+
+            return skill;
+        }
+
+        private bool RollAffinity(int percent)
+        {
+            return percent > 0 && BattleFormulas.RollChance(percent, _random);
         }
 
         // 루비 목걸이: 사망으로 판정된 모험가를 확률로 살린다. 효과가 없으면 난수를 쓰지 않아 기존 결과가 바뀌지 않는다.

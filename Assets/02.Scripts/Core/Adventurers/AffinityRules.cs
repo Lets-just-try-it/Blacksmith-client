@@ -31,6 +31,26 @@ namespace Blacksmith.Core.Adventurers
         public int SevereInjuryLoss;
         // 모험가 한 명이 하루에 얻을 수 있는 최대 증가량. 감소에는 적용하지 않는다.
         public int DailyGainLimit;
+        // 전투 이벤트. 빠른 회복·스킬 강화는 신뢰 단계부터, 사망 면제는 맹세 단계부터 일어난다.
+        public int FastRecoveryChancePercent;
+        // 빠른 회복이 일어나면 이번 전투에서 입은 부상의 이 비율(%)만 남는다.
+        public int FastRecoveryInjuryPercent;
+        // 스킬 강화 확률은 신뢰 단계 시작에서 Min, 친밀도 최대에서 Max이고 그 사이는 비례한다.
+        public int SkillBoostMinChancePercent;
+        public int SkillBoostMaxChancePercent;
+        // 스킬 강화가 일어나면 그 전투 동안 스킬 위력에 더하는 비율(%p)
+        public int SkillBoostPowerPercent;
+        public int DeathExemptionChancePercent;
+    }
+
+    // 모험가 한 명이 이번 전투에서 친밀도 이벤트를 얻을 확률과 효과다. 0%면 그 이벤트는 굴리지 않는다.
+    public struct AffinityBattleChances
+    {
+        public int FastRecoveryPercent;
+        public int FastRecoveryInjuryPercent;
+        public int SkillBoostPercent;
+        public int SkillBoostPowerPercent;
+        public int DeathExemptionPercent;
     }
 
     // 친밀도 증감과 단계를 정한다. 화면 표시와 호스트 계산이 같은 함수를 쓴다.
@@ -66,6 +86,40 @@ namespace Blacksmith.Core.Adventurers
         public static bool CanGainFromTalk(int lastTalkDay, int day)
         {
             return lastTalkDay != day;
+        }
+
+        // 친밀도 단계에 따라 전투 이벤트 확률을 정한다. (docs/GAME_CONCEPT.md 6.6)
+        public static AffinityBattleChances GetBattleChances(int affinity, AffinityBalance balance)
+        {
+            AffinityStage stage = GetStage(affinity, balance);
+            bool isTrusted = stage == AffinityStage.Trusted || stage == AffinityStage.Sworn;
+            return new AffinityBattleChances
+            {
+                FastRecoveryPercent = isTrusted ? balance.FastRecoveryChancePercent : 0,
+                FastRecoveryInjuryPercent = balance.FastRecoveryInjuryPercent,
+                SkillBoostPercent = isTrusted ? GetSkillBoostChance(affinity, balance) : 0,
+                SkillBoostPowerPercent = balance.SkillBoostPowerPercent,
+                DeathExemptionPercent = stage == AffinityStage.Sworn ? balance.DeathExemptionChancePercent : 0,
+            };
+        }
+
+        // 빠른 회복이 일어났을 때 남는 부상이다(내림).
+        public static int ReduceInjury(int injuryGained, int remainingPercent)
+        {
+            return injuryGained * remainingPercent / 100;
+        }
+
+        private static int GetSkillBoostChance(int affinity, AffinityBalance balance)
+        {
+            int span = balance.MaxAffinity - balance.TrustedAffinity;
+            if (span <= 0)
+            {
+                return balance.SkillBoostMaxChancePercent;
+            }
+
+            int progress = Math.Clamp(affinity - balance.TrustedAffinity, 0, span);
+            int range = balance.SkillBoostMaxChancePercent - balance.SkillBoostMinChancePercent;
+            return balance.SkillBoostMinChancePercent + range * progress / span;
         }
 
         // 살아 돌아온 모험가의 전투 후 증감이다. 중상 이상이면 줄고, 아니면 함께 싸운 몫만큼 오른다.

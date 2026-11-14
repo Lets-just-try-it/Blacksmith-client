@@ -25,6 +25,12 @@ namespace Blacksmith.Plaza
             SurvivedBattleGain = 2,
             SevereInjuryLoss = 5,
             DailyGainLimit = 15,
+            FastRecoveryChancePercent = 10,
+            FastRecoveryInjuryPercent = 50,
+            SkillBoostMinChancePercent = 5,
+            SkillBoostMaxChancePercent = 10,
+            SkillBoostPowerPercent = 50,
+            DeathExemptionChancePercent = 5,
         };
 
         public int InitialSlotCount => _initialSlotCount;

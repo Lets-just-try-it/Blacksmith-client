@@ -18,7 +18,36 @@ namespace Blacksmith.Tests
                 SurvivedBattleGain = 2,
                 SevereInjuryLoss = 5,
                 DailyGainLimit = 15,
+                FastRecoveryChancePercent = 10,
+                FastRecoveryInjuryPercent = 50,
+                SkillBoostMinChancePercent = 5,
+                SkillBoostMaxChancePercent = 10,
+                SkillBoostPowerPercent = 50,
+                DeathExemptionChancePercent = 5,
             };
+        }
+
+        // 빠른 회복·스킬 강화는 신뢰부터, 사망 면제는 맹세부터. 스킬 강화는 50에서 5%, 100에서 10%로 비례한다.
+        [TestCase(49, 0, 0, 0)]
+        [TestCase(50, 10, 5, 0)]
+        [TestCase(79, 10, 7, 0)]
+        [TestCase(80, 10, 8, 5)]
+        [TestCase(100, 10, 10, 5)]
+        public void BattleChances_FollowStages(int affinity, int fastRecovery, int skillBoost, int deathExemption)
+        {
+            AffinityBattleChances chances = AffinityRules.GetBattleChances(affinity, CreateBalance());
+
+            Assert.AreEqual(fastRecovery, chances.FastRecoveryPercent);
+            Assert.AreEqual(skillBoost, chances.SkillBoostPercent);
+            Assert.AreEqual(deathExemption, chances.DeathExemptionPercent);
+        }
+
+        [TestCase(90, 45)]
+        [TestCase(17, 8)]
+        [TestCase(0, 0)]
+        public void ReduceInjury_KeepsPercentRoundedDown(int gained, int expected)
+        {
+            Assert.AreEqual(expected, AffinityRules.ReduceInjury(gained, 50));
         }
 
         [TestCase(5, 0, 5)]

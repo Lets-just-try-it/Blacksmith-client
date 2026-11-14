@@ -325,6 +325,52 @@ namespace Blacksmith.Tests
         }
 
         [Test]
+        public void AffinityDeathExemption_SavesBeforeAccessory()
+        {
+            BattleSetup setup = CreateSetup(1, 3, 60);
+            setup.Rules = CreateRules(deathChancePercent: 100);
+            setup.Adventurers[0].Accessory = new AccessoryEffect(AccessoryEffectKind.DeathImmunity, 100);
+            setup.Adventurers[0].Affinity = new AffinityBattleChances { DeathExemptionPercent = 100 };
+
+            BattleResult result = new BattleSimulation(setup).RunToEnd();
+
+            Assert.IsFalse(result.Adventurers[0].IsDead);
+            Assert.IsTrue(result.Adventurers[0].IsDeathExempted);
+            Assert.IsFalse(result.Adventurers[0].IsAccessoryBroken);
+            Assert.IsTrue(result.Adventurers[1].IsDead);
+        }
+
+        [Test]
+        public void AffinityFastRecovery_HalvesInjuryGained()
+        {
+            BattleSetup setup = CreateSetup(1, 3, 60);
+            setup.Adventurers[0].Affinity = new AffinityBattleChances { FastRecoveryPercent = 100, FastRecoveryInjuryPercent = 50 };
+
+            BattleResult result = new BattleSimulation(setup).RunToEnd();
+
+            int fallenInjury = InjuryRulesTests.CreateBalance().FallenInjury;
+            Assert.IsTrue(result.Adventurers[0].IsFastRecovered);
+            Assert.AreEqual(fallenInjury / 2, result.Adventurers[0].InjuryGained);
+            Assert.IsFalse(result.Adventurers[0].IsDead);
+            Assert.IsFalse(result.Adventurers[1].IsFastRecovered);
+            Assert.AreEqual(fallenInjury, result.Adventurers[1].InjuryGained);
+        }
+
+        [Test]
+        public void AffinitySkillBoost_RaisesSkillPowerForTheBattle()
+        {
+            BattleSetup setup = CreateSetup(1, 60, 5);
+            setup.Adventurers[0].Affinity = new AffinityBattleChances { SkillBoostPercent = 100, SkillBoostPowerPercent = 50 };
+
+            var simulation = new BattleSimulation(setup);
+            BattleResult result = simulation.RunToEnd();
+
+            Assert.AreEqual(375, simulation.Units[0].Skill.PowerPercent);
+            Assert.IsTrue(result.Adventurers[0].IsSkillBoosted);
+            Assert.IsFalse(result.Adventurers[1].IsSkillBoosted);
+        }
+
+        [Test]
         public void Durability_WeaponWearsPerAttack_ArmorPerHitTaken()
         {
             BattleSetup setup = CreateSetup(3, 30, 12);

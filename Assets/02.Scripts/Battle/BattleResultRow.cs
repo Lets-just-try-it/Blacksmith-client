@@ -18,7 +18,29 @@ namespace Blacksmith.Battle
             string broken = result.IsDead ? "" : FormatBroken(result);
             _statusText.text = broken.Length > 0 ? $"{status}({broken})" : status;
             string bonus = reward.ExperienceBonus > 0 ? $"(사파이어 +{reward.ExperienceBonus})" : "";
-            _damageText.text = $"피해량 {result.DamageDealt} · 경험치 +{reward.ExperienceGained}{bonus}{FormatLevelUp(reward)}";
+            _damageText.text = $"피해량 {result.DamageDealt} · 경험치 +{reward.ExperienceGained}{bonus}{FormatLevelUp(reward)}{FormatAffinityEvents(result)}";
+        }
+
+        // 친밀도 전투 이벤트를 짧게 덧붙인다. 예: " · 맹세: 사망 면제" (docs/GAME_CONCEPT.md 6.6)
+        private static string FormatAffinityEvents(AdventurerBattleResult result)
+        {
+            var parts = new List<string>();
+            if (result.IsSkillBoosted)
+            {
+                parts.Add("스킬 강화");
+            }
+
+            if (result.IsFastRecovered)
+            {
+                parts.Add("빠른 회복");
+            }
+
+            if (result.IsDeathExempted)
+            {
+                parts.Add("사망 면제");
+            }
+
+            return parts.Count > 0 ? $" · 친밀도: {string.Join("·", parts)}" : "";
         }
 
         // 예: "부상 91(+51)". 이번 전투에서 다치지 않았으면 늘어난 값을 적지 않는다.
